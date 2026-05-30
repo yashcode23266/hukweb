@@ -15,6 +15,20 @@ A production-shaped full-stack Ganpati Mandal website with a devotional Mumbai m
 - Zustand
 - Axios
 
+### Frontend Libraries Used
+
+```txt
+@tailwindcss/vite
+@tanstack/react-query
+axios
+framer-motion
+react
+react-dom
+react-router-dom
+tailwindcss
+zustand
+```
+
 ### Backend
 
 - Node.js
@@ -28,6 +42,26 @@ A production-shaped full-stack Ganpati Mandal website with a devotional Mumbai m
 - Express rate limiting
 - Multer uploads
 - Cloudinary image storage support
+
+### Backend Libraries Used
+
+```txt
+bcryptjs
+cloudinary
+cors
+dotenv
+express
+express-rate-limit
+helmet
+jsonwebtoken
+mongoose
+multer
+pdfkit
+razorpay
+xlsx
+zod
+nodemon
+```
 
 ### Integrations
 
@@ -183,6 +217,78 @@ huk/
 ```
 
 ## Local Setup
+
+## Commands Used To Create The Project
+
+### Initial Folder Setup
+
+```bash
+mkdir ganpati-mandal-app
+cd ganpati-mandal-app
+mkdir frontend backend
+```
+
+In this current machine, the project folder is:
+
+```bash
+cd D:/Hukmillane/huk
+```
+
+### Frontend Creation Commands
+
+```bash
+cd frontend
+npm create vite@latest . -- --template react
+npm install
+npm install tailwindcss @tailwindcss/vite
+npm install framer-motion react-router-dom zustand @tanstack/react-query axios
+```
+
+### Backend Creation Commands
+
+```bash
+cd backend
+npm init -y
+npm install express mongoose dotenv cors bcryptjs jsonwebtoken zod razorpay pdfkit xlsx multer cloudinary helmet express-rate-limit
+npm install nodemon --save-dev
+```
+
+### Current Run Commands
+
+Run backend:
+
+```bash
+cd D:/Hukmillane/huk/backend
+npm.cmd run dev
+```
+
+Run frontend:
+
+```bash
+cd D:/Hukmillane/huk/frontend
+npm.cmd run dev
+```
+
+Build frontend:
+
+```bash
+cd D:/Hukmillane/huk/frontend
+npm.cmd run build
+```
+
+Run backend in production mode:
+
+```bash
+cd D:/Hukmillane/huk/backend
+npm.cmd start
+```
+
+Generate hashed admin password:
+
+```bash
+cd D:/Hukmillane/huk/backend
+npm.cmd run hash:admin-password
+```
 
 ### 1. Clone or open the project
 
