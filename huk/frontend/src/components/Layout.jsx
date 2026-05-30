@@ -24,7 +24,9 @@ const desktopLinks = [
 ]
 
 const navItemClass =
-  'inline-flex h-10 items-center rounded-full px-4 font-sans text-base font-extrabold leading-none text-white transition hover:bg-white/10'
+  'inline-flex h-10 items-center rounded-full px-4 font-sans text-base font-extrabold leading-none transition'
+const navInactiveClass = `${navItemClass} text-white hover:bg-white/10`
+const navActiveClass = `${navItemClass} bg-white text-brand-red hover:bg-white`
 
 function Layout() {
   const { t, toggleLanguage } = useLanguage()
@@ -53,7 +55,7 @@ function Layout() {
 
             <div className="hidden items-center gap-2 lg:flex">
               <div className="group relative">
-                <Link to="/about" className={navItemClass}>
+                <Link to="/about" className={navInactiveClass}>
                   Mandal Info
                 </Link>
 
@@ -68,7 +70,7 @@ function Layout() {
               </div>
 
               <div className="group relative">
-                <Link to="/social-work" className={navItemClass}>
+                <Link to="/social-work" className={navInactiveClass}>
                   Initiatives
                 </Link>
 
@@ -93,11 +95,7 @@ function Layout() {
                   key={to}
                   to={to}
                   className={({ isActive }) =>
-                    `${navItemClass} ${
-                      isActive
-                        ? 'bg-white text-brand-red hover:bg-white'
-                        : ''
-                    }`
+                    isActive ? navActiveClass : navInactiveClass
                   }
                 >
                   {t(labelKey)}
@@ -118,12 +116,10 @@ function Layout() {
         <div className="bg-brand-red px-4 py-2 text-white">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 overflow-hidden text-xs font-bold sm:text-base">
             <p className="shrink-0">
-              Hukmilane Lanecha Raja | Established 1934
+              Hukmilane Sarvajanik GaneshUtsav Mandal | Established 1934
             </p>
 
-            <p className="hidden min-w-0 truncate text-amber-100 md:block">
-              Ganpati darshan, seva, donation, shop and utsav updates
-            </p>
+            
           </div>
         </div>
 
