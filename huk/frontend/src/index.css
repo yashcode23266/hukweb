@@ -1,0 +1,221 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Rozha+One&family=Mukta:wght@400;500;600;700;800&display=swap');
+
+@theme {
+  --color-brand-gold: #F2A516;
+  --color-brand-orange: #F28F16;
+  --color-brand-saffron: #F24405;
+  --color-brand-red: #BF0404;
+  --color-brand-dark-red: #8F1717;
+  --color-brand-burgundy: #400101;
+  --color-brand-cream: #fff8ed;
+  --color-brand-offwhite: #fffcf7;
+
+  --font-serif: "Rozha One", "Mukta", serif;
+  --font-sans: "Outfit", "Montserrat", sans-serif;
+
+  --animate-spin-slow: spin-slow 35s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+:root {
+  color: #24110a;
+  background: #fffcf7;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #fffcf7;
+}
+
+/* Main Background */
+.festival-bg {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(242, 165, 22, 0.18), transparent 30rem),
+    radial-gradient(circle at 90% 15%, rgba(191, 4, 4, 0.14), transparent 35rem),
+    linear-gradient(185deg, #fffcf7 0%, #fff8ed 45%, #fff3df 100%);
+}
+
+/* Header Gradient */
+.devotional-gradient {
+  background: linear-gradient(135deg, #BF0404 0%, #8F1717 60%, #400101 100%);
+}
+
+/* Saffron Gradient */
+.saffron-gradient {
+  background: linear-gradient(135deg, #F2A516 0%, #F28F16 45%, #F24405 100%);
+}
+
+/* Premium Card */
+.parchment-panel {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.95), transparent 25rem),
+    linear-gradient(135deg, rgba(255, 253, 247, 0.98), rgba(253, 244, 225, 0.95));
+  box-shadow:
+    inset 0 0 40px rgba(191, 4, 4, 0.04),
+    0 14px 35px -12px rgba(64, 1, 1, 0.12);
+  border: 1px solid rgba(242, 143, 22, 0.18);
+}
+
+/* Glass Card */
+.glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(242, 165, 22, 0.22);
+  box-shadow: 0 12px 32px rgba(64, 1, 1, 0.08);
+}
+
+/* Ganpati Halo */
+.mandala-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 480px;
+  height: 480px;
+  margin-left: -240px;
+  margin-top: -240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242, 165, 22, 0.30) 0%, rgba(242, 143, 22, 0.10) 55%, transparent 72%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mandala-halo::before {
+  content: "";
+  position: absolute;
+  width: 92%;
+  height: 92%;
+  border-radius: 50%;
+  border: 2px dashed rgba(242, 165, 22, 0.5);
+  animation: spin-slow 40s linear infinite;
+}
+
+.mandala-halo::after {
+  content: "";
+  position: absolute;
+  width: 78%;
+  height: 78%;
+  border-radius: 50%;
+  border: 1px solid rgba(191, 4, 4, 0.30);
+  animation: spin-slow 25s linear infinite reverse;
+}
+
+/* Button Style */
+.pill-badge {
+  background: linear-gradient(135deg, #BF0404 0%, #800202 100%);
+  color: #fffcf7;
+  padding: 0.7rem 1.5rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  border-radius: 0.5rem;
+  box-shadow: 0 5px 16px rgba(64, 1, 1, 0.25);
+  border: 1.5px solid rgba(242, 165, 22, 0.6);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.pill-badge:hover {
+  transform: translateY(-2px);
+  border-color: #F2A516;
+  box-shadow: 0 8px 22px rgba(191, 4, 4, 0.42);
+}
+
+/* Floating Social Buttons */
+.floating-social {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  z-index: 50;
+}
+
+.floating-social-btn {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #BF0404;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 14px rgba(64, 1, 1, 0.16);
+  border: 1px solid rgba(242, 165, 22, 0.22);
+  transition: all 0.3s ease;
+}
+
+.floating-social-btn:hover {
+  transform: scale(1.15);
+  background: #BF0404;
+  color: #ffffff;
+}
+
+/* Section Heading */
+.section-heading {
+  font-family: var(--font-serif);
+  color: #8F1717;
+  letter-spacing: 0.02em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fffcf7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #BF0404;
+  border-radius: 999px;
+  border: 2.5px solid #fffcf7;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #800202;
+}
+
+@media (max-width: 768px) {
+  .floating-social {
+    display: none;
+  }
+
+  .mandala-halo {
+    width: 330px;
+    height: 330px;
+    margin-left: -165px;
+    margin-top: -165px;
+  }
+  .idol-hero img {
+  mix-blend-mode: multiply;
+
+}
+}
