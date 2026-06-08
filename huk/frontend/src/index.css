@@ -29,6 +29,11 @@
   50% { transform: translateY(-12px); }
 }
 
+@keyframes sponsor-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 :root {
   color: #24110a;
   background: #fffcf7;
@@ -93,6 +98,26 @@ iframe {
 /* Saffron Gradient */
 .saffron-gradient {
   background: linear-gradient(135deg, #F2A516 0%, #F28F16 45%, #F24405 100%);
+}
+
+.sponsor-marquee {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.sponsor-marquee-track {
+  display: flex;
+  width: max-content;
+  gap: 1.25rem;
+  animation: sponsor-marquee 45s linear infinite;
+}
+
+.sponsor-marquee:hover .sponsor-marquee-track {
+  animation-play-state: paused;
+}
+
+.sponsor-card {
+  flex: 0 0 auto;
 }
 
 /* Premium Card */

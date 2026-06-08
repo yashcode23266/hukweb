@@ -28,6 +28,12 @@ const dropdownLinkClass =
 const mobilePanelLinkClass =
   'block rounded-lg px-3 py-2 text-base font-extrabold text-amber-50/95 transition hover:bg-white/10'
 
+const socialLinks = {
+  youtube: 'https://m.youtube.com/%40hukmil_lane1934?fbclid=PAb21jcASTq_RleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAaeoiXuGO-c2Us80JVSLE4TkRY-4rDmKqSBGvO6M_IJU7fNXBdfSP1b-annOzA_aem_qqEoSIxZ7NPqkAkjq4w-hQ',
+  facebook: 'https://www.facebook.com/share/1BGa9iXsEW/',
+  instagram: 'https://www.instagram.com/hukmillane_cha_raja_1934?igsh=MTdjYnY5dnR3dHNrMQ==',
+}
+
 const socialIcons = {
   youtube: (
     <path d="M21.6 7.2s-.2-1.5-.9-2.1c-.9-.9-1.8-.9-2.3-.9C15.2 4 12 4 12 4h0s-3.2 0-6.4.2c-.5 0-1.4 0-2.3.9-.7.6-.9 2.1-.9 2.1S2.2 9 2.2 10.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.5.9 2.1c.9.9 2.1.9 2.6 1 1.9.2 6.1.2 6.1.2s3.2 0 6.4-.2c.5 0 1.4 0 2.3-.9.7-.6.9-2.1.9-2.1s.2-1.8.2-3.6v-1.7c0-1.8-.2-3.6-.2-3.6ZM10.1 14.5V8.3l5.9 3.1-5.9 3.1Z" />
@@ -37,9 +43,6 @@ const socialIcons = {
   ),
   instagram: (
     <path d="M7.4 2.8h9.2A4.6 4.6 0 0 1 21.2 7.4v9.2a4.6 4.6 0 0 1-4.6 4.6H7.4a4.6 4.6 0 0 1-4.6-4.6V7.4a4.6 4.6 0 0 1 4.6-4.6Zm0 2A2.6 2.6 0 0 0 4.8 7.4v9.2a2.6 2.6 0 0 0 2.6 2.6h9.2a2.6 2.6 0 0 0 2.6-2.6V7.4a2.6 2.6 0 0 0-2.6-2.6H7.4Zm4.6 3.4a3.8 3.8 0 1 1 0 7.6 3.8 3.8 0 0 1 0-7.6Zm0 2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6Zm4-2.9a1 1 0 1 1 0 2.1 1 1 0 0 1 0-2.1Z" />
-  ),
-  whatsapp: (
-    <path d="M12 2.6a9.1 9.1 0 0 0-7.8 13.8l-1 4 4.1-1A9.1 9.1 0 1 0 12 2.6Zm0 1.8a7.3 7.3 0 0 1 6.2 11.2 7.3 7.3 0 0 1-9.9 2.2l-.3-.2-2.5.7.7-2.4-.2-.4A7.3 7.3 0 0 1 12 4.4Zm-3.2 3.8c-.2 0-.5.1-.7.4-.2.3-.9.9-.9 2.1s.9 2.4 1 2.5c.1.2 1.8 2.9 4.5 3.9 2.2.9 2.6.7 3.1.6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.4l-1.7-.8c-.2-.1-.4-.1-.6.2-.2.2-.7.8-.8 1-.2.2-.3.2-.6.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.2-.2 0-.4.1-.5l.4-.4c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.8-1.9c-.2-.5-.4-.5-.6-.5h-.9Z" />
   ),
 }
 
@@ -240,17 +243,14 @@ function Layout() {
       </header>
 
       <div className="floating-social">
-        <a className="floating-social-btn" href="https://m.youtube.com/%40hukmil_lane1934?fbclid=PAb21jcASTq_RleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAaeoiXuGO-c2Us80JVSLE4TkRY-4rDmKqSBGvO6M_IJU7fNXBdfSP1b-annOzA_aem_qqEoSIxZ7NPqkAkjq4w-hQ" aria-label="YouTube">
+        <a className="floating-social-btn" href={socialLinks.youtube} target="_blank" rel="noreferrer" aria-label="YouTube">
           <SocialIcon icon="youtube" />
         </a>
-        <a className="floating-social-btn" href="https://www.instagram.com/hukmillane_cha_raja_1934?igsh=MTdjYnY5dnR3dHNrMQ==" aria-label="Facebook">
+        <a className="floating-social-btn" href={socialLinks.facebook} target="_blank" rel="noreferrer" aria-label="Facebook">
           <SocialIcon icon="facebook" />
         </a>
-        <a className="floating-social-btn" href="https://www.facebook.com/share/1BGa9iXsEW/" aria-label="Instagram">
+        <a className="floating-social-btn" href={socialLinks.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
           <SocialIcon icon="instagram" />
-        </a>
-        <a className="floating-social-btn" href="#" aria-label="WhatsApp">
-          <SocialIcon icon="whatsapp" />
         </a>
       </div>
 
@@ -292,21 +292,38 @@ function Layout() {
               {t('contactUs')}
             </h3>
             <div className="space-y-2 text-sm font-semibold text-amber-100">
-              <p>{t('contactPhoneFooter')}</p>
               <p>{t('contactEmailFooter')}</p>
               <p>{t('location')}: {t('mandalAddressShort')}</p>
             </div>
 
             <div className="mt-5 flex justify-center gap-3 md:justify-start">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md">
+              <a
+                className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md transition hover:bg-amber-50"
+                href={socialLinks.youtube}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="YouTube"
+              >
+                <SocialIcon icon="youtube" />
+              </a>
+              <a
+                className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md transition hover:bg-amber-50"
+                href={socialLinks.facebook}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Facebook"
+              >
                 <SocialIcon icon="facebook" />
-              </span>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md">
+              </a>
+              <a
+                className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md transition hover:bg-amber-50"
+                href={socialLinks.instagram}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+              >
                 <SocialIcon icon="instagram" />
-              </span>
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md">
-                <SocialIcon icon="whatsapp" />
-              </span>
+              </a>
             </div>
           </div>
         </div>

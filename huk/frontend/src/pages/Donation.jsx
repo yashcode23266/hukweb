@@ -85,7 +85,7 @@ function Donation() {
                     ? t('name')
                     : field === 'phone'
                       ? t('customerPhone')
-                      : field === 'email'
+                    : field === 'email'
                         ? t('customerEmail')
                         : t('pan')
                 }

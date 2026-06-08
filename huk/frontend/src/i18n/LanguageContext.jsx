@@ -46,35 +46,13 @@ const translations = {
     phone: 'Phone',
     email: 'Email',
     location: 'Location',
-    contactPhoneValue: '022-2471-1414',
     contactEmailValue: 'hukmil.lane.raja@gmail.com',
     contactLocationValue:
       'Lower Parel East Hukmill Lane, NM Joshi Marg, near Podar Mill, Mumbai, Maharashtra 400011, India',
     mandalInfoTitle: 'SPONSORS',
     mandalInfoCopy:
       '“Together, supporting a legacy of faith, grandeur, and the soul of Ganesh Utsav.”',
-    mandalFacts: [
-      {
-        label: 'Established',
-        value: '1934',
-        body: 'A Girangaon mandal tradition started by mill workers and local residents.',
-      },
-      {
-        label: 'Location',
-        value: 'Delisle Road, Mumbai',
-        body: 'Located around the historicDelisle Road mandal belt.',
-      },
-      {
-        label: 'Known For',
-        value: 'Creative Darshan',
-        body: 'New idol concepts, devotional decoration, community darshan, and seva activities every year.',
-      },
-      {
-        label: 'Seva Focus',
-        value: 'Devotees & Community',
-        body: 'Crowd guidance, prasad support, donation transparency, and local welfare initiatives.',
-      },
-    ],
+    
 
     aboutEyebrow: 'Mandal Info',
     aboutTitle: 'About Hukmilane Lanecha Raja',
@@ -209,7 +187,6 @@ const translations = {
     openDirections: 'Open Directions',
     mandalAddressShort: 'Mumbai, Maharashtra, India',
     mandalAddressTitle: 'Shree Ganpati Mandal',
-    contactPhoneFooter: 'Phone: +91 98765 43210',
     contactEmailFooter: 'Email: hukmil.lane.raja@gmail.com',
     contactUpiFooter: 'UPI: ganpatimandal@upi',
 
@@ -388,7 +365,6 @@ const translations = {
     phone: 'फोन',
     email: 'ईमेल',
     location: 'ठिकाण',
-    contactPhoneValue: '०२२-२४७१-१४१४',
     contactEmailValue: 'hukmil.lane.raja@gmail.com',
     contactLocationValue:
       'लोअर परेल पूर्व हुकमिल लेन, एनएम जोशी मार्ग, पोदार मिल जवळ, मुंबई, महाराष्ट्र 400011, भारत',
@@ -549,7 +525,6 @@ const translations = {
     openDirections: 'दिशा उघडा',
     mandalAddressShort: 'मुंबई, महाराष्ट्र, भारत',
     mandalAddressTitle: 'श्री गणपती मंडळ',
-    contactPhoneFooter: 'फोन: +९१ ९८७६५ ४३२१०',
     contactEmailFooter: 'ईमेल: hukmil.lane.raja@gmail.com',
     contactUpiFooter: 'यूपीआय: ganpatimandal@upi',
 

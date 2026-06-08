@@ -93,13 +93,17 @@ function addAudit(db, action, entity, message) {
 }
 
 function upsertUser(db, person) {
-  if (!person?.phone) return null
-  const existing = db.users.find((item) => item.phone === person.phone)
+  if (!person?.phone && !person?.email && !person?.name) return null
+  const existing = person.phone
+    ? db.users.find((item) => item.phone === person.phone)
+    : person.email
+      ? db.users.find((item) => item.email === person.email)
+      : db.users.find((item) => item.name === person.name)
   if (existing) return existing
   const user = {
     _id: id('user', db),
     name: person.name,
-    phone: person.phone,
+    phone: person.phone || '',
     email: person.email || '',
     createdAt: new Date().toISOString(),
   }

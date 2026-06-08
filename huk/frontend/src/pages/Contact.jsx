@@ -1,9 +1,9 @@
 import SectionTitle from '../components/SectionTitle'
+import { mandalMapEmbedUrl, mandalMapUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
 
 function Contact() {
   const { t } = useLanguage()
-  const mapQuery = encodeURIComponent('Shree Ganpati Mandal Mumbai Maharashtra India')
 
   return (
     <section className="px-4 py-10 sm:px-6 sm:py-12">
@@ -19,14 +19,13 @@ function Contact() {
 
           <p className="mt-6 wrap-break-word text-base font-black uppercase tracking-[0.22em] text-brand-red sm:text-lg sm:tracking-[0.3em]">{t('contact')}</p>
           <div className="mt-4 space-y-3 wrap-break-word text-base font-semibold leading-7 text-stone-950 sm:text-xl">
-            <p>{t('contactPhoneFooter')}</p>
             <p>{t('contactEmailFooter')}</p>
             <p>{t('contactUpiFooter')}</p>
           </div>
 
           <a
             className="mt-6 inline-flex rounded-full bg-red-700 px-5 py-3 text-sm font-black text-white sm:text-base"
-            href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
+            href={mandalMapUrl}
             target="_blank"
             rel="noreferrer"
           >
@@ -40,7 +39,7 @@ function Contact() {
             title={t('locationTitle')}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
+            src={mandalMapEmbedUrl}
           />
         </div>
       </div>

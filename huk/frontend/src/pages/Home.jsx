@@ -4,12 +4,31 @@ import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
-import ganpati from '../assets/ganpati-optimized.jpeg'
+import heroGanpati from '../assets/gann.png'
+import historyGanpati from '../assets/ganpati-optimized.png'
+import colorsMarathiLogo from '../assets/Colors marathi.png'
+import cpLogo from '../assets/cp.png'
+import keshLogo from '../assets/Kesh.webp'
+import rapidoLogo from '../assets/rapido-removebg-preview.png'
+import rrLogo from '../assets/rr.png'
+import vrtLogo from '../assets/vrt.png'
+import zeeLogo from '../assets/zee.png'
 import { fallbackGallery } from '../data/fallback'
+import { mandalMapEmbedUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
 
+const sponsors = [
+  { name: 'Zee Marathi', logo: zeeLogo },
+  { name: 'VERTIV', logo: vrtLogo },
+  { name: 'Colors Marathi', logo: colorsMarathiLogo },
+  { name: 'Kesh King', logo: keshLogo },
+  { name: 'RR Kabel', logo: rrLogo },
+  { name: 'CP Plus', logo: cpLogo },
+  { name: 'Rapido', logo: rapidoLogo },
+]
+
 function Home() {
-  const { t, tList, tObject } = useLanguage()
+  const { t, tObject } = useLanguage()
   const { data: gallery = fallbackGallery } = useQuery({
     queryKey: ['gallery-preview'],
     queryFn: async () => (await api.get('/gallery')).data,
@@ -25,21 +44,15 @@ function Home() {
   return (
     <>
       {/* HERO SECTION */}
-      <section className="relative min-h-[56vh] overflow-hidden bg-[#f8f8f8] px-3 sm:min-h-[72vh] sm:px-4 lg:min-h-[82vh]">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/2 h-75 w-75 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-gold/20 blur-[80px] sm:h-162.5 sm:w-162.5 sm:blur-[120px]" />
-          <div className="absolute left-1/2 top-[20%] h-55 w-55 -translate-x-1/2 rounded-full bg-brand-orange/15 blur-[70px] sm:h-105 sm:w-105 sm:blur-[90px]" />
-          <div className="absolute inset-0 bg-linear-to-b from-[#f7f7f7] via-[#f5f5f5] to-[#f1f1f1]" />
-        </div>
-
-        <div className="relative mx-auto flex min-h-[56vh] max-w-7xl items-center justify-center sm:min-h-[72vh] lg:min-h-[82vh]">
+      <section className="relative h-[calc(100vh-64px)] min-h-[520px] overflow-hidden bg-[#fffdf9]">
+        <div className="relative h-full w-full">
           <motion.img
-            src={ganpati}
+            src={heroGanpati}
             alt="Ganpati Bappa"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="relative z-10 max-h-[min(58vh,420px)] w-[min(94vw,760px)] object-contain drop-shadow-[0_18px_34px_rgba(0,0,0,0.24)] sm:max-h-155max-h-[760px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7 }}
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
           />
         </div>
       </section>
@@ -57,21 +70,26 @@ function Home() {
             {t('mandalInfoCopy')}
           </SectionTitle>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {tList('mandalFacts').map((item, index) => (
-              <motion.article
-                key={`${item.label}-${item.value}`}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.06 }}
-                className="min-w-0 rounded-lg border border-orange-200 bg-white p-5 shadow-sm"
-              >
-                <p className="wrap-break-word text-xs font-black uppercase tracking-[0.18em] text-brand-red sm:tracking-[0.22em]">{item.label}</p>
-                <h3 className="mt-2 wrap-break-word text-xl font-black leading-tight text-stone-950 sm:text-2xl">{item.value}</h3>
-                <p className="mt-3 leading-7 text-stone-700">{item.body}</p>
-              </motion.article>
-            ))}
+          <div className="sponsor-marquee mt-8 overflow-hidden">
+            <div className="sponsor-marquee-track">
+              {[...sponsors, ...sponsors].map((item, index) => (
+                <div
+                  key={`${item.name}-${index}`}
+                  className="sponsor-card min-w-52.5 rounded-lg border border-orange-200 bg-white px-5 py-5 text-center shadow-sm sm:min-w-60"
+                >
+                  <div className="mx-auto grid h-24 w-24 place-items-center overflow-hidden rounded-lg bg-white text-2xl font-black text-brand-red">
+                    {item.logo ? (
+                      <img src={item.logo} alt={item.name} className="h-full w-full object-contain" />
+                    ) : (
+                      item.name.slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <h3 className="mt-4 wrap-break-word text-lg font-black leading-tight text-stone-950">
+                    {item.name}
+                  </h3>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -85,7 +103,7 @@ function Home() {
             viewport={{ once: true }}
             className="overflow-hidden rounded-3xl bg-[#f6f1e7] shadow-2xl"
           >
-            <img src={ganpati} alt="Ganpati History" className="h-72 w-full object-cover sm:h-105" />
+            <img src={historyGanpati} alt="Ganpati History" className="h-72 w-full object-cover sm:h-105" />
           </motion.div>
 
           <motion.div
@@ -185,13 +203,6 @@ function Home() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div className="space-y-7">
               <div className="grid gap-2 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-8">
-                <div className="text-base font-black uppercase tracking-[0.22em] text-brand-red sm:text-xl sm:tracking-[0.3em]">{t('phone')}</div>
-                <p className="wrap-break-word text-lg font-semibold leading-7 text-stone-950 sm:text-xl">
-                  {t('contactPhoneValue')}
-                </p>
-              </div>
-
-              <div className="grid gap-2 sm:grid-cols-[190px_minmax(0,1fr)] sm:gap-8">
                 <div className="text-base font-black uppercase tracking-[0.22em] text-brand-red sm:text-xl sm:tracking-[0.3em]">{t('email')}</div>
                 <p className="break-all text-lg font-semibold leading-7 text-stone-950 sm:wrap-break-word sm:text-xl">
                   {t('contactEmailValue')}
@@ -214,7 +225,7 @@ function Home() {
             >
               <iframe
                 title={t('locationTitle')}
-                src="https://www.google.com/maps?q=Lalbaug%20Mumbai&output=embed"
+                src={mandalMapEmbedUrl}
                 width="100%"
                 height="320"
                 style={{ border: 0 }}
