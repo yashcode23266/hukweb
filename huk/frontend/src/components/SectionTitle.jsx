@@ -1,9 +1,13 @@
 function SectionTitle({ eyebrow, title, children }) {
   return (
-    <div className="mx-auto mb-8 max-w-3xl text-center">
-      <p className="mb-2 text-sm font-black uppercase tracking-[0.24em] text-red-700">{eyebrow}</p>
-      <h2 className="text-3xl font-black text-stone-950 sm:text-4xl">{title}</h2>
-      {children ? <p className="mt-3 text-stone-700">{children}</p> : null}
+    <div className="mx-auto mb-8 max-w-3xl px-1 text-center sm:mb-10">
+      <p className="mb-2 wrap-break-word text-xs font-black uppercase tracking-[0.16em] text-brand-red sm:text-sm sm:tracking-[0.24em]">
+        {eyebrow}
+      </p>
+      <h2 className="text-balance wrap-break-word font-serif text-3xl font-black leading-tight text-brand-dark-red sm:text-4xl">
+        {title}
+      </h2>
+      {children ? <p className="mx-auto mt-3 max-w-2xl wrap-break-word text-base leading-7 text-stone-700 sm:text-lg">{children}</p> : null}
     </div>
   )
 }

@@ -1,18 +1,11 @@
-import { Link, NavLink, Outlet } from 'react-router-dom'
-import {
-  FaFacebookF,
-  FaInstagram,
-  FaYoutube,
-  FaWhatsapp,
-  FaLinkedinIn,
-} from 'react-icons/fa'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import logo from '../assets/logo.png.jpeg'
-import { useLanguage } from '../i18n/LanguageContext'
+import { useLanguage } from '../i18n/useLanguage'
 
 const mobileLinks = [
   ['/shop', 'navShop'],
   ['/donate', 'navDonate'],
-  ['/gallery', 'navGallery'],
   ['/admin', 'navAdmin'],
 ]
 
@@ -24,30 +17,103 @@ const desktopLinks = [
 ]
 
 const navItemClass =
-  'inline-flex h-10 items-center rounded-full px-4 font-sans text-base font-extrabold leading-none transition'
+  'inline-flex h-10 items-center rounded-full px-4 font-sans text-base font-extrabold leading-none tracking-normal transition'
 const navInactiveClass = `${navItemClass} text-white hover:bg-white/10`
-const navActiveClass = `${navItemClass} bg-white text-brand-red hover:bg-white`
+const navActiveClass = `${navItemClass} bg-white/15 text-white hover:bg-white/20`
+const dropdownClass =
+  'invisible absolute left-0 top-full z-50 w-56 overflow-hidden rounded-xl bg-white py-2 font-sans text-brand-red opacity-0 shadow-xl ring-1 ring-black/5 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100'
+const dropdownLinkClass =
+  'block px-5 py-3 text-base font-extrabold leading-none tracking-normal transition hover:bg-amber-50'
+
+const mobilePanelLinkClass =
+  'block rounded-lg px-3 py-2 text-base font-extrabold text-amber-50/95 transition hover:bg-white/10'
+
+const socialIcons = {
+  youtube: (
+    <path d="M21.6 7.2s-.2-1.5-.9-2.1c-.9-.9-1.8-.9-2.3-.9C15.2 4 12 4 12 4h0s-3.2 0-6.4.2c-.5 0-1.4 0-2.3.9-.7.6-.9 2.1-.9 2.1S2.2 9 2.2 10.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.5.9 2.1c.9.9 2.1.9 2.6 1 1.9.2 6.1.2 6.1.2s3.2 0 6.4-.2c.5 0 1.4 0 2.3-.9.7-.6.9-2.1.9-2.1s.2-1.8.2-3.6v-1.7c0-1.8-.2-3.6-.2-3.6ZM10.1 14.5V8.3l5.9 3.1-5.9 3.1Z" />
+  ),
+  facebook: (
+    <path d="M14.2 8.7V6.9c0-.8.2-1.3 1.3-1.3h1.6V2.8c-.8-.1-1.6-.2-2.4-.2-2.4 0-4.1 1.5-4.1 4.1v2H7.9v3.1h2.7v7.9h3.6v-7.9h2.7l.4-3.1h-3.1Z" />
+  ),
+  instagram: (
+    <path d="M7.4 2.8h9.2A4.6 4.6 0 0 1 21.2 7.4v9.2a4.6 4.6 0 0 1-4.6 4.6H7.4a4.6 4.6 0 0 1-4.6-4.6V7.4a4.6 4.6 0 0 1 4.6-4.6Zm0 2A2.6 2.6 0 0 0 4.8 7.4v9.2a2.6 2.6 0 0 0 2.6 2.6h9.2a2.6 2.6 0 0 0 2.6-2.6V7.4a2.6 2.6 0 0 0-2.6-2.6H7.4Zm4.6 3.4a3.8 3.8 0 1 1 0 7.6 3.8 3.8 0 0 1 0-7.6Zm0 2a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6Zm4-2.9a1 1 0 1 1 0 2.1 1 1 0 0 1 0-2.1Z" />
+  ),
+  whatsapp: (
+    <path d="M12 2.6a9.1 9.1 0 0 0-7.8 13.8l-1 4 4.1-1A9.1 9.1 0 1 0 12 2.6Zm0 1.8a7.3 7.3 0 0 1 6.2 11.2 7.3 7.3 0 0 1-9.9 2.2l-.3-.2-2.5.7.7-2.4-.2-.4A7.3 7.3 0 0 1 12 4.4Zm-3.2 3.8c-.2 0-.5.1-.7.4-.2.3-.9.9-.9 2.1s.9 2.4 1 2.5c.1.2 1.8 2.9 4.5 3.9 2.2.9 2.6.7 3.1.6.5 0 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.4l-1.7-.8c-.2-.1-.4-.1-.6.2-.2.2-.7.8-.8 1-.2.2-.3.2-.6.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.2-.2 0-.4.1-.5l.4-.4c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.8-1.9c-.2-.5-.4-.5-.6-.5h-.9Z" />
+  ),
+}
+
+function SocialIcon({ icon }) {
+  return (
+    <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+      {socialIcons[icon]}
+    </svg>
+  )
+}
+
+function MenuIcon({ isOpen }) {
+  return (
+    <svg aria-hidden="true" className="h-8 w-8" viewBox="0 0 32 32" fill="none">
+      {isOpen ? (
+        <>
+          <path d="M8 8L24 24" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path d="M24 8L8 24" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <path d="M6 9H26" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path d="M6 16H26" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path d="M6 23H26" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        </>
+      )}
+    </svg>
+  )
+}
+
+function MobileMenuSection({ title, children }) {
+  return (
+    <details className="group border-b border-white/10 py-1">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-xl font-black text-white">
+        <span>{title}</span>
+        <svg
+          aria-hidden="true"
+          className="h-5 w-5 transition group-open:rotate-180"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </summary>
+      <div className="pb-3">{children}</div>
+    </details>
+  )
+}
 
 function Layout() {
   const { t, toggleLanguage } = useLanguage()
+  const { pathname } = useLocation()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const closeMobileMenu = () => setIsMobileMenuOpen(false)
+  const mandalInfoActive = pathname === '/about'
+  const initiativesActive = pathname === '/social-work' || pathname === '/events'
 
   return (
     <div className="min-h-screen festival-bg">
       <header className="sticky top-0 z-50 shadow-xl shadow-red-950/20">
-        <nav className="devotional-gradient px-4 py-3 text-white sm:px-6">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-            <Link to="/" className="flex min-w-0 items-center gap-3">
+        <nav className="devotional-gradient px-3 py-2.5 text-white sm:px-6">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+            <Link to="/" onClick={closeMobileMenu} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
               <img
                 src={logo}
                 alt="Hukmilane Lanecha Raja logo"
-                className="h-14 w-14 shrink-0 rounded-full object-contain"
+                className="h-10 w-10 shrink-0 rounded-full object-contain min-[390px]:h-12 min-[390px]:w-12 sm:h-14 sm:w-14"
               />
 
               <span className="min-w-0">
-                <span className="block truncate font-serif text-2xl font-black leading-none text-brand-gold xl:text-4xl">
-                  || Hukmilane Lanecha Raja ||
+                <span className="block truncate font-serif text-xl font-black leading-none text-brand-gold min-[390px]:text-[1.45rem] sm:text-2xl xl:text-4xl">
+                  || {t('brandName')} ||
                 </span>
-                <span className="mt-1 hidden text-[10px] font-bold uppercase tracking-[0.28em] text-amber-100 sm:block">
+                <span className="mt-1 hidden truncate text-[10px] font-bold uppercase tracking-[0.28em] text-amber-100 sm:block">
                   {t('shree')} {t('mandalName')}
                 </span>
               </span>
@@ -55,37 +121,45 @@ function Layout() {
 
             <div className="hidden items-center gap-2 lg:flex">
               <div className="group relative">
-                <Link to="/about" className={navInactiveClass}>
-                  Mandal Info
-                </Link>
+                <button
+                  type="button"
+                  className={mandalInfoActive ? navActiveClass : navInactiveClass}
+                  aria-haspopup="true"
+                >
+                  {t('navMandalInfo')}
+                </button>
 
-                <div className="invisible absolute left-0 top-full min-w-56 rounded-b-xl bg-white py-2 text-brand-red opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100">
+                <div className={dropdownClass}>
                   <Link
-                    className="block px-6 py-3 font-extrabold hover:bg-amber-50"
+                    className={dropdownLinkClass}
                     to="/about"
                   >
-                    About Us
+                    {t('navAbout')}
                   </Link>
                 </div>
               </div>
 
               <div className="group relative">
-                <Link to="/social-work" className={navInactiveClass}>
-                  Initiatives
-                </Link>
+                <button
+                  type="button"
+                  className={initiativesActive ? navActiveClass : navInactiveClass}
+                  aria-haspopup="true"
+                >
+                  {t('navInitiatives')}
+                </button>
 
-                <div className="invisible absolute left-0 top-full min-w-56 rounded-b-xl bg-white py-2 text-brand-red opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100">
+                <div className={dropdownClass}>
                   <Link
-                    className="block px-6 py-3 font-bold hover:bg-amber-50"
+                    className={dropdownLinkClass}
                     to="/social-work"
                   >
-                    Social Work
+                    {t('navSocialWork')}
                   </Link>
                   <Link
-                    className="block px-6 py-3 font-bold hover:bg-amber-50"
+                    className={dropdownLinkClass}
                     to="/events"
                   >
-                    Events
+                    {t('navEvents')}
                   </Link>
                 </div>
               </div>
@@ -106,78 +180,77 @@ function Layout() {
             <button
               type="button"
               onClick={toggleLanguage}
-              className="rounded-full bg-white px-5 py-2 text-sm font-extrabold text-brand-red shadow-md transition hover:bg-amber-50"
+              className="shrink-0 rounded-full bg-white px-4 py-2.5 text-sm font-extrabold leading-none text-brand-red shadow-md transition hover:bg-amber-50 min-[390px]:px-5 min-[390px]:text-base lg:px-5 lg:text-sm"
             >
               {t('langToggle')}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((value) => !value)}
+              className="grid h-10 w-10 shrink-0 place-items-center text-white min-[390px]:h-11 min-[390px]:w-11 lg:hidden"
+              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMobileMenuOpen}
+            >
+              <MenuIcon isOpen={isMobileMenuOpen} />
             </button>
           </div>
         </nav>
 
-        <div className="bg-brand-red px-4 py-2 text-white">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 overflow-hidden text-xs font-bold sm:text-base">
-            <p className="shrink-0">
-              Hukmilane Sarvajanik GaneshUtsav Mandal | Established 1934
-            </p>
-
-            
+        <div className={`${isMobileMenuOpen ? 'hidden lg:block' : 'block'} bg-brand-red px-4 py-2 text-white`}>
+          <div className="mx-auto max-w-7xl overflow-hidden text-xs font-bold sm:text-base">
+            <marquee className="block font-extrabold" direction="left" scrollAmount="3" loop="-1">
+              {t('ticker')}
+            </marquee>
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto bg-brand-red px-4 pb-3 lg:hidden">
-          <Link
-            to="/about"
-            className="shrink-0 rounded-full bg-red-900/50 px-4 py-2 text-sm font-bold text-white"
-          >
-            Mandal Info
-          </Link>
+        {isMobileMenuOpen ? (
+          <div className="bg-brand-red px-5 py-5 shadow-xl min-[390px]:px-6 lg:hidden">
+            <MobileMenuSection title={t('navMandalInfo')}>
+              <NavLink onClick={closeMobileMenu} className={mobilePanelLinkClass} to="/about">
+                {t('navAbout')}
+              </NavLink>
+            </MobileMenuSection>
 
-          <Link
-            to="/social-work"
-            className="shrink-0 rounded-full bg-red-900/50 px-4 py-2 text-sm font-bold text-white"
-          >
-            Social Work
-          </Link>
+            <MobileMenuSection title={t('navInitiatives')}>
+              <NavLink onClick={closeMobileMenu} className={mobilePanelLinkClass} to="/social-work">
+                {t('navSocialWork')}
+              </NavLink>
+              <NavLink onClick={closeMobileMenu} className={mobilePanelLinkClass} to="/events">
+                {t('navEvents')}
+              </NavLink>
+            </MobileMenuSection>
 
-          <Link
-            to="/events"
-            className="shrink-0 rounded-full bg-red-900/50 px-4 py-2 text-sm font-bold text-white"
-          >
-            Events
-          </Link>
+            <MobileMenuSection title={t('navBroadcastMedia')}>
+              <NavLink onClick={closeMobileMenu} className={mobilePanelLinkClass} to="/gallery">
+                {t('navGallery')}
+              </NavLink>
+            </MobileMenuSection>
 
-          {mobileLinks.map(([to, labelKey]) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                `shrink-0 rounded-full px-4 py-2 text-sm font-bold ${
-                  isActive
-                    ? 'bg-white text-brand-red'
-                    : 'bg-red-900/50 text-white'
-                }`
-              }
-            >
-              {t(labelKey)}
-            </NavLink>
-          ))}
-        </div>
+            <MobileMenuSection title={t('navMore')}>
+              {mobileLinks.map(([to, labelKey]) => (
+                <NavLink key={to} onClick={closeMobileMenu} to={to} className={mobilePanelLinkClass}>
+                  {t(labelKey)}
+                </NavLink>
+              ))}
+            </MobileMenuSection>
+          </div>
+        ) : null}
       </header>
 
       <div className="floating-social">
-        <a className="floating-social-btn" href="#" aria-label="YouTube">
-          <FaYoutube />
+        <a className="floating-social-btn" href="https://m.youtube.com/%40hukmil_lane1934?fbclid=PAb21jcASTq_RleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAaeoiXuGO-c2Us80JVSLE4TkRY-4rDmKqSBGvO6M_IJU7fNXBdfSP1b-annOzA_aem_qqEoSIxZ7NPqkAkjq4w-hQ" aria-label="YouTube">
+          <SocialIcon icon="youtube" />
         </a>
-        <a className="floating-social-btn" href="#" aria-label="Facebook">
-          <FaFacebookF />
+        <a className="floating-social-btn" href="https://www.instagram.com/hukmillane_cha_raja_1934?igsh=MTdjYnY5dnR3dHNrMQ==" aria-label="Facebook">
+          <SocialIcon icon="facebook" />
         </a>
-        <a className="floating-social-btn" href="#" aria-label="Instagram">
-          <FaInstagram />
+        <a className="floating-social-btn" href="https://www.facebook.com/share/1BGa9iXsEW/" aria-label="Instagram">
+          <SocialIcon icon="instagram" />
         </a>
         <a className="floating-social-btn" href="#" aria-label="WhatsApp">
-          <FaWhatsapp />
-        </a>
-        <a className="floating-social-btn" href="#" aria-label="LinkedIn">
-          <FaLinkedinIn />
+          <SocialIcon icon="whatsapp" />
         </a>
       </div>
 
@@ -186,54 +259,53 @@ function Layout() {
       </main>
 
       <footer className="devotional-gradient border-t border-orange-200 px-4 py-10 text-amber-50">
-        <div className="mx-auto grid max-w-7xl gap-8 md:grid-cols-3">
-          <div>
+        <div className="mx-auto grid max-w-7xl gap-8 text-center md:grid-cols-3 md:text-left">
+          <div className="flex flex-col items-center md:items-start">
             <img
               src={logo}
               alt="Hukmilane Lanecha Raja logo"
               className="mb-4 h-20 w-20 rounded-full object-contain"
             />
             <h3 className="font-serif text-2xl font-black text-brand-gold">
-              Hukmilane Lanecha Raja
+              {t('brandName')}
             </h3>
             <p className="mt-3 text-sm leading-6 text-amber-100/90">
-              A devotional Ganpati mandal website for darshan, seva,
-              announcements, donation and community updates.
+              {t('footerCopy')}
             </p>
           </div>
 
           <div>
             <h3 className="mb-4 text-xl font-extrabold text-white">
-              Important Links
+              {t('importantLinks')}
             </h3>
             <div className="grid gap-2 text-sm font-semibold text-amber-100">
-              <Link to="/">Home</Link>
-              <Link to="/about">Mandal Info</Link>
-              <Link to="/donate">Donation</Link>
-              <Link to="/shop">Shop</Link>
-              <Link to="/gallery">Gallery</Link>
+              <Link to="/">{t('navHome')}</Link>
+              <Link to="/about">{t('navMandalInfo')}</Link>
+              <Link to="/donate">{t('navDonate')}</Link>
+              <Link to="/shop">{t('navShop')}</Link>
+              <Link to="/gallery">{t('navGallery')}</Link>
             </div>
           </div>
 
           <div>
             <h3 className="mb-4 text-xl font-extrabold text-white">
-              Contact Us
+              {t('contactUs')}
             </h3>
             <div className="space-y-2 text-sm font-semibold text-amber-100">
-              <p>Phone: +91 98765 43210</p>
-              <p>Email: hukmilane@gmail.com</p>
-              <p>Location: Mumbai, Maharashtra</p>
+              <p>{t('contactPhoneFooter')}</p>
+              <p>{t('contactEmailFooter')}</p>
+              <p>{t('location')}: {t('mandalAddressShort')}</p>
             </div>
 
-            <div className="mt-5 flex gap-3">
-              <span className="floating-social-btn static! h-10! w-10! translate-y-0!">
-                <FaFacebookF />
+            <div className="mt-5 flex justify-center gap-3 md:justify-start">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md">
+                <SocialIcon icon="facebook" />
               </span>
-              <span className="floating-social-btn static! h-10! w-10! translate-y-0!">
-                <FaInstagram />
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md">
+                <SocialIcon icon="instagram" />
               </span>
-              <span className="floating-social-btn static! h-10! w-10! translate-y-0!">
-                <FaWhatsapp />
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-brand-red shadow-md">
+                <SocialIcon icon="whatsapp" />
               </span>
             </div>
           </div>

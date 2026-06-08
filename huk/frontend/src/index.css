@@ -1,6 +1,6 @@
-@import "tailwindcss";
-
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Rozha+One&family=Mukta:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
 
 @theme {
   --color-brand-gold: #F2A516;
@@ -43,8 +43,38 @@ html {
 
 body {
   margin: 0;
+  min-width: 320px;
   min-height: 100vh;
   background: #fffcf7;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(242, 165, 22, 0.85);
+  outline-offset: 3px;
+}
+
+img,
+iframe {
+  max-width: 100%;
 }
 
 /* Main Background */
@@ -84,67 +114,6 @@ body {
   box-shadow: 0 12px 32px rgba(64, 1, 1, 0.08);
 }
 
-/* Ganpati Halo */
-.mandala-halo {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 480px;
-  height: 480px;
-  margin-left: -240px;
-  margin-top: -240px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(242, 165, 22, 0.30) 0%, rgba(242, 143, 22, 0.10) 55%, transparent 72%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.mandala-halo::before {
-  content: "";
-  position: absolute;
-  width: 92%;
-  height: 92%;
-  border-radius: 50%;
-  border: 2px dashed rgba(242, 165, 22, 0.5);
-  animation: spin-slow 40s linear infinite;
-}
-
-.mandala-halo::after {
-  content: "";
-  position: absolute;
-  width: 78%;
-  height: 78%;
-  border-radius: 50%;
-  border: 1px solid rgba(191, 4, 4, 0.30);
-  animation: spin-slow 25s linear infinite reverse;
-}
-
-/* Button Style */
-.pill-badge {
-  background: linear-gradient(135deg, #BF0404 0%, #800202 100%);
-  color: #fffcf7;
-  padding: 0.7rem 1.5rem;
-  font-weight: 800;
-  font-size: 0.9rem;
-  letter-spacing: 0.04em;
-  border-radius: 0.5rem;
-  box-shadow: 0 5px 16px rgba(64, 1, 1, 0.25);
-  border: 1.5px solid rgba(242, 165, 22, 0.6);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.pill-badge:hover {
-  transform: translateY(-2px);
-  border-color: #F2A516;
-  box-shadow: 0 8px 22px rgba(191, 4, 4, 0.42);
-}
-
 /* Floating Social Buttons */
 .floating-social {
   position: fixed;
@@ -158,30 +127,29 @@ body {
 }
 
 .floating-social-btn {
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 3.6rem;
+  height: 3.6rem;
   border-radius: 50%;
   background: #ffffff;
   color: #BF0404;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 900;
   box-shadow: 0 5px 14px rgba(64, 1, 1, 0.16);
   border: 1px solid rgba(242, 165, 22, 0.22);
   transition: all 0.3s ease;
+}
+
+.floating-social-btn svg {
+  width: 1.35rem;
+  height: 1.35rem;
 }
 
 .floating-social-btn:hover {
   transform: scale(1.15);
   background: #BF0404;
   color: #ffffff;
-}
-
-/* Section Heading */
-.section-heading {
-  font-family: var(--font-serif);
-  color: #8F1717;
-  letter-spacing: 0.02em;
 }
 
 /* Scrollbar */
@@ -207,15 +175,4 @@ body {
   .floating-social {
     display: none;
   }
-
-  .mandala-halo {
-    width: 330px;
-    height: 330px;
-    margin-left: -165px;
-    margin-top: -165px;
-  }
-  .idol-hero img {
-  mix-blend-mode: multiply;
-
-}
 }
