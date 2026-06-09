@@ -44,7 +44,7 @@ function Home() {
   return (
     <>
       {/* HERO SECTION */}
-      <section className="relative h-[calc(100vh-64px)] min-h-[520px] overflow-hidden bg-[#fffdf9]">
+      <section className="relative h-[calc(100vh-64px)] min-h-130 overflow-hidden bg-[#fffdf9]">
         <div className="relative h-full w-full">
           <motion.img
             src={heroGanpati}
