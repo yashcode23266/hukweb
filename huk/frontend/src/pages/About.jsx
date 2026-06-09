@@ -2,43 +2,120 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import ganpatiImage from '../assets/ganpati-optimized.png'
 import logoImage from '../assets/logo.png.jpeg'
+import { useLanguage } from '../i18n/useLanguage'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: 'easeOut' } },
 }
 
-const timeline = [
-  ['1934', 'Mandal Established', 'Mill workers and Girangaon families came together with faith, unity, and devotion.'],
-  ['1990-2016', 'Kashinath Matavkar Era', 'A defining creative period shaped by memorable idols and devotional artistry.'],
-  ['2015', 'Bahubali Theme Ganpati', 'A grand theme that became one of the mandal’s most remembered modern creations.'],
-  ['Today', 'Digital Devotion & Community Seva', 'Darshan memories, seva work, donations, and community updates continue with a modern presence.'],
-]
-
-const divineForms = [
-  ['Jai Malhar', 'Royal strength, folk devotion, and a powerful darshan mood.'],
-  ['Lord Krishna', 'Graceful, musical, and filled with divine charm.'],
-  ['Kalki', 'A vision of protection, courage, and cosmic renewal.'],
-  ['Lord Shiva', 'Meditative energy, austerity, and timeless spiritual force.'],
-]
-
-const creations = [
-  ['Banana Ganpati', 'A rare devotional creation remembered for its freshness, imagination, and festive wonder.'],
-  ['5,555 Coconut Ganpati', 'A striking idol concept that transformed everyday offerings into a grand spiritual form.'],
-  ['Bahubali Ganpati', 'A dramatic large-scale theme that brought cinematic scale to the mandal’s darshan experience.'],
-]
-
-const seva = [
-  ['Blood Donation Camps', 'Devotees and volunteers come together to serve the city beyond the festival days.'],
-  ['Health Check-Up Camps', 'Community wellness initiatives built around care, access, and local support.'],
-  ['COVID Ration Support', 'Essential ration support for families during a difficult time for Mumbai.'],
-]
+const aboutContent = {
+  en: {
+    heroKicker: 'Established 1934',
+    heroTitle: 'Hukmill Lane Cha Raja',
+    heroCopy: 'Preserving Tradition with Majestic Grandeur.',
+    exploreLegacy: 'Explore Legacy',
+    viewGallery: 'View Gallery',
+    visualKicker: 'Girangaon Spirit',
+    visualTitle: 'Mill workers, local families, and one shared devotion.',
+    originKicker: 'Origin Story',
+    originTitle: 'Born From Faith & Unity',
+    originPartOne: 'Hukmill Lane Cha Raja',
+    originPartTwo:
+      ', located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The ',
+    originHighlight: 'Hukmill Lane Sarvajanik Ganeshotsav Mandal',
+    originPartThree:
+      ' was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.',
+    timelineKicker: 'Timeline Journey',
+    timelineTitle: 'A Legacy In Motion',
+    divineKicker: 'Darshan Memories',
+    divineTitle: 'Divine Forms Through The Years',
+    creationsKicker: 'Iconic Creations',
+    creationsTitle: 'Crafted With Devotion',
+    sculptorLine: 'Created by renowned sculptor Kashinath Matavkar.',
+    sevaKicker: 'Social Seva',
+    sevaTitle: 'Beyond Celebration',
+    timeline: [
+      ['1934', 'Mandal Established', 'Mill workers and Girangaon families came together with faith, unity, and devotion.'],
+      ['1990-2016', 'Kashinath Matavkar Era', 'A defining creative period shaped by memorable idols and devotional artistry.'],
+      ['2015', 'Bahubali Theme Ganpati', 'A grand theme that became one of the mandal’s most remembered modern creations.'],
+      ['Today', 'Digital Devotion & Community Seva', 'Darshan memories, seva work, donations, and community updates continue with a modern presence.'],
+    ],
+    divineForms: [
+      ['Jai Malhar', 'Royal strength, folk devotion, and a powerful darshan mood.'],
+      ['Lord Krishna', 'Graceful, musical, and filled with divine charm.'],
+      ['Kalki', 'A vision of protection, courage, and cosmic renewal.'],
+      ['Lord Shiva', 'Meditative energy, austerity, and timeless spiritual force.'],
+    ],
+    creations: [
+      ['Banana Ganpati', 'A rare devotional creation remembered for its freshness, imagination, and festive wonder.'],
+      ['5,555 Coconut Ganpati', 'A striking idol concept that transformed everyday offerings into a grand spiritual form.'],
+      ['Bahubali Ganpati', 'A dramatic large-scale theme that brought cinematic scale to the mandal’s darshan experience.'],
+    ],
+    seva: [
+      ['Blood Donation Camps', 'Devotees and volunteers come together to serve the city beyond the festival days.'],
+      ['Health Check-Up Camps', 'Community wellness initiatives built around care, access, and local support.'],
+      ['COVID Ration Support', 'Essential ration support for families during a difficult time for Mumbai.'],
+    ],
+  },
+  mr: {
+    heroKicker: 'स्थापना १९३४',
+    heroTitle: 'हुकमिल लेनचा राजा',
+    heroCopy: 'भव्यतेने परंपरा जपणारा श्रद्धेचा उत्सव.',
+    exploreLegacy: 'परंपरा पाहा',
+    viewGallery: 'गॅलरी पाहा',
+    visualKicker: 'गिरणगावची भावना',
+    visualTitle: 'गिरणी कामगार, स्थानिक कुटुंबे आणि एकच सामूहिक श्रद्धा.',
+    originKicker: 'उगम कथा',
+    originTitle: 'श्रद्धा आणि एकतेतून जन्म',
+    originPartOne: 'हुकमिल लेनचा राजा',
+    originPartTwo:
+      ', मुंबईतील डेलिस्ले रोड परिसरात स्थित असून, या भागातील सर्वात जुनी सार्वजनिक गणेशमूर्ती म्हणून ओळखला जातो. ',
+    originHighlight: 'हुकमिल लेन सार्वजनिक गणेशोत्सव मंडळ',
+    originPartThree:
+      ' याची स्थापना १९३४ मध्ये गिरणगावातील गिरणी कामगार आणि स्थानिक रहिवाशांनी एकता, बंधुभाव आणि श्री गणेशावरील भक्ती वाढवण्यासाठी केली.',
+    timelineKicker: 'परंपरेचा प्रवास',
+    timelineTitle: 'चालती-बोलती परंपरा',
+    divineKicker: 'दर्शन आठवणी',
+    divineTitle: 'वर्षानुवर्षांची दिव्य रूपे',
+    creationsKicker: 'अविस्मरणीय निर्मिती',
+    creationsTitle: 'भक्तीने घडवलेली कला',
+    sculptorLine: 'प्रसिद्ध मूर्तिकार काशिनाथ मातवकर यांनी साकारलेली निर्मिती.',
+    sevaKicker: 'सामाजिक सेवा',
+    sevaTitle: 'उत्सवाच्या पलीकडे',
+    timeline: [
+      ['१९३४', 'मंडळाची स्थापना', 'गिरणगावातील कामगार आणि कुटुंबे श्रद्धा, एकता आणि भक्तीने एकत्र आली.'],
+      ['१९९०-२०१६', 'काशिनाथ मातवकर युग', 'अविस्मरणीय मूर्ती आणि भक्तिमय कलाकृतींनी घडवलेला महत्त्वाचा काळ.'],
+      ['२०१५', 'बाहुबली थीम गणपती', 'मंडळाच्या आधुनिक काळातील सर्वात लक्षवेधी आणि भव्य संकल्पनांपैकी एक.'],
+      ['आज', 'डिजिटल भक्ती आणि समाजसेवा', 'दर्शन आठवणी, सेवा, देणगी आणि समाजातील अपडेट्स आधुनिक पद्धतीने पुढे चालू आहेत.'],
+    ],
+    divineForms: [
+      ['जय मल्हार', 'राजेशाही ताकद, लोकभक्ती आणि प्रभावी दर्शनाचा भाव.'],
+      ['श्रीकृष्ण', 'कृपा, माधुर्य आणि दिव्य मोहकतेने भरलेले रूप.'],
+      ['कल्की', 'संरक्षण, धैर्य आणि नव्या ऊर्जेची दिव्य कल्पना.'],
+      ['भगवान शिव', 'ध्यान, तपस्या आणि चिरंतन आध्यात्मिक शक्ती.'],
+    ],
+    creations: [
+      ['केळी गणपती', 'ताजेपणा, कल्पकता आणि उत्सवातील वेगळेपणासाठी आठवणीत राहिलेली निर्मिती.'],
+      ['५,५५५ नारळ गणपती', 'नैवेद्य आणि श्रद्धेला भव्य आध्यात्मिक रूप देणारी अनोखी संकल्पना.'],
+      ['बाहुबली गणपती', 'दर्शनाला सिनेमॅटिक भव्यता देणारी नाट्यमय आणि मोठ्या प्रमाणातील संकल्पना.'],
+    ],
+    seva: [
+      ['रक्तदान शिबिरे', 'उत्सवाच्या दिवसांपलीकडेही शहरासाठी भक्त आणि स्वयंसेवकांची सेवा.'],
+      ['आरोग्य तपासणी शिबिरे', 'काळजी, सुविधा आणि स्थानिक मदतीवर आधारित समाजोपयोगी उपक्रम.'],
+      ['कोविड रेशन मदत', 'मुंबईसाठी कठीण काळात कुटुंबांना आवश्यक रेशन सहाय्य.'],
+    ],
+  },
+}
 
 function About() {
+  const { language } = useLanguage()
+  const content = aboutContent[language] || aboutContent.en
+
   return (
     <main className="overflow-hidden bg-[#fff7e8] text-stone-950">
       <section className="relative grid min-h-[calc(100vh-64px)] place-items-center bg-[radial-gradient(circle_at_center,#ffb21c_0%,#9f1010_42%,#3c0303_100%)] px-4 py-20 text-center text-white sm:px-6">
-        <div className="absolute inset-0 opacity-30 bg-[repeating-radial-gradient(circle_at_center,transparent_0_16px,rgba(255,214,94,.42)_17px_18px)]" />
+        <div className="absolute inset-0 bg-[repeating-radial-gradient(circle_at_center,transparent_0_16px,rgba(255,214,94,.42)_17px_18px)] opacity-30" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(255,255,255,.12)_22%,rgba(0,0,0,.62)_76%)]" />
         <div className="pointer-events-none absolute inset-0">
           {[...Array(18)].map((_, index) => (
@@ -64,31 +141,29 @@ function About() {
             <div className="absolute inset-8 rounded-full bg-yellow-300/30 blur-3xl" />
             <img
               src={logoImage}
-              alt="Hukmill Lane Cha Raja logo"
+              alt={content.heroTitle}
               className="relative mx-auto h-34 w-34 rounded-full object-contain drop-shadow-[0_0_45px_rgba(255,210,87,.85)] sm:h-44 sm:w-44"
             />
           </div>
           <p className="mt-8 text-sm font-black uppercase tracking-[0.35em] text-yellow-200 sm:text-base">
-            Established 1934
+            {content.heroKicker}
           </p>
           <h1 className="mt-5 font-serif text-5xl font-black leading-none text-[#ffe7a3] drop-shadow-2xl sm:text-7xl lg:text-8xl">
-            Hukmill Lane Cha Raja
+            {content.heroTitle}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-xl leading-8 text-orange-50 sm:text-2xl">
-            Preserving Tradition with Majestic Grandeur.
-          </p>
+          <p className="mx-auto mt-6 max-w-2xl text-xl leading-8 text-orange-50 sm:text-2xl">{content.heroCopy}</p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <a
               href="#legacy"
               className="rounded-full bg-[#ffd66b] px-8 py-4 text-base font-black text-[#6f0808] shadow-[0_18px_50px_rgba(255,196,42,.35)] transition hover:-translate-y-1 hover:bg-white"
             >
-              Explore Legacy
+              {content.exploreLegacy}
             </a>
             <Link
               to="/gallery"
               className="rounded-full border border-yellow-200/60 bg-white/10 px-8 py-4 text-base font-black text-white backdrop-blur-md transition hover:-translate-y-1 hover:bg-white hover:text-[#8e0808]"
             >
-              View Gallery
+              {content.viewGallery}
             </Link>
           </div>
         </motion.div>
@@ -104,10 +179,14 @@ function About() {
             className="relative min-h-[320px] overflow-hidden rounded-lg bg-[#5d0707] shadow-2xl sm:min-h-[420px]"
           >
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,214,107,.22),rgba(82,6,6,.72)),repeating-linear-gradient(90deg,rgba(255,255,255,.08)_0_1px,transparent_1px_42px)]" />
-            <img src={ganpatiImage} alt="" className="absolute bottom-0 left-1/2 h-[92%] max-w-full -translate-x-1/2 object-contain opacity-80" />
+            <img
+              src={ganpatiImage}
+              alt=""
+              className="absolute bottom-0 left-1/2 h-[92%] max-w-full -translate-x-1/2 object-contain opacity-80"
+            />
             <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#3d0303] to-transparent p-7 text-white">
-              <p className="text-sm font-black uppercase tracking-[0.3em] text-yellow-200">Girangaon Spirit</p>
-              <p className="mt-3 max-w-md text-2xl font-black">Mill workers, local families, and one shared devotion.</p>
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-yellow-200">{content.visualKicker}</p>
+              <p className="mt-3 max-w-md text-2xl font-black">{content.visualTitle}</p>
             </div>
           </motion.div>
 
@@ -119,16 +198,15 @@ function About() {
             className="min-w-0"
           >
             <div className="border-l-4 border-[#c20d0d] pl-6 sm:pl-8">
-              <p className="text-sm font-black uppercase tracking-[0.32em] text-[#b91111]">Origin Story</p>
+              <p className="text-sm font-black uppercase tracking-[0.32em] text-[#b91111]">{content.originKicker}</p>
               <h2 className="mt-4 max-w-3xl wrap-break-word font-serif text-4xl font-black leading-tight text-[#921111] sm:text-5xl lg:text-6xl">
-                Born From Faith & Unity
+                {content.originTitle}
               </h2>
               <p className="mt-7 max-w-3xl wrap-break-word text-lg leading-9 text-stone-800 sm:text-xl sm:leading-10">
-                <span className="font-black text-[#b91111]">Hukmill Lane Cha Raja</span>, located in the Delisle Road
-                area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The{' '}
-                <span className="font-black text-[#b98205]">Hukmill Lane Sarvajanik Ganeshotsav Mandal</span> was
-                established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity,
-                brotherhood, and devotion towards Lord Ganesha.
+                <span className="font-black text-[#b91111]">{content.originPartOne}</span>
+                {content.originPartTwo}
+                <span className="font-black text-[#b98205]">{content.originHighlight}</span>
+                {content.originPartThree}
               </p>
             </div>
           </motion.div>
@@ -136,23 +214,31 @@ function About() {
       </section>
 
       <section className="relative bg-[#4b0505] px-4 py-16 text-white sm:px-6 lg:py-24">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,#ffd56a_1px,transparent_1px)] bg-size-[34px_34px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffd56a_1px,transparent_1px)] bg-size-[34px_34px] opacity-20" />
         <div className="relative mx-auto max-w-5xl">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center">
-            <p className="text-sm font-black uppercase tracking-[0.35em] text-yellow-200">Timeline Journey</p>
-            <h2 className="mt-4 font-serif text-4xl font-black text-[#ffe0a1] sm:text-6xl">A Legacy In Motion</h2>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-sm font-black uppercase tracking-[0.35em] text-yellow-200">{content.timelineKicker}</p>
+            <h2 className="mt-4 font-serif text-4xl font-black text-[#ffe0a1] sm:text-6xl">
+              {content.timelineTitle}
+            </h2>
           </motion.div>
           <div className="relative mt-14 space-y-10 before:absolute before:left-4 before:top-2 before:h-full before:w-px before:bg-linear-to-b before:from-yellow-300 before:via-red-300 before:to-transparent sm:before:left-1/2">
-            {timeline.map(([year, title, copy], index) => (
+            {content.timeline.map(([year, title, copy], index) => (
               <motion.article
-                key={year}
+                key={`${year}-${title}`}
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.25 }}
                 className={`relative pl-12 sm:grid sm:grid-cols-2 sm:gap-12 sm:pl-0 ${index % 2 ? 'sm:text-left' : 'sm:text-right'}`}
               >
-                <div className={`absolute left-0 top-3 h-9 w-9 rounded-full border-4 border-[#4b0505] bg-[#ffd56a] shadow-[0_0_30px_rgba(255,213,106,.9)] sm:left-1/2 sm:-translate-x-1/2`} />
+                <div className="absolute left-0 top-3 h-9 w-9 rounded-full border-4 border-[#4b0505] bg-[#ffd56a] shadow-[0_0_30px_rgba(255,213,106,.9)] sm:left-1/2 sm:-translate-x-1/2" />
                 <div className={index % 2 ? 'sm:col-start-2' : ''}>
                   <span className="font-serif text-6xl font-black text-white/10 sm:text-7xl">{year}</span>
                   <h3 className="-mt-5 text-2xl font-black text-[#ffe0a1]">{title}</h3>
@@ -166,12 +252,18 @@ function About() {
 
       <section className="bg-[#260202] px-4 py-16 text-white sm:px-6 lg:py-24">
         <div className="mx-auto max-w-7xl">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.35em] text-yellow-200">Darshan Memories</p>
-            <h2 className="mt-4 font-serif text-4xl font-black text-[#ffe0a1] sm:text-6xl">Divine Forms Through The Years</h2>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="max-w-3xl"
+          >
+            <p className="text-sm font-black uppercase tracking-[0.35em] text-yellow-200">{content.divineKicker}</p>
+            <h2 className="mt-4 font-serif text-4xl font-black text-[#ffe0a1] sm:text-6xl">{content.divineTitle}</h2>
           </motion.div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {divineForms.map(([title, copy]) => (
+            {content.divineForms.map(([title, copy]) => (
               <motion.article
                 key={title}
                 variants={fadeUp}
@@ -180,7 +272,11 @@ function About() {
                 viewport={{ once: true, amount: 0.2 }}
                 className="group relative min-h-80 overflow-hidden rounded-lg border border-yellow-200/15 bg-[#5a0808] p-6 shadow-2xl"
               >
-                <img src={ganpatiImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-500 group-hover:scale-105 group-hover:opacity-30" />
+                <img
+                  src={ganpatiImage}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-500 group-hover:scale-105 group-hover:opacity-30"
+                />
                 <div className="absolute inset-0 bg-linear-to-t from-[#260202] via-[#4e0505]/70 to-transparent" />
                 <div className="relative flex h-full flex-col justify-end">
                   <div className="mb-5 h-1 w-20 rounded-full bg-linear-to-r from-[#cf130b] to-[#ffd56a]" />
@@ -195,12 +291,22 @@ function About() {
 
       <section className="bg-[#fff7e8] px-4 py-16 sm:px-6 lg:py-24">
         <div className="mx-auto max-w-7xl">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center">
-            <p className="text-sm font-black uppercase tracking-[0.35em] text-[#b91111]">Iconic Creations</p>
-            <h2 className="mt-4 font-serif text-4xl font-black text-[#921111] sm:text-6xl">Crafted With Devotion</h2>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="text-center"
+          >
+            <p className="text-sm font-black uppercase tracking-[0.35em] text-[#b91111]">
+              {content.creationsKicker}
+            </p>
+            <h2 className="mt-4 font-serif text-4xl font-black text-[#921111] sm:text-6xl">
+              {content.creationsTitle}
+            </h2>
           </motion.div>
           <div className="mt-14 space-y-14">
-            {creations.map(([title, copy], index) => (
+            {content.creations.map(([title, copy], index) => (
               <motion.article
                 key={title}
                 variants={fadeUp}
@@ -211,14 +317,18 @@ function About() {
               >
                 <div className="relative min-h-80 overflow-hidden rounded-lg bg-[#5a0808] shadow-2xl">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,213,106,.28),transparent_54%)]" />
-                  <img src={ganpatiImage} alt="" className="absolute inset-0 h-full w-full object-contain p-8 drop-shadow-[0_25px_55px_rgba(0,0,0,.55)]" />
+                  <img
+                    src={ganpatiImage}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-contain p-8 drop-shadow-[0_25px_55px_rgba(0,0,0,.55)]"
+                  />
                 </div>
                 <div>
                   <div className="mb-6 h-1 w-28 rounded-full bg-linear-to-r from-[#c20d0d] to-[#f2b11d]" />
                   <h3 className="font-serif text-4xl font-black text-[#921111] sm:text-5xl">{title}</h3>
                   <p className="mt-5 text-lg leading-9 text-stone-800">{copy}</p>
                   <p className="mt-6 text-base font-black uppercase tracking-[0.22em] text-[#b98205]">
-                    Created by renowned sculptor Kashinath Matavkar.
+                    {content.sculptorLine}
                   </p>
                 </div>
               </motion.article>
@@ -229,12 +339,18 @@ function About() {
 
       <section className="bg-[#fff1df] px-4 py-16 sm:px-6 lg:py-24">
         <div className="mx-auto max-w-7xl">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.35em] text-[#b91111]">Social Seva</p>
-            <h2 className="mt-4 font-serif text-4xl font-black text-[#921111] sm:text-6xl">Beyond Celebration</h2>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="max-w-3xl"
+          >
+            <p className="text-sm font-black uppercase tracking-[0.35em] text-[#b91111]">{content.sevaKicker}</p>
+            <h2 className="mt-4 font-serif text-4xl font-black text-[#921111] sm:text-6xl">{content.sevaTitle}</h2>
           </motion.div>
           <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {seva.map(([title, copy]) => (
+            {content.seva.map(([title, copy]) => (
               <motion.article
                 key={title}
                 variants={fadeUp}
