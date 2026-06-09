@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import ganpatiImage from '../assets/ganpati-optimized.png'
+import ganpatiImage from '../assets/krish.png' 
 import logoImage from '../assets/logo.png.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 
@@ -12,7 +12,7 @@ const fadeUp = {
 const aboutContent = {
   en: {
     heroKicker: 'Established 1934',
-    heroTitle: 'Hukmill Lane Cha Raja',
+    heroTitle: 'Hukmil Lane Cha Raja',
     heroCopy: 'Preserving Tradition with Majestic Grandeur.',
     exploreLegacy: 'Explore Legacy',
     viewGallery: 'View Gallery',
@@ -70,7 +70,7 @@ const aboutContent = {
     originTitle: 'श्रद्धा आणि एकतेतून जन्म',
     originPartOne: 'हुकमिल लेनचा राजा',
     originPartTwo:
-      ', मुंबईतील डेलिस्ले रोड परिसरात स्थित असून, या भागातील सर्वात जुनी सार्वजनिक गणेशमूर्ती म्हणून ओळखला जातो. ',
+      ', मुंबईतील डिलाई रोड परिसरात स्थित असून, या भागातील सर्वात जुनी सार्वजनिक गणेशमूर्ती म्हणून ओळखला जातो. ',
     originHighlight: 'हुकमिल लेन सार्वजनिक गणेशोत्सव मंडळ',
     originPartThree:
       ' याची स्थापना १९३४ मध्ये गिरणगावातील गिरणी कामगार आणि स्थानिक रहिवाशांनी एकता, बंधुभाव आणि श्री गणेशावरील भक्ती वाढवण्यासाठी केली.',
@@ -80,12 +80,12 @@ const aboutContent = {
     divineTitle: 'वर्षानुवर्षांची दिव्य रूपे',
     creationsKicker: 'अविस्मरणीय निर्मिती',
     creationsTitle: 'भक्तीने घडवलेली कला',
-    sculptorLine: 'प्रसिद्ध मूर्तिकार काशिनाथ मातवकर यांनी साकारलेली निर्मिती.',
+    sculptorLine: 'प्रसिद्ध मूर्तिकार काशिनाथ माटावकर यांनी साकारलेली निर्मिती.',
     sevaKicker: 'सामाजिक सेवा',
     sevaTitle: 'उत्सवाच्या पलीकडे',
     timeline: [
       ['१९३४', 'मंडळाची स्थापना', 'गिरणगावातील कामगार आणि कुटुंबे श्रद्धा, एकता आणि भक्तीने एकत्र आली.'],
-      ['१९९०-२०१६', 'काशिनाथ मातवकर युग', 'अविस्मरणीय मूर्ती आणि भक्तिमय कलाकृतींनी घडवलेला महत्त्वाचा काळ.'],
+      ['१९९०-२०१६', 'काशिनाथ माटावकर  युग', 'अविस्मरणीय मूर्ती आणि भक्तिमय कलाकृतींनी घडवलेला महत्त्वाचा काळ.'],
       ['२०१५', 'बाहुबली थीम गणपती', 'मंडळाच्या आधुनिक काळातील सर्वात लक्षवेधी आणि भव्य संकल्पनांपैकी एक.'],
       ['आज', 'डिजिटल भक्ती आणि समाजसेवा', 'दर्शन आठवणी, सेवा, देणगी आणि समाजातील अपडेट्स आधुनिक पद्धतीने पुढे चालू आहेत.'],
     ],
