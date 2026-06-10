@@ -1,8 +1,19 @@
 # Hukmilane Lanecha Raja - Frontend Website
 
-A frontend-only Ganpati Mandal website built with React, Vite, Tailwind CSS, Framer Motion, local browser storage, shop/cart flow, donation demo flow, gallery, admin dashboard, and English/Marathi UI support.
+A premium frontend-only Ganpati Mandal website for **Hukmilane Lanecha Raja**.  
+It includes a devotional landing page, cinematic About/Social Work/Events/Gallery pages, shop/cart demo flow, donation demo flow, admin dashboard demo, embedded map, SEO metadata, legal pages, and English/Marathi language support.
 
-This version does not require a backend server, MongoDB, Razorpay backend verification, or Cloudinary. Data is stored locally in the browser using `localStorage`, so it is useful for UI demos, local previews, and frontend development.
+This current version is intentionally **frontend-only**. It does not require a backend server, MongoDB, MySQL, Razorpay backend verification, WhatsApp API, Cloudinary, or PDF generation server. Demo data is stored in the browser with `localStorage`.
+
+## Current Status
+
+- Frontend UI is active and runnable.
+- Backend has been removed/not used in this version.
+- Shop, Donation, and Admin pages are demo/local-storage flows.
+- Razorpay and WhatsApp production integrations are not active yet.
+- Legal/static pages are added.
+- SEO metadata is added.
+- English/Marathi toggle is available.
 
 ## Tech Stack
 
@@ -13,8 +24,9 @@ This version does not require a backend server, MongoDB, Razorpay backend verifi
 - React Router v7
 - TanStack Query v5
 - Zustand
+- LocalStorage demo data layer
 
-## Frontend Libraries Used
+## Libraries Used
 
 ```txt
 @tailwindcss/vite
@@ -27,54 +39,108 @@ tailwindcss
 zustand
 ```
 
-## Features
+## Main Features
 
-- Ganpati-themed responsive landing page
-- Mumbai mandal inspired header and devotional UI
+- Premium Ganpati-themed responsive landing page
+- Mumbai mandal inspired red/gold header
+- Mobile menu with language switch
+- Continuous announcement/ticker bar
 - English/Marathi language toggle
-- About Us page
-- Events page
+- Cinematic About Us page
 - Social Work page
-- Shop page with products, cart, quantity, size selection, and demo checkout
-- Donation page with direct bank details and demo payment flow
-- Photo gallery with year filter
-- Gallery preview on home page
-- Contact/location section with embedded map
-- Admin login
-- Admin dashboard using local browser data
-- Add, edit, delete products
-- Add, edit, delete gallery items
-- Add, edit, delete announcements
-- Offline donation entry
-- Order status management
-- Local CSV export
-- Optimized Ganpati hero image
-- SEO metadata, Open Graph preview, and web manifest
-- Route-level code-splitting for faster first load
+- Events page
+- Premium horizontal archive Gallery page
+- Shop page with:
+  - product listing
+  - product image
+  - price
+  - stock badge
+  - size selection
+  - quantity selection
+  - add to cart
+  - cart remove
+  - customer details
+  - demo checkout
+- Donation page with:
+  - direct bank details
+  - copy buttons
+  - amount selector
+  - purpose selector
+  - donor details
+  - demo donation payment
+- Admin dashboard demo with:
+  - admin login
+  - products
+  - announcements
+  - gallery items
+  - orders
+  - donations
+  - offline donation entry
+  - order status update
+  - audit logs
+  - local CSV export
+- Contact page with embedded Google Map
+- Footer social links
+- Legal/static pages:
+  - Privacy Policy
+  - Terms & Conditions
+  - Refund Policy
+- SEO helper for route-level titles/descriptions
+- Production build works successfully
 
-## Current Folder Structure
+## Folder Structure
 
 ```txt
 huk/
   README.md
 
   frontend/
+    package.json
+    package-lock.json
+    vite.config.js
+    eslint.config.js
+    index.html
+
+    public/
+      _redirects
+      vercel.json
+      site.webmanifest
+      og-logo.jpeg
+      icons.svg
+      favicon.svg
+
     src/
+      App.jsx
+      main.jsx
+      index.css
+
       api/
-        client.js          Local browser-storage API
-        razorpay.js        Demo Razorpay checkout helper
+        client.js
+        razorpay.js
 
       assets/
-        ganpati-optimized.jpeg
         logo.png.jpeg
+        ganpati-optimized.png
+        gann.png
+        gan.PNG
+        zee.png
+        rapido-removebg-preview.png
+        Colors marathi.png
+        Kesh.webp
+        cp.png
+        krish.png
+        rr.png
+        vrt.png
 
       components/
         Countdown.jsx
         Layout.jsx
+        PageMeta.jsx
         SectionTitle.jsx
 
       data/
         fallback.js
+        location.js
 
       i18n/
         LanguageContext.jsx
@@ -90,6 +156,7 @@ huk/
         Events.jsx
         Gallery.jsx
         Home.jsx
+        LegalPage.jsx
         Shop.jsx
         SocialWork.jsx
 
@@ -98,25 +165,65 @@ huk/
 
       utils/
         format.js
-
-      App.jsx
-      index.css
-      main.jsx
-
-    .env.example
-    index.html
-    package.json
-      public/
-      _redirects
-      favicon.svg
-      icons.svg
-      og-logo.jpeg
-      site.webmanifest
-      vercel.json
-    vite.config.js
 ```
 
-## Commands Used To Create The Project
+## Routes
+
+```txt
+/                       Home
+/about                  About Us
+/social-work            Social Work
+/events                 Events
+/gallery                Gallery
+/shop                   Shop
+/donate                 Donation
+/contact                Contact / Map
+/admin                  Admin Dashboard
+/privacy-policy         Privacy Policy
+/terms-and-conditions   Terms & Conditions
+/refund-policy          Refund Policy
+```
+
+## Setup Commands
+
+Install dependencies:
+
+```bash
+cd D:/Hukmillane/huk/frontend
+npm install
+```
+
+Run locally:
+
+```bash
+npm.cmd run dev
+```
+
+Open:
+
+```txt
+http://localhost:5173
+```
+
+Build:
+
+```bash
+npm.cmd run build
+```
+
+Preview production build:
+
+```bash
+npm.cmd run preview
+```
+
+Lint:
+
+```bash
+npm.cmd run lint
+```
+
+## Commands Originally Used To Create The Project
 
 ```bash
 mkdir ganpati-mandal-app
@@ -129,72 +236,30 @@ npm install tailwindcss @tailwindcss/vite
 npm install framer-motion react-router-dom zustand @tanstack/react-query
 ```
 
-## Local Setup
+## Admin Demo Login
 
-```bash
-cd D:/Hukmillane/huk/frontend
-npm install
-npm.cmd run dev
-```
-
-Open:
-
-```txt
-http://localhost:5173
-```
-
-## Build
-
-```bash
-cd D:/Hukmillane/huk/frontend
-npm.cmd run build
-```
-
-## Preview Production Build
-
-```bash
-cd D:/Hukmillane/huk/frontend
-npm.cmd run preview
-```
-
-## Main Routes
-
-```txt
-/              Landing page
-/about         About Us
-/events        Events
-/social-work   Social Work
-/shop          Shop and demo checkout
-/donate        Donation page
-/gallery       Gallery
-/contact       Location and contact
-/admin         Admin dashboard
-```
-
-## Admin Login
-
-Because this is now frontend-only, admin login is only for local demo use.
+This is frontend-only demo authentication.
 
 ```txt
 Email: admin@mandal.com
 Password: admin12345
 ```
 
-The previous generated demo password also works:
+The previous generated demo password may also work:
 
 ```txt
 GM-HOxPCRe61W9g-2026
 ```
 
-## Local Data Storage
+## Local Demo Data
 
-The frontend stores demo data in the browser under:
+Demo records are stored in browser `localStorage`.
 
 ```txt
 localStorage key: ganpatiMandalFrontendDb
 ```
 
-Stored locally:
+Local demo data includes:
 
 - products
 - gallery items
@@ -204,28 +269,219 @@ Stored locally:
 - users
 - audit logs
 
-To reset local demo data, clear browser site data/localStorage for the app.
+To reset demo data, clear browser site data/localStorage for the local app.
+
+## Where To Edit Common Content
+
+Brand/header/footer:
+
+```txt
+frontend/src/components/Layout.jsx
+```
+
+Main translations:
+
+```txt
+frontend/src/i18n/LanguageContext.jsx
+```
+
+Map embed URL:
+
+```txt
+frontend/src/data/location.js
+```
+
+Home page:
+
+```txt
+frontend/src/pages/Home.jsx
+```
+
+About page:
+
+```txt
+frontend/src/pages/About.jsx
+```
+
+Social Work page:
+
+```txt
+frontend/src/pages/SocialWork.jsx
+```
+
+Events page:
+
+```txt
+frontend/src/pages/Events.jsx
+```
+
+Gallery page:
+
+```txt
+frontend/src/pages/Gallery.jsx
+```
+
+Shop page:
+
+```txt
+frontend/src/pages/Shop.jsx
+```
+
+Donation page:
+
+```txt
+frontend/src/pages/Donation.jsx
+```
+
+Admin page:
+
+```txt
+frontend/src/pages/AdminDashboard.jsx
+```
+
+Legal pages:
+
+```txt
+frontend/src/pages/LegalPage.jsx
+```
+
+SEO metadata:
+
+```txt
+frontend/src/components/PageMeta.jsx
+frontend/src/components/Layout.jsx
+frontend/index.html
+```
+
+## SEO
+
+SEO already includes:
+
+- page title updates
+- meta description updates
+- Open Graph title/description updates
+- Twitter title/description updates
+- static metadata in `frontend/index.html`
+- web manifest in `frontend/public/site.webmanifest`
+
+Before final deployment, update the real production URL/canonical values in:
+
+```txt
+frontend/index.html
+```
+
+## Mobile Responsiveness
+
+The current UI uses:
+
+- mobile-first Tailwind classes
+- responsive grid layouts
+- mobile menu
+- responsive image sizing
+- overflow protection in the main layout
+- scrollable horizontal gallery behavior
+- responsive admin panels/forms
+
+Run the app locally and check:
+
+```txt
+375px mobile width
+430px mobile width
+768px tablet width
+1366px desktop width
+```
 
 ## What This Version Does Not Include
 
-- No Express backend
-- No MongoDB database
-- No secure payment verification
-- No real Razorpay order creation
-- No real WhatsApp API
-- No Cloudinary upload
+- No production backend
+- No real database
+- No secure Razorpay backend order verification
+- No Razorpay webhook
+- No WhatsApp Cloud API
 - No server-generated PDF receipts
-- No protected receipt links
+- No real receipt links
+- No Cloudinary upload flow
+- No secure admin sessions
+- No server-side validation
 
-## Production Notes
+## Backend Plan For Production
 
-This frontend-only version is suitable for design preview and UI demonstration.
+When production backend is needed, use either:
 
-For real production payments, orders, donations, receipts, WhatsApp messages, admin security, and database storage, a backend must be added again.
+### Recommended Java Stack
+
+```txt
+Java 21
+Spring Boot 3
+Spring Security + JWT
+MySQL 8
+JPA/Hibernate
+Razorpay Java SDK
+WhatsApp Cloud API
+PDF generation library
+Excel export
+Cloudinary/S3 for images
+```
+
+Good for:
+
+- strong typed backend
+- reliable admin systems
+- MySQL relational data
+- long-term maintainability
+
+### Alternative Node Stack
+
+```txt
+Node.js 22
+Express.js 5
+MongoDB Atlas
+Mongoose
+JWT + bcrypt
+Zod
+Razorpay
+Meta WhatsApp Cloud API
+pdfkit
+xlsx
+Cloudinary
+```
+
+Good for:
+
+- faster JavaScript-only development
+- easier reuse with existing earlier backend plan
+
+## Security Needed For Production Backend
+
+Important production security features:
+
+- HTTPS only
+- secure admin authentication
+- JWT access/refresh tokens
+- bcrypt password hashing
+- role-based access control
+- input validation
+- server-side payment verification
+- Razorpay webhook signature verification
+- rate limiting
+- CORS allowlist
+- helmet/security headers
+- audit logs
+- file upload validation
+- image size/type restrictions
+- Cloudinary/S3 signed upload strategy
+- environment variables for secrets
+- no secrets in frontend code
+- database backups
+- admin session expiry
+- receipt access protection
+- error logging
+- request logging
+- CSRF protection if cookie auth is used
 
 ## Hosting
 
-This version can be hosted as a static frontend.
+This current frontend can be hosted as a static site.
 
 Recommended:
 
@@ -243,12 +499,16 @@ frontend/dist
 
 ```txt
 Root directory: frontend
+Install command: npm install
 Build command: npm run build
 Output directory: dist
-Install command: npm install
 ```
 
-The project includes `public/vercel.json` so React Router pages such as `/about`, `/shop`, `/donate`, and `/admin` refresh correctly after deployment.
+React Router fallback is included:
+
+```txt
+frontend/public/vercel.json
+```
 
 ### Netlify Settings
 
@@ -258,10 +518,33 @@ Build command: npm run build
 Publish directory: frontend/dist
 ```
 
-The project includes `public/_redirects` for static hosting SPA fallback.
+SPA fallback is included:
 
-### Before Final Deployment
+```txt
+frontend/public/_redirects
+```
 
-- Confirm final phone number, email, address, and social links.
-- Add the real deployed URL as a canonical URL in `frontend/index.html`.
-- Replace demo checkout/localStorage logic if real backend payments are needed.
+## Final Checklist Before Deployment
+
+- Confirm final mandal name spelling everywhere.
+- Confirm final Marathi translations.
+- Confirm final logo and Ganpati images.
+- Confirm sponsor logos and names.
+- Confirm final social media links.
+- Confirm final email and location.
+- Confirm Google Maps embed.
+- Update canonical/production URL in SEO metadata.
+- Replace frontend demo checkout with real backend payment flow if accepting real payments.
+- Add backend before real admin/payment/donation use.
+- Test on mobile and desktop.
+
+## Latest Verification
+
+The frontend was verified with:
+
+```bash
+npm.cmd run lint
+npm.cmd run build
+```
+
+Both completed successfully.

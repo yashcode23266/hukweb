@@ -1,10 +1,24 @@
 import { motion } from 'framer-motion'
 import ganpatiImage from '../assets/ganpati-optimized.png'
+import millImage from '../assets/mill.jpeg'
+import peopleImage from '../assets/people.jpeg'
+import oldMandalImage from '../assets/1mill.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
+}
+
+// Add or replace Social Work page images here.
+// 1. Put your image inside frontend/src/assets
+// 2. Import it above
+// 3. Replace the matching value below
+const socialWorkImages = {
+  hero: peopleImage,
+  story: millImage,
+  chapters: [peopleImage, millImage, oldMandalImage],
+  final: ganpatiImage,
 }
 
 const pageText = {
@@ -50,7 +64,7 @@ const pageText = {
   },
 }
 
-function ImageFrame({ label, tall = false }) {
+function ImageFrame({ label, src = ganpatiImage, tall = false }) {
   return (
     <div
       className={`group relative overflow-hidden rounded-lg bg-[#fff0d4] shadow-[0_28px_80px_rgba(121,28,0,.15)] ${
@@ -59,9 +73,9 @@ function ImageFrame({ label, tall = false }) {
     >
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,198,65,.28),rgba(255,250,240,.35)),repeating-linear-gradient(90deg,rgba(154,17,17,.05)_0_1px,transparent_1px_42px)]" />
       <img
-        src={ganpatiImage}
+        src={src}
         alt=""
-        className="absolute bottom-0 left-1/2 h-[94%] max-w-full -translate-x-1/2 object-contain opacity-80 transition duration-700 group-hover:scale-105"
+        className="absolute inset-0 h-full w-full object-cover opacity-85 transition duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-linear-to-t from-[#7c0909]/45 via-transparent to-transparent" />
       <p className="absolute bottom-6 left-6 right-6 text-sm font-black uppercase tracking-[0.28em] text-[#ffe0a1]">
@@ -111,7 +125,7 @@ function SocialWork() {
           >
             <div className="absolute -inset-6 rounded-full bg-[#ffc44d]/20 blur-3xl" />
             <div className="relative overflow-hidden rounded-lg border border-[#e9c56f]/50 bg-white/55 p-3 shadow-[0_30px_90px_rgba(121,28,0,.16)] backdrop-blur-sm">
-              <ImageFrame label={text.micro} />
+              <ImageFrame label={text.micro} src={socialWorkImages.hero} />
             </div>
           </motion.div>
         </div>
@@ -126,6 +140,9 @@ function SocialWork() {
             </h2>
           </motion.div>
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}>
+            <div className="mb-8 overflow-hidden rounded-lg bg-[#fff0d4] shadow-[0_24px_70px_rgba(121,28,0,.12)]">
+              <img src={socialWorkImages.story} alt="" className="h-64 w-full object-cover sm:h-82" />
+            </div>
             <p className="text-lg leading-9 text-stone-800 sm:text-xl sm:leading-10">{text.story}</p>
             <blockquote className="mt-8 border-l-4 border-[#d69b19] pl-6 font-serif text-3xl font-black leading-tight text-[#8d0909]">
               “{text.storyQuote}”
@@ -145,7 +162,7 @@ function SocialWork() {
               viewport={{ once: true, amount: 0.25 }}
               className={`grid gap-10 lg:grid-cols-2 lg:items-center ${index % 2 ? 'lg:[&>*:first-child]:order-2' : ''}`}
             >
-              <ImageFrame label={title} />
+              <ImageFrame label={title} src={socialWorkImages.chapters[index] || socialWorkImages.hero} />
               <div>
                 <div className="mb-7 h-px max-w-sm bg-linear-to-r from-[#d69b19] to-transparent" />
                 <h3 className="font-serif text-4xl font-black text-[#9f1111] sm:text-6xl">{title}</h3>

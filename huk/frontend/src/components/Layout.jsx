@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import logo from '../assets/logo.png.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
+import PageMeta from './PageMeta'
 
 const mobileLinks = [
   ['/shop', 'navShop'],
@@ -32,6 +33,70 @@ const socialLinks = {
   youtube: 'https://m.youtube.com/%40hukmil_lane1934?fbclid=PAb21jcASTq_RleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAaeoiXuGO-c2Us80JVSLE4TkRY-4rDmKqSBGvO6M_IJU7fNXBdfSP1b-annOzA_aem_qqEoSIxZ7NPqkAkjq4w-hQ',
   facebook: 'https://www.facebook.com/share/1BGa9iXsEW/',
   instagram: 'https://www.instagram.com/hukmillane_cha_raja_1934?igsh=MTdjYnY5dnR3dHNrMQ==',
+}
+
+const seoByPath = {
+  '/': {
+    title: 'Home',
+    description: 'Official Hukmilane Lanecha Raja Ganpati Mandal website for darshan, gallery, donations, shop, and community updates.',
+  },
+  '/about': {
+    title: 'About Mandal',
+    description: 'Learn about the legacy, origin, and devotional journey of Hukmilane Lanecha Raja since 1934.',
+  },
+  '/social-work': {
+    title: 'Social Work',
+    description: 'Explore the seva, social work, and community initiatives of Hukmilane Lanecha Raja.',
+  },
+  '/events': {
+    title: 'Events',
+    description: 'Discover cultural events, celebrations, and community activities by Hukmilane Lanecha Raja.',
+  },
+  '/gallery': {
+    title: 'Gallery',
+    description: 'Browse year-wise Ganpati memories and visual archive of Hukmilane Lanecha Raja.',
+  },
+  '/shop': {
+    title: 'Shop',
+    description: 'Buy official Hukmilane Lanecha Raja merchandise including festival T-shirts and ID cards.',
+  },
+  '/donate': {
+    title: 'Donate',
+    description: 'Offer seva and support Ganesh Utsav, prasad seva, and community initiatives.',
+  },
+  '/contact': {
+    title: 'Contact',
+    description: 'Find Hukmilane Lanecha Raja contact details and mandal location.',
+  },
+  '/admin': {
+    title: 'Admin',
+    description: 'Secure mandal dashboard for managing orders, donations, gallery, products, and announcements.',
+  },
+  '/privacy-policy': {
+    title: 'Privacy Policy',
+    description: 'How Hukmilane Lanecha Raja handles devotee, donation, order, and admin information.',
+  },
+  '/terms-and-conditions': {
+    title: 'Terms & Conditions',
+    description: 'Terms for using Hukmilane Lanecha Raja website, donations, shop, and admin features.',
+  },
+  '/refund-policy': {
+    title: 'Refund Policy',
+    description: 'Refund and cancellation guidance for donations and merchandise orders.',
+  },
+}
+
+const legalLabels = {
+  en: {
+    privacy: 'Privacy Policy',
+    terms: 'Terms & Conditions',
+    refund: 'Refund Policy',
+  },
+  mr: {
+    privacy: 'गोपनीयता धोरण',
+    terms: 'नियम व अटी',
+    refund: 'रिफंड धोरण',
+  },
 }
 
 const socialIcons = {
@@ -93,15 +158,18 @@ function MobileMenuSection({ title, children }) {
 }
 
 function Layout() {
-  const { t, toggleLanguage } = useLanguage()
+  const { t, toggleLanguage, language } = useLanguage()
   const { pathname } = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
   const mandalInfoActive = pathname === '/about'
   const initiativesActive = pathname === '/social-work' || pathname === '/events'
+  const seo = seoByPath[pathname] || seoByPath['/']
+  const legal = legalLabels[language] || legalLabels.en
 
   return (
-    <div className="min-h-screen festival-bg">
+    <div className="min-h-screen overflow-x-hidden festival-bg">
+      <PageMeta title={seo.title} description={seo.description} />
       <header className="sticky top-0 z-50 shadow-xl shadow-red-950/20">
         <nav className="devotional-gradient px-3 py-2.5 text-white sm:px-6">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
@@ -115,9 +183,6 @@ function Layout() {
               <span className="min-w-0">
                 <span className="block truncate font-serif text-xl font-black leading-none text-brand-gold min-[390px]:text-[1.45rem] sm:text-2xl xl:text-4xl">
                   || {t('brandName')} ||
-                </span>
-                <span className="mt-1 hidden truncate text-[10px] font-bold uppercase tracking-[0.28em] text-amber-100 sm:block">
-                  {t('shree')} {t('mandalName')}
                 </span>
               </span>
             </Link>
@@ -284,6 +349,9 @@ function Layout() {
               <Link to="/donate">{t('navDonate')}</Link>
               <Link to="/shop">{t('navShop')}</Link>
               <Link to="/gallery">{t('navGallery')}</Link>
+              <Link to="/privacy-policy">{legal.privacy}</Link>
+              <Link to="/terms-and-conditions">{legal.terms}</Link>
+              <Link to="/refund-policy">{legal.refund}</Link>
             </div>
           </div>
 

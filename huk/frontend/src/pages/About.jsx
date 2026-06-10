@@ -1,6 +1,16 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import ganpatiImage from '../assets/krish.png' 
+import ganpatiImage from '../assets/mill.jpeg'
+import mill from '../assets/1mill.jpeg'
+import ganpatiHero from '../assets/ganpati-optimized.png'
+import shivaImage from '../assets/shiva.jpeg'
+import people from '../assets/people.jpeg'
+import bahu from '../assets/bahu.jpeg'
+import image2014 from '../assets/2014.jpeg'
+import image2015 from '../assets/2015.jpeg'
+import bananaImage from '../assets/banana.jpeg'
+import coconutImage from '../assets/coconut.jpeg'
+import krishImage from '../assets/krish.png'
 import logoImage from '../assets/logo.png.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 
@@ -8,6 +18,10 @@ const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.75, ease: 'easeOut' } },
 }
+
+const divineFormImages = [image2014, krishImage, ganpatiHero, shivaImage]
+const creationImages = [bananaImage, coconutImage, image2015]
+const timelineImages = [ganpatiImage, mill, bahu, people]
 
 const aboutContent = {
   en: {
@@ -176,17 +190,17 @@ function About() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.25 }}
-            className="relative min-h-[320px] overflow-hidden rounded-lg bg-[#5d0707] shadow-2xl sm:min-h-[420px]"
+            className="relative aspect-4/3 overflow-hidden rounded-lg bg-[#5d0707] shadow-2xl lg:aspect-5/4"
           >
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,214,107,.22),rgba(82,6,6,.72)),repeating-linear-gradient(90deg,rgba(255,255,255,.08)_0_1px,transparent_1px_42px)]" />
             <img
-              src={ganpatiImage}
+              src={mill}
               alt=""
-              className="absolute bottom-0 left-1/2 h-[92%] max-w-full -translate-x-1/2 object-contain opacity-80"
+              className="absolute inset-0 h-full w-full object-cover"
             />
-            <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-[#3d0303] to-transparent p-7 text-white">
+            <div className="absolute inset-0 bg-linear-to-t from-[#3d0303]/95 via-[#3d0303]/35 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-5 text-white sm:p-7">
               <p className="text-sm font-black uppercase tracking-[0.3em] text-yellow-200">{content.visualKicker}</p>
-              <p className="mt-3 max-w-md text-2xl font-black">{content.visualTitle}</p>
+              <p className="mt-3 max-w-xl text-2xl font-black leading-tight">{content.visualTitle}</p>
             </div>
           </motion.div>
 
@@ -242,7 +256,18 @@ function About() {
                 <div className={index % 2 ? 'sm:col-start-2' : ''}>
                   <span className="font-serif text-6xl font-black text-white/10 sm:text-7xl">{year}</span>
                   <h3 className="-mt-5 text-2xl font-black text-[#ffe0a1]">{title}</h3>
-                  <p className="mt-3 leading-8 text-orange-50/85">{copy}</p>
+                  <p className="mt-4 leading-8 text-orange-50/85">{copy}</p>
+                </div>
+                <div
+                  className={`mt-5 aspect-4/3 w-full overflow-hidden rounded-xl border border-yellow-200/20 bg-[#2d0202] shadow-[0_18px_45px_rgba(0,0,0,.25)] sm:mt-0 sm:w-52 ${
+                    index % 2 ? 'sm:col-start-1 sm:row-start-1 sm:justify-self-end' : 'sm:col-start-2 sm:justify-self-start'
+                  }`}
+                >
+                  <img
+                    src={timelineImages[index] || ganpatiImage}
+                    alt=""
+                    className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                  />
                 </div>
               </motion.article>
             ))}
@@ -263,25 +288,24 @@ function About() {
             <h2 className="mt-4 font-serif text-4xl font-black text-[#ffe0a1] sm:text-6xl">{content.divineTitle}</h2>
           </motion.div>
           <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {content.divineForms.map(([title, copy]) => (
+            {content.divineForms.map(([title, copy], index) => (
               <motion.article
                 key={title}
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.2 }}
-                className="group relative min-h-80 overflow-hidden rounded-lg border border-yellow-200/15 bg-[#5a0808] p-6 shadow-2xl"
+                className="group overflow-hidden rounded-lg border border-yellow-200/15 bg-[#fff7e8] shadow-2xl"
               >
                 <img
-                  src={ganpatiImage}
+                  src={divineFormImages[index] || ganpatiImage}
                   alt=""
-                  className="absolute inset-0 h-full w-full object-cover opacity-20 transition duration-500 group-hover:scale-105 group-hover:opacity-30"
+                  className="h-64 w-full object-cover transition duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-[#260202] via-[#4e0505]/70 to-transparent" />
-                <div className="relative flex h-full flex-col justify-end">
+                <div className="p-6">
                   <div className="mb-5 h-1 w-20 rounded-full bg-linear-to-r from-[#cf130b] to-[#ffd56a]" />
-                  <h3 className="font-serif text-3xl font-black text-[#ffe0a1]">{title}</h3>
-                  <p className="mt-4 leading-7 text-orange-50/85">{copy}</p>
+                  <h3 className="font-serif text-3xl font-black text-[#921111]">{title}</h3>
+                  <p className="mt-4 leading-7 text-stone-700">{copy}</p>
                 </div>
               </motion.article>
             ))}
@@ -315,12 +339,12 @@ function About() {
                 viewport={{ once: true, amount: 0.25 }}
                 className={`grid gap-8 lg:grid-cols-2 lg:items-center ${index % 2 ? 'lg:[&>*:first-child]:order-2' : ''}`}
               >
-                <div className="relative min-h-80 overflow-hidden rounded-lg bg-[#5a0808] shadow-2xl">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,213,106,.28),transparent_54%)]" />
+                <div className="relative grid min-h-80 place-items-center overflow-hidden rounded-lg bg-[#5a0808] p-2 shadow-2xl sm:min-h-96">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,213,106,.22),transparent_58%)]" />
                   <img
-                    src={ganpatiImage}
+                    src={creationImages[index] || ganpatiImage}
                     alt=""
-                    className="absolute inset-0 h-full w-full object-contain p-8 drop-shadow-[0_25px_55px_rgba(0,0,0,.55)]"
+                    className="relative max-h-[76vh] min-h-72 w-full object-contain drop-shadow-[0_25px_55px_rgba(0,0,0,.55)] sm:min-h-84 lg:max-h-115"
                   />
                 </div>
                 <div>

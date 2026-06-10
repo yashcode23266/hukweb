@@ -1,11 +1,78 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import ganpatiImage from '../assets/ganpati-optimized.png'
+import millImage from '../assets/mill.jpeg'
+import peopleImage from '../assets/people.jpeg'
+import image2014 from '../assets/2014.jpeg'
+import image2015 from '../assets/2015.jpeg'
+import bananaImage from '../assets/banana.jpeg'
+import coconutImage from '../assets/coconut.jpeg'
+import shivaImage from '../assets/shiva.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
+}
+
+// Add or replace Events page images here.
+// 1. Put your image inside frontend/src/assets
+// 2. Import it above
+// 3. Replace the matching value below
+const moreThanEventsImages = [
+  {
+    duration: 36,
+    reverse: false,
+    images: [
+      { src: image2015, height: 'h-56' },
+      { src: peopleImage, height: 'h-72' },
+      { src: bananaImage, height: 'h-48' },
+    ],
+  },
+  {
+    duration: 42,
+    reverse: true,
+    images: [
+      { src: coconutImage, height: 'h-64' },
+      { src: image2014, height: 'h-52' },
+      { src: shivaImage, height: 'h-80' },
+    ],
+  },
+  {
+    duration: 38,
+    reverse: false,
+    images: [
+      { src: ganpatiImage, height: 'h-52' },
+      { src: millImage, height: 'h-72' },
+      { src: image2015, height: 'h-60' },
+    ],
+  },
+  {
+    duration: 45,
+    reverse: true,
+    images: [
+      { src: peopleImage, height: 'h-80' },
+      { src: bananaImage, height: 'h-48' },
+      { src: coconutImage, height: 'h-64' },
+    ],
+  },
+  {
+    duration: 40,
+    reverse: false,
+    images: [
+      { src: shivaImage, height: 'h-56' },
+      { src: image2014, height: 'h-72' },
+      { src: ganpatiImage, height: 'h-52' },
+    ],
+  },
+]
+
+const eventImages = {
+  hero: image2015,
+  diwali: peopleImage,
+  youth: millImage,
+  patriotic: image2014,
+  moreThanEvents: moreThanEventsImages,
 }
 
 const eventsText = {
@@ -81,7 +148,7 @@ const eventsText = {
   },
 }
 
-function VisualPanel({ label, tall = false, warm = false }) {
+function VisualPanel({ label, src = ganpatiImage, tall = false, warm = false }) {
   return (
     <div
       className={`group relative overflow-hidden rounded-lg shadow-[0_28px_80px_rgba(121,28,0,.15)] ${
@@ -90,9 +157,9 @@ function VisualPanel({ label, tall = false, warm = false }) {
     >
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,198,65,.3),rgba(255,250,240,.36)),repeating-linear-gradient(90deg,rgba(154,17,17,.055)_0_1px,transparent_1px_42px)]" />
       <img
-        src={ganpatiImage}
+        src={src}
         alt=""
-        className="absolute bottom-0 left-1/2 h-[94%] max-w-full -translate-x-1/2 object-contain opacity-78 transition duration-700 group-hover:scale-105"
+        className="absolute inset-0 h-full w-full object-cover opacity-80 transition duration-700 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-linear-to-t from-[#7c0909]/45 via-transparent to-transparent" />
       <p className="absolute bottom-6 left-6 right-6 text-sm font-black uppercase tracking-[0.28em] text-[#ffe0a1]">
@@ -143,7 +210,7 @@ function Events() {
           <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.12 }} className="relative mt-14 w-full max-w-5xl">
             <div className="absolute -inset-6 rounded-full bg-[#ffc44d]/20 blur-3xl" />
             <div className="relative overflow-hidden rounded-lg border border-[#e9c56f]/50 bg-white/55 p-3 shadow-[0_30px_90px_rgba(121,28,0,.16)] backdrop-blur-sm">
-              <VisualPanel label={text.label} />
+              <VisualPanel label={text.label} src={eventImages.hero} />
             </div>
           </motion.div>
         </div>
@@ -169,7 +236,7 @@ function Events() {
       <section className="bg-[#fff7e8] px-4 py-16 sm:px-6 lg:py-24">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] lg:items-center">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
-            <VisualPanel label={text.diwaliTitle} tall warm />
+            <VisualPanel label={text.diwaliTitle} src={eventImages.diwali} tall warm />
           </motion.div>
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
             <p className="text-sm font-black uppercase tracking-[0.35em] text-[#b91111]">Deepotsav</p>
@@ -187,7 +254,7 @@ function Events() {
             <p className="mt-6 max-w-xl text-lg leading-9 text-stone-700 sm:text-xl">{text.youthCopy}</p>
           </motion.div>
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
-            <VisualPanel label={text.youthTitle} />
+            <VisualPanel label={text.youthTitle} src={eventImages.youth} />
           </motion.div>
         </div>
       </section>
@@ -196,7 +263,7 @@ function Events() {
         <div className="absolute inset-0 bg-linear-to-r from-orange-100/45 via-white/20 to-emerald-100/40" />
         <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,.95fr)_minmax(0,1.05fr)] lg:items-center">
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
-            <VisualPanel label={text.patrioticTitle} />
+            <VisualPanel label={text.patrioticTitle} src={eventImages.patriotic} />
           </motion.div>
           <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }}>
             <p className="text-sm font-black uppercase tracking-[0.35em] text-[#b91111]">15 August / 26 January</p>
@@ -239,62 +306,16 @@ function Events() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,196,77,.18),transparent_55%)]" />
 
             <div className="relative grid h-full grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-              {[
-                [
-                  36,
-                  false,
-                  [
-                    ['Darshan', 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=700&q=80', 'h-56'],
-                    ['Dhol Tasha', 'https://images.unsplash.com/photo-1606293926249-ed16f8e41e6b?auto=format&fit=crop&w=700&q=80', 'h-72'],
-                    ['Decorations', 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?auto=format&fit=crop&w=700&q=80', 'h-48'],
-                  ],
-                ],
-                [
-                  42,
-                  true,
-                  [
-                    ['Youth', 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=700&q=80', 'h-64'],
-                    ['Families', 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=700&q=80', 'h-52'],
-                    ['Aarti', 'https://images.unsplash.com/photo-1601050690117-94f5f6fa8bd7?auto=format&fit=crop&w=700&q=80', 'h-80'],
-                  ],
-                ],
-                [
-                  38,
-                  false,
-                  [
-                    ['Diwali', 'https://images.unsplash.com/photo-1605292356183-a77d0a9c9d1d?auto=format&fit=crop&w=700&q=80', 'h-52'],
-                    ['Seva', 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=700&q=80', 'h-72'],
-                    ['Crowd', 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=700&q=80', 'h-60'],
-                  ],
-                ],
-                [
-                  45,
-                  true,
-                  [
-                    ['Patriotism', 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?auto=format&fit=crop&w=700&q=80', 'h-80'],
-                    ['Children', 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=700&q=80', 'h-48'],
-                    ['Community', 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=700&q=80', 'h-64'],
-                  ],
-                ],
-                [
-                  40,
-                  false,
-                  [
-                    ['Culture', 'https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=700&q=80', 'h-56'],
-                    ['Celebration', 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=700&q=80', 'h-72'],
-                    ['Togetherness', 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=700&q=80', 'h-52'],
-                  ],
-                ],
-              ].map(([duration, reverse, images], columnIndex) => (
+              {eventImages.moreThanEvents.map(({ duration, reverse, images }, columnIndex) => (
                 <motion.div
                   key={columnIndex}
                   animate={{ y: reverse ? ['-50%', '0%'] : ['0%', '-50%'] }}
                   transition={{ duration, repeat: Infinity, ease: 'linear' }}
                   className={`space-y-3 ${columnIndex === 4 ? 'hidden lg:block' : ''}`}
                 >
-                  {[...images, ...images].map(([label, src, height], imageIndex) => (
+                  {[...images, ...images].map(({ src, height }, imageIndex) => (
                     <figure
-                      key={`${label}-${imageIndex}`}
+                      key={`${columnIndex}-${imageIndex}`}
                       className={`group relative ${height} overflow-hidden rounded-2xl border border-white/70 bg-white shadow-[0_18px_55px_rgba(121,28,0,.13)]`}
                     >
                       <img

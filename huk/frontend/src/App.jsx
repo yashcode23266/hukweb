@@ -9,6 +9,7 @@ const Donation = lazy(() => import('./pages/Donation'))
 const Events = lazy(() => import('./pages/Events'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const Home = lazy(() => import('./pages/Home'))
+const LegalPage = lazy(() => import('./pages/LegalPage'))
 const Shop = lazy(() => import('./pages/Shop'))
 const SocialWork = lazy(() => import('./pages/SocialWork'))
 
@@ -38,6 +39,9 @@ function App() {
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/privacy-policy" element={<LegalPage page="privacy" />} />
+            <Route path="/terms-and-conditions" element={<LegalPage page="terms" />} />
+            <Route path="/refund-policy" element={<LegalPage page="refund" />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

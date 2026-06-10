@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { api, downloadAdminExport } from '../api/client'
-import SectionTitle from '../components/SectionTitle'
 import { useLanguage } from '../i18n/useLanguage'
 import { money } from '../utils/format'
 
@@ -17,17 +16,18 @@ const emptyProduct = {
 }
 
 const emptyGallery = { title: '', year: new Date().getFullYear(), story: '', imageUrl: '', imageFile: null }
-const emptyOfflineDonation = {
-  name: '',
-  phone: '',
-  email: '',
-  pan: '',
-  amount: '',
-  purpose: 'Ganpati Utsav Seva',
-  paymentMode: 'upi',
-  paymentReference: '',
-}
 const orderStatuses = ['paid', 'processing', 'ready', 'delivered', 'cancelled', 'failed']
+
+const adminText = {
+  en: {
+    dashboardTitle: 'Mandal Dashboard',
+    secureAccess: 'Secure Access',
+  },
+  mr: {
+    dashboardTitle: 'मंडळ डॅशबोर्ड',
+    secureAccess: 'सुरक्षित प्रवेश',
+  },
+}
 
 function filterItems(items, query) {
   const value = query.trim().toLowerCase()
@@ -37,16 +37,14 @@ function filterItems(items, query) {
 
 function AdminDashboard() {
   const queryClient = useQueryClient()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const ui = adminText[language] || adminText.en
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '')
   const [login, setLogin] = useState({ email: 'admin@mandal.com', password: '' })
-  const [announcement, setAnnouncement] = useState({ title: '', body: '', category: 'Update', isPinned: false })
-  const [editingAnnouncement, setEditingAnnouncement] = useState(null)
   const [gallery, setGallery] = useState(emptyGallery)
   const [editingGallery, setEditingGallery] = useState(null)
   const [product, setProduct] = useState(emptyProduct)
   const [editingProduct, setEditingProduct] = useState(null)
-  const [offlineDonation, setOfflineDonation] = useState(emptyOfflineDonation)
   const [search, setSearch] = useState('')
   const [message, setMessage] = useState('')
 
@@ -76,37 +74,6 @@ function AdminDashboard() {
       queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
     },
     onError: (error) => setMessage(error.response?.data?.message || t('loginFailed')),
-  })
-
-  const announcementMutation = useMutation({
-    mutationFn: async () => (await api.post('/announcements', announcement)).data,
-    onSuccess: () => {
-      setAnnouncement({ title: '', body: '', category: t('update'), isPinned: false })
-      setMessage(t('announcementPublished'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['announcements'] })
-    },
-  })
-
-  const updateAnnouncementMutation = useMutation({
-    mutationFn: async ({ id, values }) => (await api.put(`/announcements/${id}`, values)).data,
-    onSuccess: () => {
-      setEditingAnnouncement(null)
-      setMessage(t('announcementUpdated'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['announcements'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('announcementUpdateFailed')),
-  })
-
-  const deleteAnnouncementMutation = useMutation({
-    mutationFn: async (id) => api.delete(`/announcements/${id}`),
-    onSuccess: () => {
-      setMessage(t('announcementDeleted'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['announcements'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('announcementDeleteFailed')),
   })
 
   const galleryMutation = useMutation({
@@ -219,30 +186,6 @@ function AdminDashboard() {
     onError: (error) => setMessage(error.response?.data?.message || t('orderStatusUpdateFailed')),
   })
 
-  const offlineDonationMutation = useMutation({
-    mutationFn: async () =>
-      (
-        await api.post('/donations/offline', {
-          donor: {
-            name: offlineDonation.name,
-            phone: offlineDonation.phone,
-            email: offlineDonation.email,
-            pan: offlineDonation.pan,
-          },
-          amount: Number(offlineDonation.amount),
-          purpose: offlineDonation.purpose,
-          paymentMode: offlineDonation.paymentMode,
-          paymentReference: offlineDonation.paymentReference,
-        })
-      ).data,
-    onSuccess: (data) => {
-      setOfflineDonation(emptyOfflineDonation)
-      setMessage(`${t('offlineDonationSaved')} ${data.receiptNumber}`)
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('offlineDonationSaveFailed')),
-  })
-
   function exportExcel() {
     downloadAdminExport()
   }
@@ -259,94 +202,88 @@ function AdminDashboard() {
   }
 
   const isBusy =
-    announcementMutation.isPending ||
-    updateAnnouncementMutation.isPending ||
-    deleteAnnouncementMutation.isPending ||
     galleryMutation.isPending ||
     updateGalleryMutation.isPending ||
     deleteGalleryMutation.isPending ||
     productMutation.isPending ||
     updateProductMutation.isPending ||
     deleteProductMutation.isPending ||
-    updateOrderStatusMutation.isPending ||
-    offlineDonationMutation.isPending
+    updateOrderStatusMutation.isPending
 
   return (
-    <section className="px-4 py-10 sm:px-6 sm:py-12">
-      <SectionTitle eyebrow={t('adminEyebrow')} title={t('adminTitle')}>
-        {t('adminCopy')}
-      </SectionTitle>
-      <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
-        <aside className="h-fit min-w-0 rounded-lg border border-orange-200 bg-white p-4 shadow-sm sm:p-5 lg:sticky lg:top-36">
-          <h2 className="wrap-break-word text-xl font-black">{t('adminLogin')}</h2>
+    <main className="bg-[#fff8ea] px-4 py-10 text-stone-950 sm:px-6 lg:py-14">
+      <section className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl border border-[#e7c579]/60 bg-linear-to-br from-[#fffaf0] via-[#fff1da] to-[#ffe8bf] px-5 py-10 shadow-[0_28px_90px_rgba(93,25,0,.10)] sm:px-8">
+        <div className="absolute right-12 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-[#ffb72e]/20 blur-3xl" />
+        <div className="relative grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.34em] text-[#b91111]">{t('adminEyebrow')}</p>
+            <h1 className="mt-3 font-serif text-5xl font-black leading-none text-[#9f1111] sm:text-7xl">{ui.dashboardTitle}</h1>
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-stone-700">{t('adminCopy')}</p>
+          </div>
+          {adminToken ? (
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <button className="rounded-full bg-[#b91111] px-5 py-3 font-black text-white shadow-lg shadow-red-950/15 disabled:opacity-50" type="button" onClick={exportExcel} disabled={!adminToken}>
+                {t('exportExcel')}
+              </button>
+              <button className="rounded-full border border-[#9f1111]/25 bg-[#b91111] px-5 py-3 font-black text-white disabled:opacity-50" type="button" onClick={logout} disabled={!adminToken}>
+                {t('logout')}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <div className="mx-auto mt-8 grid max-w-7xl gap-6 lg:grid-cols-[330px_minmax(0,1fr)] xl:grid-cols-[370px_minmax(0,1fr)]">
+        <aside className="h-fit min-w-0 rounded-[1.25rem] border border-[#e7c579]/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(93,25,0,.12)] backdrop-blur lg:sticky lg:top-36">
+          <p className="text-xs font-black uppercase tracking-[0.26em] text-[#b91111]">{ui.secureAccess}</p>
+          <h2 className="mt-2 wrap-break-word font-serif text-3xl font-black text-[#9f1111]">{t('adminLogin')}</h2>
           <form
-            className="mt-4 space-y-3"
+            className="mt-5 space-y-3"
             onSubmit={(event) => {
               event.preventDefault()
               loginMutation.mutate()
             }}
           >
-            <input className="w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('adminEmail')} value={login.email} onChange={(e) => setLogin({ ...login, email: e.target.value })} />
-            <input className="w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('adminPassword')} type="password" value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} />
-            <button className="w-full rounded-full bg-red-700 px-4 py-3 font-black text-white">{t('login')}</button>
+            <input className="w-full min-w-0 rounded-2xl border border-[#e7c579] bg-[#fffdf7] px-4 py-3" placeholder={t('adminEmail')} value={login.email} onChange={(e) => setLogin({ ...login, email: e.target.value })} />
+            <input className="w-full min-w-0 rounded-2xl border border-[#e7c579] bg-[#fffdf7] px-4 py-3" placeholder={t('adminPassword')} type="password" value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} />
+            <button className="w-full rounded-full bg-[#b91111] px-4 py-3 font-black text-white shadow-lg shadow-red-950/15">{loginMutation.isPending ? t('saving') : t('login')}</button>
           </form>
-          <button className="mt-3 w-full rounded-full bg-stone-950 px-4 py-3 font-black text-amber-100 disabled:opacity-50" type="button" onClick={exportExcel} disabled={!adminToken}>
+          <button className="mt-3 w-full rounded-full bg-[#b91111] px-4 py-3 font-black text-amber-100 disabled:opacity-50" type="button" onClick={exportExcel} disabled={!adminToken}>
             {t('exportExcel')}
           </button>
-          <button className="mt-3 w-full rounded-full border border-red-200 bg-white px-4 py-3 font-black text-red-800 disabled:opacity-50" type="button" onClick={logout} disabled={!adminToken}>
+          <button className="mt-3 w-full rounded-full border border-[#9f1111]/25 bg-[#b91111] px-4 py-3 font-black text-white disabled:opacity-50" type="button" onClick={logout} disabled={!adminToken}>
             {t('logout')}
           </button>
-          {message ? <p className="mt-3 wrap-break-word rounded-md bg-green-50 p-3 text-sm font-bold text-green-800">{message}</p> : null}
+          {message ? <p className="mt-4 wrap-break-word rounded-2xl bg-green-50 p-4 text-sm font-bold text-green-800">{message}</p> : null}
         </aside>
 
         {adminToken ? (
         <div className="min-w-0 space-y-6">
           <input
-            className="w-full min-w-0 rounded-lg border border-orange-200 bg-white px-4 py-3 shadow-sm"
+            className="w-full min-w-0 rounded-2xl border border-[#e7c579]/80 bg-white px-5 py-4 shadow-[0_16px_45px_rgba(93,25,0,.08)]"
             placeholder={t('searchAdmin')}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {['users', 'orders', 'donations', 'products'].map((key) => (
-              <div key={key} className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
-                <p className="wrap-break-word text-xs font-black uppercase tracking-[0.14em] text-red-700 sm:text-sm sm:tracking-[0.2em]">{t(key)}</p>
-                <p className="mt-2 text-3xl font-black sm:text-4xl">{dashboard.data?.stats?.[key] ?? 0}</p>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {[
+              ['users', dashboard.data?.stats?.users ?? 0],
+              ['orders', dashboard.data?.stats?.orders ?? 0],
+              ['donations', dashboard.data?.stats?.donations ?? 0],
+              ['products', dashboard.data?.stats?.products ?? 0],
+            ].map(([key, value]) => (
+              <div key={key} className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
+                <p className="wrap-break-word text-xs font-black uppercase tracking-[0.14em] text-[#b91111] sm:text-sm sm:tracking-[0.2em]">{t(key)}</p>
+                <p className="mt-2 font-serif text-4xl font-black text-[#9f1111]">{value}</p>
               </div>
             ))}
           </div>
 
           <div className="grid gap-6 xl:grid-cols-2">
             <ProductForm disabled={productMutation.isPending} product={product} setProduct={setProduct} onSubmit={() => productMutation.mutate()} />
-            <AnnouncementForm disabled={announcementMutation.isPending} announcement={announcement} setAnnouncement={setAnnouncement} onSubmit={() => announcementMutation.mutate()} />
             <GalleryForm disabled={galleryMutation.isPending} gallery={gallery} setGallery={setGallery} onSubmit={() => galleryMutation.mutate()} />
-            <OfflineDonationForm
-              disabled={offlineDonationMutation.isPending}
-              donation={offlineDonation}
-              setDonation={setOfflineDonation}
-              onSubmit={() => offlineDonationMutation.mutate()}
-            />
           </div>
-
-          <AnnouncementList
-            editingAnnouncement={editingAnnouncement}
-            items={filterItems(dashboard.data?.announcements || [], search)}
-            onCancelEdit={() => setEditingAnnouncement(null)}
-            disabled={isBusy}
-            onDelete={(id) => confirmDelete(t('thisAnnouncement'), () => deleteAnnouncementMutation.mutate(id))}
-            onEdit={(item) =>
-              setEditingAnnouncement({
-                _id: item._id,
-                title: item.title,
-                body: item.body,
-                category: item.category || t('update'),
-                isPinned: Boolean(item.isPinned),
-              })
-            }
-            onSave={(id, values) => updateAnnouncementMutation.mutate({ id, values })}
-            setEditingAnnouncement={setEditingAnnouncement}
-          />
 
           <ProductList
             editingProduct={editingProduct}
@@ -390,8 +327,8 @@ function AdminDashboard() {
             setEditingGallery={setEditingGallery}
           />
 
-          <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
-            <h2 className="wrap-break-word text-xl font-black">{t('recentUsers')}</h2>
+          <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
+            <h2 className="wrap-break-word font-serif text-2xl font-black text-[#9f1111]">{t('recentUsers')}</h2>
             <div className="mt-4">
               <UserList items={filterItems(dashboard.data?.recentUsers || [], search)} />
             </div>
@@ -405,13 +342,13 @@ function AdminDashboard() {
           <AuditLogList items={filterItems(dashboard.data?.auditLogs || [], search)} />
         </div>
         ) : (
-          <div className="min-w-0 rounded-lg border border-orange-200 bg-white p-5 shadow-sm sm:p-8">
-            <h2 className="wrap-break-word text-2xl font-black text-stone-950">{t('loginRequired')}</h2>
+          <div className="min-w-0 rounded-[1.25rem] border border-[#e7c579]/70 bg-white p-6 shadow-[0_24px_80px_rgba(93,25,0,.12)] sm:p-8">
+            <h2 className="wrap-break-word font-serif text-4xl font-black text-[#9f1111]">{t('loginRequired')}</h2>
             <p className="mt-2 text-stone-700">{t('loginRequiredCopy')}</p>
           </div>
         )}
       </div>
-    </section>
+    </main>
   )
 }
 
@@ -421,54 +358,34 @@ function ProductForm({ disabled, product, setProduct, onSubmit }) {
 
   return (
     <form
-      className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5"
+      className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5"
       onSubmit={(event) => {
         event.preventDefault()
         onSubmit()
       }}
     >
       <h2 className="wrap-break-word text-xl font-black">{t('addProduct')}</h2>
-      <input className="mt-4 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('productName')} value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} />
+      <input className="mt-4 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('productName')} value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} />
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('price')} type="number" value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} />
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('stock')} type="number" value={product.stock} onChange={(e) => setProduct({ ...product, stock: e.target.value })} />
+        <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('price')} type="number" value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} />
+        <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('stock')} type="number" value={product.stock} onChange={(e) => setProduct({ ...product, stock: e.target.value })} />
       </div>
       {preview ? <img src={preview} alt="" className="mt-3 h-36 w-full rounded-md object-cover" /> : null}
       <input
-        className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3"
+        className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3"
         type="file"
         accept="image/png,image/jpeg,image/webp"
         onChange={(e) => setProduct({ ...product, imageFile: e.target.files?.[0] || null })}
       />
-      <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('imageUrl')} value={product.image} onChange={(e) => setProduct({ ...product, image: e.target.value })} />
-      <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('sizesCsv')} value={product.sizes} onChange={(e) => setProduct({ ...product, sizes: e.target.value })} />
-      <textarea className="mt-3 min-h-24 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('description')} value={product.description} onChange={(e) => setProduct({ ...product, description: e.target.value })} />
+      <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('imageUrl')} value={product.image} onChange={(e) => setProduct({ ...product, image: e.target.value })} />
+      <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('sizesCsv')} value={product.sizes} onChange={(e) => setProduct({ ...product, sizes: e.target.value })} />
+      <textarea className="mt-3 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('description')} value={product.description} onChange={(e) => setProduct({ ...product, description: e.target.value })} />
       <label className="mt-3 flex items-center gap-2 text-sm font-bold text-stone-700">
         <input type="checkbox" checked={product.isActive} onChange={(e) => setProduct({ ...product, isActive: e.target.checked })} />
         {t('activeInShop')}
       </label>
-      <button className="mt-3 rounded-full bg-red-700 px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
+      <button className="mt-3 rounded-full bg-[#b91111] px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
         {disabled ? t('adding') : t('addProduct')}
-      </button>
-    </form>
-  )
-}
-
-function AnnouncementForm({ announcement, disabled, setAnnouncement, onSubmit }) {
-  const { t } = useLanguage()
-  return (
-    <form
-      className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5"
-      onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit()
-      }}
-    >
-      <h2 className="wrap-break-word text-xl font-black">{t('addAnnouncement')}</h2>
-      <input className="mt-4 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('title')} value={announcement.title} onChange={(e) => setAnnouncement({ ...announcement, title: e.target.value })} />
-      <textarea className="mt-3 min-h-32 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('body')} value={announcement.body} onChange={(e) => setAnnouncement({ ...announcement, body: e.target.value })} />
-      <button className="mt-3 rounded-full bg-red-700 px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
-        {disabled ? t('publishing') : t('publish')}
       </button>
     </form>
   )
@@ -480,149 +397,34 @@ function GalleryForm({ disabled, gallery, setGallery, onSubmit }) {
 
   return (
     <form
-      className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5"
+      className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5"
       onSubmit={(event) => {
         event.preventDefault()
         onSubmit()
       }}
     >
       <h2 className="wrap-break-word text-xl font-black">{t('addGalleryItem')}</h2>
-      <input className="mt-4 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('title')} value={gallery.title} onChange={(e) => setGallery({ ...gallery, title: e.target.value })} />
+      <input className="mt-4 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('title')} value={gallery.title} onChange={(e) => setGallery({ ...gallery, title: e.target.value })} />
       {preview ? <img src={preview} alt="" className="mt-3 h-36 w-full rounded-md object-cover" /> : null}
       <input
-        className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3"
+        className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3"
         type="file"
         accept="image/png,image/jpeg,image/webp"
         onChange={(e) => setGallery({ ...gallery, imageFile: e.target.files?.[0] || null })}
       />
-      <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('imageUrl')} value={gallery.imageUrl} onChange={(e) => setGallery({ ...gallery, imageUrl: e.target.value })} />
-      <textarea className="mt-3 min-h-24 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('story')} value={gallery.story} onChange={(e) => setGallery({ ...gallery, story: e.target.value })} />
-      <button className="mt-3 rounded-full bg-red-700 px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
+      <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('imageUrl')} value={gallery.imageUrl} onChange={(e) => setGallery({ ...gallery, imageUrl: e.target.value })} />
+      <textarea className="mt-3 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('story')} value={gallery.story} onChange={(e) => setGallery({ ...gallery, story: e.target.value })} />
+      <button className="mt-3 rounded-full bg-[#b91111] px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
         {disabled ? t('adding') : t('addGalleryItem')}
       </button>
     </form>
   )
 }
 
-function OfflineDonationForm({ disabled, donation, setDonation, onSubmit }) {
-  const { t } = useLanguage()
-  return (
-    <form
-      className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5"
-      onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit()
-      }}
-    >
-      <h2 className="wrap-break-word text-xl font-black">{t('addOfflineDonation')}</h2>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('donorName')} value={donation.name} onChange={(e) => setDonation({ ...donation, name: e.target.value })} required />
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('phone')} value={donation.phone} onChange={(e) => setDonation({ ...donation, phone: e.target.value })} required />
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('email')} value={donation.email} onChange={(e) => setDonation({ ...donation, email: e.target.value })} />
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('pan')} value={donation.pan} onChange={(e) => setDonation({ ...donation, pan: e.target.value })} />
-        <input className="min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('amount')} type="number" min="1" value={donation.amount} onChange={(e) => setDonation({ ...donation, amount: e.target.value })} required />
-        <select className="min-w-0 rounded-md border border-orange-200 px-3 py-3" value={donation.paymentMode} onChange={(e) => setDonation({ ...donation, paymentMode: e.target.value })}>
-          <option value="upi">{t('upi')}</option>
-          <option value="bank">{t('bank')}</option>
-          <option value="cash">{t('cash')}</option>
-          <option value="cheque">{t('cheque')}</option>
-          <option value="other">{t('other')}</option>
-        </select>
-      </div>
-      <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('purpose')} value={donation.purpose} onChange={(e) => setDonation({ ...donation, purpose: e.target.value })} />
-      <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-3" placeholder={t('paymentReference')} value={donation.paymentReference} onChange={(e) => setDonation({ ...donation, paymentReference: e.target.value })} />
-      <button className="mt-3 rounded-full bg-red-700 px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
-        {disabled ? t('saving') : t('saveDonation')}
-      </button>
-    </form>
-  )
-}
-
-function AnnouncementList({ disabled, editingAnnouncement, items, onCancelEdit, onDelete, onEdit, onSave, setEditingAnnouncement }) {
-  const { t } = useLanguage()
-  return (
-    <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
-      <h2 className="wrap-break-word text-xl font-black">{t('announcements')}</h2>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">
-        {items.map((item) => (
-          <AnnouncementCard
-            editingAnnouncement={editingAnnouncement}
-            disabled={disabled}
-            item={item}
-            key={item._id}
-            onCancelEdit={onCancelEdit}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onSave={onSave}
-            setEditingAnnouncement={setEditingAnnouncement}
-          />
-        ))}
-        {items.length === 0 ? <p className="text-stone-600">{t('noAnnouncements')}</p> : null}
-      </div>
-    </div>
-  )
-}
-
-function AnnouncementCard({ disabled, editingAnnouncement, item, onCancelEdit, onDelete, onEdit, onSave, setEditingAnnouncement }) {
-  const { t } = useLanguage()
-  const isEditing = editingAnnouncement?._id === item._id
-
-  if (isEditing) {
-    return (
-      <form
-        className="min-w-0 rounded-lg bg-orange-50 p-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSave(item._id, editingAnnouncement)
-        }}
-      >
-        <input className="w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('title')} value={editingAnnouncement.title} onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, title: e.target.value })} />
-        <input className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('category')} value={editingAnnouncement.category} onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, category: e.target.value })} />
-        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('body')} value={editingAnnouncement.body} onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, body: e.target.value })} />
-        <label className="mt-2 flex items-center gap-2 text-sm font-bold text-stone-700">
-          <input type="checkbox" checked={editingAnnouncement.isPinned} onChange={(e) => setEditingAnnouncement({ ...editingAnnouncement, isPinned: e.target.checked })} />
-          {t('pinAnnouncement')}
-        </label>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="submit" className="rounded-full bg-red-700 px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
-            {disabled ? t('saving') : t('save')}
-          </button>
-          <button type="button" onClick={onCancelEdit} className="rounded-full bg-white px-4 py-2 text-sm font-black text-stone-700 disabled:opacity-50" disabled={disabled}>
-            {t('cancel')}
-          </button>
-        </div>
-      </form>
-    )
-  }
-
-  return (
-    <div className="min-w-0 rounded-lg bg-orange-50 p-3">
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
-        <div className="min-w-0">
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-red-700">{item.category || t('update')}</span>
-            {item.isPinned ? <span className="rounded-full bg-amber-300 px-3 py-1 text-xs font-black text-red-950">{t('pinned')}</span> : null}
-          </div>
-          <p className="mt-2 wrap-break-word font-black">{item.title}</p>
-          <p className="mt-1 line-clamp-3 text-sm text-stone-600">{item.body}</p>
-        </div>
-        <div className="flex flex-wrap gap-2 sm:flex-col">
-          <button type="button" onClick={() => onEdit(item)} className="rounded-full bg-white px-3 py-2 text-sm font-black text-stone-800 disabled:opacity-50" disabled={disabled}>
-            {t('edit')}
-          </button>
-          <button type="button" onClick={() => onDelete(item._id)} className="rounded-full bg-white px-3 py-2 text-sm font-black text-red-700 disabled:opacity-50" disabled={disabled}>
-            {t('delete')}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function ProductList({ disabled, editingProduct, items, onCancelEdit, onDelete, onEdit, onSave, setEditingProduct }) {
   const { t } = useLanguage()
   return (
-    <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
+    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
       <h2 className="wrap-break-word text-xl font-black">{t('products')}</h2>
       <div className="mt-4 grid gap-3 xl:grid-cols-2">
         {items.map((item) => (
@@ -653,33 +455,33 @@ function ProductCard({ disabled, editingProduct, item, onCancelEdit, onDelete, o
 
     return (
       <form
-        className="min-w-0 rounded-lg bg-orange-50 p-3"
+        className="min-w-0 rounded-2xl bg-[#fff7e8] p-3"
         onSubmit={(event) => {
           event.preventDefault()
           onSave(item._id, editingProduct)
         }}
       >
         {preview ? <img src={preview} alt="" className="h-36 w-full rounded-md object-cover" /> : null}
-        <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('productName')} value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+        <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('productName')} value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <input className="min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('price')} type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })} />
-          <input className="min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('stock')} type="number" value={editingProduct.stock} onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })} />
+          <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('price')} type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })} />
+          <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('stock')} type="number" value={editingProduct.stock} onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })} />
         </div>
         <input
-          className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2"
+          className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2"
           type="file"
           accept="image/png,image/jpeg,image/webp"
           onChange={(e) => setEditingProduct({ ...editingProduct, imageFile: e.target.files?.[0] || null })}
         />
-        <input className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('imageUrl')} value={editingProduct.image} onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })} />
-        <input className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('sizesComma')} value={editingProduct.sizes} onChange={(e) => setEditingProduct({ ...editingProduct, sizes: e.target.value })} />
-        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('description')} value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('imageUrl')} value={editingProduct.image} onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })} />
+        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('sizesComma')} value={editingProduct.sizes} onChange={(e) => setEditingProduct({ ...editingProduct, sizes: e.target.value })} />
+        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('description')} value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
         <label className="mt-2 flex items-center gap-2 text-sm font-bold text-stone-700">
           <input type="checkbox" checked={editingProduct.isActive} onChange={(e) => setEditingProduct({ ...editingProduct, isActive: e.target.checked })} />
           {t('activeInShop')}
         </label>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button type="submit" className="rounded-full bg-red-700 px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
+          <button type="submit" className="rounded-full bg-[#b91111] px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
             {disabled ? t('saving') : t('save')}
           </button>
           <button type="button" onClick={onCancelEdit} className="rounded-full bg-white px-4 py-2 text-sm font-black text-stone-700 disabled:opacity-50" disabled={disabled}>
@@ -691,18 +493,18 @@ function ProductCard({ disabled, editingProduct, item, onCancelEdit, onDelete, o
   }
 
   return (
-    <div className="grid min-w-0 gap-3 rounded-lg bg-orange-50 p-3 sm:grid-cols-[80px_minmax(0,1fr)_auto]">
+    <div className="grid min-w-0 gap-3 rounded-2xl bg-[#fff7e8] p-3 sm:grid-cols-[80px_minmax(0,1fr)_auto]">
       <img src={item.image} alt="" className="size-20 rounded-md object-cover" />
       <div className="min-w-0 flex-1">
         <p className="wrap-break-word font-black">{item.name}</p>
         <p className="wrap-break-word text-sm text-stone-600">{money(item.price)} / {t('stock')} {item.stock ?? 0}</p>
-        <p className="text-xs font-bold uppercase tracking-widest text-red-700">{item.isActive ? t('active') : t('inactive')}</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#b91111]">{item.isActive ? t('active') : t('inactive')}</p>
       </div>
       <div className="flex flex-wrap gap-2 sm:flex-col">
         <button type="button" onClick={() => onEdit(item)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-stone-800 disabled:opacity-50" disabled={disabled}>
           {t('edit')}
         </button>
-        <button type="button" onClick={() => onDelete(item._id)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-red-700 disabled:opacity-50" disabled={disabled}>
+        <button type="button" onClick={() => onDelete(item._id)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-[#b91111] disabled:opacity-50" disabled={disabled}>
           {t('delete')}
         </button>
       </div>
@@ -713,7 +515,7 @@ function ProductCard({ disabled, editingProduct, item, onCancelEdit, onDelete, o
 function GalleryList({ disabled, editingGallery, items, onCancelEdit, onDelete, onEdit, onSave, setEditingGallery }) {
   const { t } = useLanguage()
   return (
-    <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
+    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
       <h2 className="wrap-break-word text-xl font-black">{t('navGallery')}</h2>
       <div className="mt-4 grid gap-3 xl:grid-cols-2">
         {items.map((item) => (
@@ -744,25 +546,25 @@ function GalleryCard({ disabled, editingGallery, item, onCancelEdit, onDelete, o
 
     return (
       <form
-        className="min-w-0 rounded-lg bg-orange-50 p-3"
+        className="min-w-0 rounded-2xl bg-[#fff7e8] p-3"
         onSubmit={(event) => {
           event.preventDefault()
           onSave(item._id, editingGallery)
         }}
       >
         {preview ? <img src={preview} alt="" className="h-36 w-full rounded-md object-cover" /> : null}
-        <input className="mt-3 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('title')} value={editingGallery.title} onChange={(e) => setEditingGallery({ ...editingGallery, title: e.target.value })} />
-        <input className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('year')} type="number" value={editingGallery.year} onChange={(e) => setEditingGallery({ ...editingGallery, year: e.target.value })} />
+        <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('title')} value={editingGallery.title} onChange={(e) => setEditingGallery({ ...editingGallery, title: e.target.value })} />
+        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('year')} type="number" value={editingGallery.year} onChange={(e) => setEditingGallery({ ...editingGallery, year: e.target.value })} />
         <input
-          className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2"
+          className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2"
           type="file"
           accept="image/png,image/jpeg,image/webp"
           onChange={(e) => setEditingGallery({ ...editingGallery, imageFile: e.target.files?.[0] || null })}
         />
-        <input className="mt-2 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('imageUrl')} value={editingGallery.imageUrl} onChange={(e) => setEditingGallery({ ...editingGallery, imageUrl: e.target.value })} />
-        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-md border border-orange-200 px-3 py-2" placeholder={t('story')} value={editingGallery.story} onChange={(e) => setEditingGallery({ ...editingGallery, story: e.target.value })} />
+        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('imageUrl')} value={editingGallery.imageUrl} onChange={(e) => setEditingGallery({ ...editingGallery, imageUrl: e.target.value })} />
+        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('story')} value={editingGallery.story} onChange={(e) => setEditingGallery({ ...editingGallery, story: e.target.value })} />
         <div className="mt-3 flex flex-wrap gap-2">
-          <button type="submit" className="rounded-full bg-red-700 px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
+          <button type="submit" className="rounded-full bg-[#b91111] px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
             {disabled ? t('saving') : t('save')}
           </button>
           <button type="button" onClick={onCancelEdit} className="rounded-full bg-white px-4 py-2 text-sm font-black text-stone-700 disabled:opacity-50" disabled={disabled}>
@@ -774,7 +576,7 @@ function GalleryCard({ disabled, editingGallery, item, onCancelEdit, onDelete, o
   }
 
   return (
-    <div className="grid min-w-0 gap-3 rounded-lg bg-orange-50 p-3 sm:grid-cols-[80px_minmax(0,1fr)_auto]">
+    <div className="grid min-w-0 gap-3 rounded-2xl bg-[#fff7e8] p-3 sm:grid-cols-[80px_minmax(0,1fr)_auto]">
       <img src={item.imageUrl} alt="" className="size-20 rounded-md object-cover" />
       <div className="min-w-0 flex-1">
         <p className="wrap-break-word font-black">{item.title}</p>
@@ -785,7 +587,7 @@ function GalleryCard({ disabled, editingGallery, item, onCancelEdit, onDelete, o
         <button type="button" onClick={() => onEdit(item)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-stone-800 disabled:opacity-50" disabled={disabled}>
           {t('edit')}
         </button>
-        <button type="button" onClick={() => onDelete(item._id)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-red-700 disabled:opacity-50" disabled={disabled}>
+        <button type="button" onClick={() => onDelete(item._id)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-[#b91111] disabled:opacity-50" disabled={disabled}>
           {t('delete')}
         </button>
       </div>
@@ -797,11 +599,11 @@ function UserList({ items }) {
   const { t } = useLanguage()
   return (
     <div className="min-w-0">
-      <h3 className="wrap-break-word font-black text-red-800">{t('users')}</h3>
+      <h3 className="wrap-break-word font-black text-[#8d0909]">{t('users')}</h3>
       <div className="mt-3 space-y-2">
         {items.length === 0 ? <p className="text-sm text-stone-600">{t('noUsers')}</p> : null}
         {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-md bg-orange-50 p-3 text-sm">
+          <div key={item._id} className="min-w-0 rounded-xl bg-[#fff7e8] p-3 text-sm">
             <p className="wrap-break-word font-black">{item.name}</p>
             <p className="wrap-break-word">{item.phone} / {item.email || t('noEmail')}</p>
           </div>
@@ -814,19 +616,19 @@ function UserList({ items }) {
 function OrderManagement({ items, onStatusChange }) {
   const { t } = useLanguage()
   return (
-    <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
+    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
       <h2 className="wrap-break-word text-xl font-black">{t('orders')}</h2>
       <div className="mt-4 space-y-3">
         {items.length === 0 ? <p className="text-sm text-stone-600">{t('noOrders')}</p> : null}
         {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-lg bg-orange-50 p-4 text-sm">
+          <div key={item._id} className="min-w-0 rounded-2xl bg-[#fff7e8] p-4 text-sm">
             <div className="grid gap-3 xl:grid-cols-[1.2fr_1fr_auto] xl:items-start">
               <div className="min-w-0">
                 <p className="wrap-break-word font-black text-stone-950">{item.customer?.name}</p>
-                <p className="text-sm font-black text-red-700">{item.receiptNumber || t('receiptPending')}</p>
+                <p className="text-sm font-black text-[#b91111]">{item.receiptNumber || t('receiptPending')}</p>
                 <p className="wrap-break-word text-stone-600">{item.customer?.phone} / {item.customer?.email || t('noEmail')}</p>
                 <p className="wrap-break-word text-stone-600">{item.customer?.address || t('noAddress')}</p>
-                <p className="mt-2 text-xs font-bold uppercase tracking-widest text-red-700">{new Date(item.createdAt).toLocaleString()}</p>
+                <p className="mt-2 text-xs font-bold uppercase tracking-widest text-[#b91111]">{new Date(item.createdAt).toLocaleString()}</p>
               </div>
               <div className="min-w-0">
                 <p className="font-black">{money(item.amount)}</p>
@@ -838,7 +640,7 @@ function OrderManagement({ items, onStatusChange }) {
                   ))}
                 </ul>
                 {item.receiptUrl ? (
-                  <a className="mt-2 inline-block font-black text-red-700" href={item.receiptUrl} target="_blank" rel="noreferrer">
+                  <a className="mt-2 inline-block font-black text-[#b91111]" href={item.receiptUrl} target="_blank" rel="noreferrer">
                     {t('receipt')}
                   </a>
                 ) : (
@@ -846,7 +648,7 @@ function OrderManagement({ items, onStatusChange }) {
                 )}
               </div>
               <select
-                className="w-full min-w-0 rounded-md border border-orange-200 bg-white px-3 py-2 font-bold text-stone-800 xl:w-auto"
+                className="w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2 font-bold text-stone-800 xl:w-auto"
                 value={item.status}
                 onChange={(event) => onStatusChange(item._id, event.target.value)}
               >
@@ -867,20 +669,20 @@ function OrderManagement({ items, onStatusChange }) {
 function DonationManagement({ items }) {
   const { t } = useLanguage()
   return (
-    <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
+    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
       <h2 className="wrap-break-word text-xl font-black">{t('donations')}</h2>
       <div className="mt-4 grid gap-3 xl:grid-cols-2">
         {items.length === 0 ? <p className="text-sm text-stone-600">{t('noDonations')}</p> : null}
         {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-lg bg-orange-50 p-4 text-sm">
+          <div key={item._id} className="min-w-0 rounded-2xl bg-[#fff7e8] p-4 text-sm">
             <p className="wrap-break-word font-black text-stone-950">{item.donor?.name}</p>
-            <p className="text-sm font-black text-red-700">{item.receiptNumber || t('receiptPending')}</p>
+            <p className="text-sm font-black text-[#b91111]">{item.receiptNumber || t('receiptPending')}</p>
             <p className="wrap-break-word text-stone-600">{item.donor?.phone} / {item.donor?.email || t('noEmail')}</p>
             <p className="mt-2 font-black">{money(item.amount)} / {item.status}</p>
             <p className="mt-1 wrap-break-word text-stone-600">{item.paymentMode || 'razorpay'}{item.paymentReference ? ` / ${item.paymentReference}` : ''}</p>
-            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-red-700">{new Date(item.createdAt).toLocaleString()}</p>
+            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-[#b91111]">{new Date(item.createdAt).toLocaleString()}</p>
             {item.receiptUrl ? (
-              <a className="mt-2 inline-block font-black text-red-700" href={item.receiptUrl} target="_blank" rel="noreferrer">
+              <a className="mt-2 inline-block font-black text-[#b91111]" href={item.receiptUrl} target="_blank" rel="noreferrer">
                 {t('receipt')}
               </a>
             ) : (
@@ -896,14 +698,14 @@ function DonationManagement({ items }) {
 function AuditLogList({ items }) {
   const { t } = useLanguage()
   return (
-    <div className="min-w-0 rounded-lg bg-white p-4 shadow-sm sm:p-5">
+    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
       <h2 className="wrap-break-word text-xl font-black">{t('auditLogs')}</h2>
       <div className="mt-4 space-y-2">
         {items.length === 0 ? <p className="text-sm text-stone-600">{t('noAuditLogs')}</p> : null}
         {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-lg bg-orange-50 p-3 text-sm">
+          <div key={item._id} className="min-w-0 rounded-2xl bg-[#fff7e8] p-3 text-sm">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-red-700">{item.action}</span>
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-[#b91111]">{item.action}</span>
               <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-stone-600">{item.entity}</span>
             </div>
             <p className="mt-2 wrap-break-word font-bold text-stone-950">{item.message || t('actionRecorded')}</p>
@@ -916,3 +718,6 @@ function AuditLogList({ items }) {
 }
 
 export default AdminDashboard
+
+
+
