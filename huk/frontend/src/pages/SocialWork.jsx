@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
 import ganpatiImage from '../assets/ganpati-optimized.png'
-import millImage from '../assets/mill.jpeg'
+import millImage from '../assets/health.jpeg'
 import peopleImage from '../assets/people.jpeg'
-import oldMandalImage from '../assets/1mill.jpeg'
+import oldMandalImage from '../assets/blood.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 
 const fadeUp = {

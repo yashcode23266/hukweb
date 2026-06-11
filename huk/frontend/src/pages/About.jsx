@@ -50,9 +50,9 @@ const aboutContent = {
     sevaKicker: 'Social Seva',
     sevaTitle: 'Beyond Celebration',
     timeline: [
-      ['1934', 'Mandal Established', 'Mill workers and Girangaon families came together with faith, unity, and devotion.'],
-      ['1990-2016', 'Kashinath Matavkar Era', 'A defining creative period shaped by memorable idols and devotional artistry.'],
-      ['2015', 'Bahubali Theme Ganpati', 'A grand theme that became one of the mandal’s most remembered modern creations.'],
+      ['1934', 'Mandal Established', 'The same hands that once powered the textile mills lit the sacred flame of Ganesha devotion, a flame that continues to illuminate our legacy across generations.'],
+      ['1990-2016', 'Kashinath Matavkar Era', 'Through the vision, leadership, and tireless dedication of shree Kashinath Matavkar, Hukum Mill Lane Cha Raja reached new heights of grandeur and popularity.'],
+      ['2015', 'Bahubali Theme Ganpati', 'Such was the grandeur of its presentation that Hukum Mill Lane Cha Raja became a prominent topic of discussion throughout Mumbai Ganesh festival community.'],
       ['Today', 'Digital Devotion & Community Seva', 'Darshan memories, seva work, donations, and community updates continue with a modern presence.'],
     ],
     divineForms: [
@@ -62,7 +62,7 @@ const aboutContent = {
       ['Lord Shiva', 'Meditative energy, austerity, and timeless spiritual force.'],
     ],
     creations: [
-      ['Banana Ganpati', 'A rare devotional creation remembered for its freshness, imagination, and festive wonder.'],
+      ['Banana Ganpati', 'This unique form of Lord Ganesha, crafted from nature bounty, left an unforgettable impression on the hearts of devotees.'],
       ['5,555 Coconut Ganpati', 'A striking idol concept that transformed everyday offerings into a grand spiritual form.'],
       ['Bahubali Ganpati', 'A dramatic large-scale theme that brought cinematic scale to the mandal’s darshan experience.'],
     ],
@@ -98,9 +98,9 @@ const aboutContent = {
     sevaKicker: 'सामाजिक सेवा',
     sevaTitle: 'उत्सवाच्या पलीकडे',
     timeline: [
-      ['१९३४', 'मंडळाची स्थापना', 'गिरणगावातील कामगार आणि कुटुंबे श्रद्धा, एकता आणि भक्तीने एकत्र आली.'],
-      ['१९९०-२०१६', 'काशिनाथ माटावकर  युग', 'अविस्मरणीय मूर्ती आणि भक्तिमय कलाकृतींनी घडवलेला महत्त्वाचा काळ.'],
-      ['२०१५', 'बाहुबली थीम गणपती', 'मंडळाच्या आधुनिक काळातील सर्वात लक्षवेधी आणि भव्य संकल्पनांपैकी एक.'],
+      ['१९३४', 'मंडळाची स्थापना', 'घामाने इतिहास घडवणाऱ्या गिरणीकामगारांनी ज्या हातांनी गिरण्या फिरवल्या,   त्याच हातांनी गणेशभक्तीचा दीप प्रज्वलित केला; आणि त्या दीपाची ज्योत आजही पिढ्यान्पिढ्या अखंड तेवत आहे.'],
+      ['१९९०-२०१६', 'काशिनाथ माटावकर  युग', ' श्री काशिनाथ माटवकर यांच्या दूरदृष्टी, नेतृत्व आणि अथक परिश्रमांमुळे हुकमिल लेनचा राजा भव्यता व लोकप्रियतेच्या नव्या शिखरांवर पोहोचला.'],
+      ['२०१५', 'बाहुबली थीम गणपती', 'भव्यतेचा असा आविष्कार की संपूर्ण मुंबईच्या गणेशोत्सव विश्वात हुकमिल लेनचा राजा चर्चेचा विषय बनला.'],
       ['आज', 'डिजिटल भक्ती आणि समाजसेवा', 'दर्शन आठवणी, सेवा, देणगी आणि समाजातील अपडेट्स आधुनिक पद्धतीने पुढे चालू आहेत.'],
     ],
     divineForms: [
@@ -110,7 +110,7 @@ const aboutContent = {
       ['भगवान शिव', 'ध्यान, तपस्या आणि चिरंतन आध्यात्मिक शक्ती.'],
     ],
     creations: [
-      ['केळी गणपती', 'ताजेपणा, कल्पकता आणि उत्सवातील वेगळेपणासाठी आठवणीत राहिलेली निर्मिती.'],
+      ['केळी गणपती', 'निसर्गाच्या देणगीतून साकारलेल्या या गणेशरूपाने भाविकांच्या मनावर अविस्मरणीय छाप उमटवली.'],
       ['५,५५५ नारळ गणपती', 'नैवेद्य आणि श्रद्धेला भव्य आध्यात्मिक रूप देणारी अनोखी संकल्पना.'],
       ['बाहुबली गणपती', 'दर्शनाला सिनेमॅटिक भव्यता देणारी नाट्यमय आणि मोठ्या प्रमाणातील संकल्पना.'],
     ],

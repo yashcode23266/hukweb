@@ -35,7 +35,7 @@ import image2021 from '../assets/2021.jpeg'
 import image2022 from '../assets/2022.jpeg'
 import image2023 from '../assets/20233.jpeg'
 import image2024 from '../assets/20244.jpeg'
-import image2025 from '../assets/2025.jpeg'
+import image2025 from '../assets/2026.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 
 const currentYear = 2025
