@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import imagetshirt from "../assets/tshirt.jpg";
-import imageidcard from "../assets/idcard.jpg";
+import imagetshirt from "../assets/tshirt.jpeg";
+import imageidcard from "../assets/id.jpeg";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TSHIRT_SIZES = Array.from(
