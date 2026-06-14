@@ -18,7 +18,7 @@ import { mandalMapEmbedUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
 
 const sponsors = [
-  { name: 'Zee Marathi', logo: zeeLogo },
+  { name: 'ZEE Marathi', logo: zeeLogo },
   { name: 'VERTIV', logo: vrtLogo },
   { name: 'Colors Marathi', logo: colorsMarathiLogo },
   { name: 'Kesh King', logo: keshLogo },
