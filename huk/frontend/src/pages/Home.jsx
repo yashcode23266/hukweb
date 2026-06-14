@@ -128,27 +128,6 @@ function Home() {
         </div>
       </section>
 
-      {/* DONATION CTA SECTION */}
-      <section className="bg-[#fff1f1] px-4 py-12 text-center sm:px-6 sm:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mx-auto max-w-5xl"
-        >
-          <h2 className="font-serif text-3xl font-black text-brand-red sm:text-6xl">{t('donation')}</h2>
-          <p className="mx-auto mt-5 max-w-4xl text-base leading-7 text-stone-800 sm:mt-6 sm:text-2xl sm:leading-9">
-            {t('homeDonationCopy')}
-          </p>
-          <Link
-            to="/donate"
-            className="mt-8 inline-flex rounded-full bg-brand-red px-8 py-4 text-base font-bold text-white shadow-xl shadow-red-900/20 transition hover:-translate-y-1 hover:bg-brand-dark-red sm:mt-10 sm:px-12 sm:py-5 sm:text-xl"
-          >
-            {t('donateNow')}
-          </Link>
-        </motion.div>
-      </section>
-
       {/* PHOTO GALLERY PREVIEW */}
       <section className="bg-[#fffaf0] px-4 py-10 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl">

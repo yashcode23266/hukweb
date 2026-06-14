@@ -6,14 +6,12 @@ import PageMeta from './PageMeta'
 
 const mobileLinks = [
   ['/shop', 'navShop'],
-  ['/donate', 'navDonate'],
   ['/admin', 'navAdmin'],
 ]
 
 const desktopLinks = [
   ['/gallery', 'navGallery'],
   ['/shop', 'navShop'],
-  ['/donate', 'navDonate'],
   ['/admin', 'navAdmin'],
 ]
 
@@ -38,7 +36,7 @@ const socialLinks = {
 const seoByPath = {
   '/': {
     title: 'Home',
-    description: 'Official Hukmilane Lanecha Raja Ganpati Mandal website for darshan, gallery, donations, shop, and community updates.',
+    description: 'Official Hukmilane Lanecha Raja Ganpati Mandal website for darshan, gallery, shop, and community updates.',
   },
   '/about': {
     title: 'About Mandal',
@@ -60,29 +58,25 @@ const seoByPath = {
     title: 'Shop',
     description: 'Buy official Hukmilane Lanecha Raja merchandise including festival T-shirts and ID cards.',
   },
-  '/donate': {
-    title: 'Donate',
-    description: 'Offer seva and support Ganesh Utsav, prasad seva, and community initiatives.',
-  },
   '/contact': {
     title: 'Contact',
     description: 'Find Hukmilane Lanecha Raja contact details and mandal location.',
   },
   '/admin': {
     title: 'Admin',
-    description: 'Secure mandal dashboard for managing orders, donations, gallery, products, and announcements.',
+    description: 'Secure mandal dashboard for managing orders, gallery, products, and records.',
   },
   '/privacy-policy': {
     title: 'Privacy Policy',
-    description: 'How Hukmilane Lanecha Raja handles devotee, donation, order, and admin information.',
+    description: 'How Hukmilane Lanecha Raja handles devotee, order, and admin information.',
   },
   '/terms-and-conditions': {
     title: 'Terms & Conditions',
-    description: 'Terms for using Hukmilane Lanecha Raja website, donations, shop, and admin features.',
+    description: 'Terms for using Hukmilane Lanecha Raja website, shop, and admin features.',
   },
   '/refund-policy': {
     title: 'Refund Policy',
-    description: 'Refund and cancellation guidance for donations and merchandise orders.',
+    description: 'Refund and cancellation guidance for merchandise orders.',
   },
 }
 
@@ -346,7 +340,6 @@ function Layout() {
             <div className="grid gap-2 text-sm font-semibold text-amber-100">
               <Link to="/">{t('navHome')}</Link>
               <Link to="/about">{t('navMandalInfo')}</Link>
-              <Link to="/donate">{t('navDonate')}</Link>
               <Link to="/shop">{t('navShop')}</Link>
               <Link to="/gallery">{t('navGallery')}</Link>
               <Link to="/privacy-policy">{legal.privacy}</Link>
