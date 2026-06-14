@@ -1,4 +1,6 @@
 import { useState, useRef } from "react";
+import imagetshirt from "../assets/tshirt.jpg";
+import imageidcard from "../assets/idcard.jpg";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TSHIRT_SIZES = Array.from(
@@ -19,8 +21,7 @@ const PRODUCTS = [
     description:
       "Premium cotton festival T-shirt. Price is uniform across all sizes.",
     price: 1,
-    image:
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
+    image: imagetshirt,
     badge: "Most Popular",
   },
   {
@@ -30,8 +31,7 @@ const PRODUCTS = [
     description:
       "Official laminated ID card for registered volunteers. \nSingle standard size.",
     price: 1,
-    image:
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80",
+    image: imageidcard,
     badge: "Volunteers Only",
   },
 ];
