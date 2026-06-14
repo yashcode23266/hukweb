@@ -312,7 +312,7 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
       let payment;
       try {
         payment = await openRazorpay({
-          key: order.razorpayKeyId || "rzp_live_T1DcDXtaQqDc4T",
+          key: order.razorpayKeyId || "rzp_live_T1Zc1AiFDYhjxe",
           amount: order.amount * 100,
           currency: "INR",
           name: "HukmillLane Cha Raja",
