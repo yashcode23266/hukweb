@@ -811,4 +811,3 @@ if (typeof document !== "undefined" && !document.getElementById("shop-spinner-st
   document.head.appendChild(st);
 }
 
-
