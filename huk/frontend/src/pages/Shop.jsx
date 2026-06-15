@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useLanguage } from "../i18n/useLanguage";
 import imagetshirt from "../assets/tshirt.jpeg";
 import imageidcard from "../assets/id.jpeg";
 
@@ -13,28 +14,111 @@ const TSHIRT_SIZES = Array.from(
 const BACKEND_URL = "https://hukmillane-webiste-backend-production.up.railway.app/tshirt";
 
 
-const PRODUCTS = [
+const PRODUCT_CONFIG = [
   {
     id: "tshirt",
     type: "tshirt",
-    name: "Mandal T-Shirt",
-    description:
-      "Premium cotton festival T-shirt. Price is uniform across all sizes.",
     price: 1,
     image: imagetshirt,
-    badge: "Most Popular",
   },
   {
     id: "idcard",
     type: "idcard",
-    name: "Volunteer ID Card",
-    description:
-      "Official laminated ID card for registered volunteers. \nSingle standard size.",
     price: 1,
     image: imageidcard,
-    badge: "Volunteers Only",
   },
 ];
+
+const shopText = {
+  en: {
+    eyebrow: "Limited Edition 2026",
+    heroTitle: "Get Your Festival T-Shirt",
+    heroSub: "Official Hukmill Lane Cha Raja T-shirt and volunteer ID card for devotees and volunteers.",
+    buyNow: "Buy Now",
+    sizeHint: "Sizes 20 - 58 (step 2) · Same price all sizes",
+    faqEyebrow: "Shop Help",
+    faqTitle: "Frequently Asked Questions",
+    faqCopy: "Everything you need to know before ordering the official mandal T-shirt or ID card.",
+    products: {
+      tshirt: {
+        name: "Mandal T-Shirt",
+        description: "Premium cotton festival T-shirt. Price is uniform across all sizes.",
+        badge: "T-Shirt",
+      },
+      idcard: {
+        name: "Volunteer ID Card",
+        description: "Official laminated ID card for registered volunteers. Single standard size.",
+        badge: "Volunteers",
+      },
+    },
+    faqs: [
+      {
+        question: "How do I pay for my order?",
+        answer: "Choose your product, size and quantity, enter your details, and continue to Razorpay. Available options may include UPI, cards, net banking, and supported wallets.",
+      },
+      {
+        question: "Will I receive a payment receipt?",
+        answer: "Yes. After payment is successfully verified, an order confirmation and downloadable receipt are shown on the screen. Keep the receipt for your records.",
+      },
+      {
+        question: "Can I cancel my order or request a refund?",
+        answer: "No. Once an order is successfully placed and payment is confirmed, it cannot be cancelled and the amount is non-refundable. Please verify the product, size, quantity, and customer details before paying.",
+      },
+      {
+        question: "What if the transaction fails but money is debited?",
+        answer: "If the payment fails but money is debited, the amount is normally reversed automatically to the original payment method within 5 to 7 working days. The exact time depends on your bank or payment provider. Keep the payment reference until the reversal is completed.",
+      },
+      {
+        question: "How will I receive my T-shirt or ID card?",
+        answer: "The T-shirt and ID card must be collected from the mandal. Please keep your booking ID, payment receipt, and registered phone number ready during collection.",
+      },
+    ],
+  },
+  mr: {
+    eyebrow: "मर्यादित आवृत्ती २०२६",
+    heroTitle: "उत्सवासाठी अधिकृत टी-शर्ट",
+    heroSub: "भक्त आणि स्वयंसेवकांसाठी हुकमिल लेन चा राजा अधिकृत टी-शर्ट आणि स्वयंसेवक आयडी कार्ड.",
+    buyNow: "आता खरेदी करा",
+    sizeHint: "साइज 20 - 58 (2 च्या फरकाने) · सर्व साइजसाठी समान किंमत",
+    faqEyebrow: "दुकान मदत",
+    faqTitle: "वारंवार विचारले जाणारे प्रश्न",
+    faqCopy: "अधिकृत मंडळ टी-शर्ट किंवा आयडी कार्ड ऑर्डर करण्यापूर्वी आवश्यक माहिती.",
+    products: {
+      tshirt: {
+        name: "मंडळ टी-शर्ट",
+        description: "प्रीमियम कॉटन उत्सव टी-शर्ट. सर्व साइजसाठी किंमत समान आहे.",
+        badge: "टी-शर्ट",
+      },
+      idcard: {
+        name: "स्वयंसेवक आयडी कार्ड",
+        description: "नोंदणीकृत स्वयंसेवकांसाठी अधिकृत लॅमिनेटेड आयडी कार्ड. एकच स्टँडर्ड साइज.",
+        badge: "स्वयंसेवक",
+      },
+    },
+    faqs: [
+      {
+        question: "ऑर्डरचे पेमेंट कसे करायचे?",
+        answer: "प्रोडक्ट, साइज आणि प्रमाण निवडा, तुमची माहिती भरा आणि Razorpay वर पेमेंट करा. UPI, कार्ड, नेट बँकिंग आणि उपलब्ध वॉलेट पर्याय वापरता येतील.",
+      },
+      {
+        question: "मला पेमेंट पावती मिळेल का?",
+        answer: "हो. पेमेंट यशस्वीरीत्या तपासल्यानंतर स्क्रीनवर ऑर्डर कन्फर्मेशन आणि डाउनलोड करता येणारी पावती दिसेल. पावती तुमच्या नोंदीसाठी जपून ठेवा.",
+      },
+      {
+        question: "ऑर्डर रद्द किंवा रिफंड मिळू शकतो का?",
+        answer: "नाही. ऑर्डर यशस्वीरीत्या झाल्यानंतर आणि पेमेंट कन्फर्म झाल्यानंतर ती रद्द करता येणार नाही आणि रक्कम परत केली जाणार नाही. पेमेंट करण्यापूर्वी प्रोडक्ट, साइज, प्रमाण आणि माहिती तपासा.",
+      },
+      {
+        question: "व्यवहार फेल झाला पण पैसे डेबिट झाले तर?",
+        answer: "पेमेंट फेल झाले पण पैसे डेबिट झाले असल्यास रक्कम सामान्यतः मूळ पेमेंट पद्धतीवर 5 ते 7 कामकाजाच्या दिवसांत आपोआप परत येते. अचूक वेळ बँक किंवा पेमेंट प्रदात्यावर अवलंबून असतो. रक्कम परत येईपर्यंत पेमेंट रेफरन्स जपून ठेवा.",
+      },
+      {
+        question: "टी-शर्ट किंवा आयडी कार्ड कसे मिळेल?",
+        answer: "टी-शर्ट आणि आयडी कार्ड मंडळातूनच घ्यावे लागेल. घेताना तुमचा बुकिंग आयडी, पेमेंट पावती आणि नोंदणीकृत फोन नंबर सोबत ठेवा.",
+      },
+    ],
+  },
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const money = (n) =>
@@ -158,6 +242,13 @@ function ValidatedInput({ type = "text", placeholder, value, onChange, error, va
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function Shop() {
+  const { language } = useLanguage();
+  const copy = shopText[language] || shopText.en;
+  const products = PRODUCT_CONFIG.map((product) => ({
+    ...product,
+    ...copy.products[product.id],
+  }));
+
   const [activeProduct, setActiveProduct] = useState(null);
   const [receiptData, setReceiptData] = useState(null);
   const [failureData, setFailureData] = useState(null);
@@ -166,10 +257,10 @@ export default function Shop() {
     <div style={s.page}>
       <section style={s.hero}>
         <div style={s.heroContent}>
-          <p style={s.eyebrow}>✦ Limited Edition 2026 ✦</p>
-          <h1 style={s.heroTitle}>Get Your Festival Gear</h1>
+          <p style={s.eyebrow}>{copy.eyebrow}</p>
+          <h1 style={s.heroTitle}>{copy.heroTitle}</h1>
           <p style={s.heroSub}>
-            Official merchandise for devotees and volunteers. Quality guaranteed.
+            {copy.heroSub}
           </p>
         </div>
         <div style={s.heroDeco} />
@@ -177,10 +268,12 @@ export default function Shop() {
 
       <main style={s.main}>
         <div style={s.grid}>
-          {PRODUCTS.map((p) => (
-            <ProductCard key={p.id} product={p} onAdd={() => setActiveProduct(p)} />
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} copy={copy} onAdd={() => setActiveProduct(p)} />
           ))}
         </div>
+
+        <ShopFaq copy={copy} />
       </main>
 
       {activeProduct && (
@@ -198,8 +291,32 @@ export default function Shop() {
   );
 }
 
+function ShopFaq({ copy }) {
+  return (
+    <section style={s.faqSection} aria-labelledby="shop-faq-title">
+      <div style={s.faqIntro}>
+        <p style={s.faqEyebrow}>{copy.faqEyebrow}</p>
+        <h2 id="shop-faq-title" style={s.faqTitle}>{copy.faqTitle}</h2>
+        <p style={s.faqCopy}>{copy.faqCopy}</p>
+      </div>
+
+      <div style={s.faqList}>
+        {copy.faqs.map((item, index) => (
+          <details key={item.question} style={s.faqItem} open={index === 0}>
+            <summary style={s.faqQuestion}>
+              <span>{item.question}</span>
+              <span aria-hidden="true" style={s.faqIcon}>+</span>
+            </summary>
+            <p style={s.faqAnswer}>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // ── Product Card ──────────────────────────────────────────────────────────────
-function ProductCard({ product, onAdd }) {
+function ProductCard({ product, copy, onAdd }) {
   return (
     <article style={s.card}>
       <div style={{ position: "relative", overflow: "hidden" }}>
@@ -211,9 +328,9 @@ function ProductCard({ product, onAdd }) {
         <h2 style={s.cardTitle}>{product.name}</h2>
         <p style={s.cardDesc}>{product.description}</p>
         {product.type === "tshirt" && (
-          <p style={s.sizeHint}>📏 Sizes 20 – 58 (step 2) · Same price all sizes</p>
+          <p style={s.sizeHint}>{copy.sizeHint}</p>
         )}
-        <button onClick={onAdd} style={s.addBtn}>Buy Now</button>
+        <button onClick={onAdd} style={s.addBtn}>{copy.buyNow}</button>
       </div>
     </article>
   );
@@ -724,14 +841,24 @@ function FailurePopup({ error, onClose, onRetry }) {
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
   page: { minHeight: "100vh", background: "linear-gradient(160deg,#fff8f0 0%,#fff3e0 50%,#fce4ec 100%)", fontFamily: "'Segoe UI',system-ui,sans-serif", color: "#212121" },
-  hero: { position: "relative", background: "linear-gradient(135deg,#b71c1c 0%,#880e0e 60%,#4a0000 100%)", color: "#fff", padding: "64px 24px", overflow: "hidden", textAlign: "center" },
+  hero: { position: "relative", background: "linear-gradient(135deg,#b71c1c 0%,#880e0e 60%,#4a0000 100%)", color: "#fff", padding: "clamp(44px,8vw,64px) clamp(16px,4vw,24px)", overflow: "hidden", textAlign: "center" },
   heroDeco: { position: "absolute", top: -60, right: -60, width: 300, height: 300, borderRadius: "50%", background: "rgba(255,200,0,0.10)", pointerEvents: "none" },
   heroContent: { position: "relative", maxWidth: 640, margin: "0 auto" },
   eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: "0.25em", color: "#ffcc80", textTransform: "uppercase", marginBottom: 12 },
   heroTitle: { fontSize: "clamp(2rem,6vw,3.5rem)", fontWeight: 900, margin: "0 0 16px", lineHeight: 1.1, letterSpacing: "-1px" },
   heroSub: { fontSize: 16, color: "rgba(255,255,255,0.82)", lineHeight: 1.7 },
-  main: { maxWidth: 1100, margin: "0 auto", padding: "48px 24px 80px" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: 28 },
+  main: { maxWidth: 1100, margin: "0 auto", padding: "clamp(34px,6vw,48px) clamp(14px,4vw,24px) 80px" },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 28 },
+  faqSection: { marginTop: 72, paddingTop: 54, borderTop: "1px solid rgba(183,28,28,0.16)", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 40, alignItems: "start" },
+  faqIntro: { maxWidth: 430 },
+  faqEyebrow: { margin: "0 0 12px", color: "#b71c1c", fontSize: 12, fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase" },
+  faqTitle: { margin: 0, color: "#7f1010", fontFamily: "Georgia,'Times New Roman',serif", fontSize: "clamp(2rem,5vw,3.2rem)", lineHeight: 1.08, fontWeight: 900 },
+  faqCopy: { margin: "18px 0 0", color: "#616161", fontSize: 16, lineHeight: 1.75 },
+  faqList: { display: "flex", flexDirection: "column", gap: 12 },
+  faqItem: { background: "rgba(255,255,255,0.86)", border: "1px solid rgba(214,155,25,0.38)", borderRadius: 14, padding: "0 clamp(14px,4vw,18px)", boxShadow: "0 12px 35px rgba(121,28,0,0.06)" },
+  faqQuestion: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, padding: "18px 0", color: "#4a1515", fontSize: "clamp(0.94rem,3.7vw,1rem)", fontWeight: 800, lineHeight: 1.45, cursor: "pointer", listStyle: "none" },
+  faqIcon: { display: "grid", placeItems: "center", flexShrink: 0, width: 28, height: 28, borderRadius: "50%", background: "#b71c1c", color: "#fff", fontSize: 19, fontWeight: 500, lineHeight: 1 },
+  faqAnswer: { margin: "0 0 19px", paddingRight: 0, color: "#616161", fontSize: 14, lineHeight: 1.75 },
   card: { background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(183,28,28,0.08)", border: "1px solid rgba(245,222,179,0.6)" },
   cardImg: { width: "100%", height: 240, objectFit: "cover", display: "block" },
   cardBadge: { position: "absolute", top: 14, left: 14, background: "#b71c1c", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 50, textTransform: "uppercase", letterSpacing: "0.06em" },

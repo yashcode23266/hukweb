@@ -6,6 +6,12 @@ import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
 import heroGanpati from '../assets/gann.png'
 import historyGanpati from '../assets/ganpati-optimized.png'
+import gallery2020 from '../assets/2020.jpeg'
+import gallery2021 from '../assets/2021.jpeg'
+import gallery2022 from '../assets/2022.jpeg'
+import gallery2023 from '../assets/20233.jpeg'
+import gallery2024 from '../assets/20244.jpeg'
+import gallery2025 from '../assets/2025.jpeg'
 import colorsMarathiLogo from '../assets/Colors marathi.png'
 import cpLogo from '../assets/cp.png'
 import keshLogo from '../assets/Kesh.webp'
@@ -27,6 +33,17 @@ const sponsors = [
   { name: 'Rapido', logo: rapidoLogo },
 ]
 
+// Homepage gallery preview images. Add an image to src/assets, import it above,
+// then replace or append it here to update the homepage cards.
+const homeGalleryImages = [
+  gallery2025,
+  gallery2024,
+  gallery2023,
+  gallery2022,
+  gallery2021,
+  gallery2020,
+]
+
 function Home() {
   const { t, tObject } = useLanguage()
   const { data: gallery = fallbackGallery } = useQuery({
@@ -35,8 +52,9 @@ function Home() {
     retry: 1,
   })
   const translatedGallery = tObject('galleryItems')
-  const galleryPreview = gallery.slice(0, 6).map((item) => ({
+  const galleryPreview = gallery.slice(0, 6).map((item, index) => ({
     ...item,
+    imageUrl: homeGalleryImages[index % homeGalleryImages.length],
     title: translatedGallery[item._id]?.title || item.title,
     story: translatedGallery[item._id]?.story || item.story,
   }))
