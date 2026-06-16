@@ -940,4 +940,3 @@ if (typeof document !== "undefined" && !document.getElementById("shop-spinner-st
   st.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
   document.head.appendChild(st);
 }
-
