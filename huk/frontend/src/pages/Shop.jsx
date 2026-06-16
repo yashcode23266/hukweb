@@ -11,7 +11,10 @@ const TSHIRT_SIZES = Array.from(
 
 // const BACKEND_URL = "http://localhost:8080/tshirt";
 
-const BACKEND_URL = "https://hukmillane-webiste-backend-production.up.railway.app/tshirt";
+// const BACKEND_URL = "https://hukmillane-webiste-backend-production.up.railway.app/tshirt";
+
+const BACKEND_URL = "http://hukmillane-website-backend-env.ap-south-1.elasticbeanstalk.com/tshirt";
+
 
 
 const PRODUCT_CONFIG = [
