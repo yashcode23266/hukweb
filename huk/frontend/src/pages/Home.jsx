@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -33,6 +34,41 @@ const sponsors = [
   { name: 'Rapido', logo: rapidoLogo },
 ]
 
+// Sponsor popup galleries. To use real sponsor photos later:
+// 1. Add images in src/assets
+// 2. Import them above
+// 3. Replace the photos array for that sponsor key
+const sponsorGalleries = {
+  'ZEE Marathi': {
+    title: 'ZEE Marathi',
+    photos: [gallery2025, gallery2024, gallery2023, gallery2022, gallery2021],
+  },
+  VERTIV: {
+    title: 'VERTIV',
+    photos: [gallery2024, gallery2020, gallery2025, gallery2021, gallery2023],
+  },
+  'Colors Marathi': {
+    title: 'Colors Marathi',
+    photos: [gallery2023, gallery2025, gallery2020, gallery2022, gallery2024],
+  },
+  'Kesh King': {
+    title: 'Kesh King',
+    photos: [gallery2022, gallery2021, gallery2025, gallery2020, gallery2024],
+  },
+  'RR Kabel': {
+    title: 'RR Kabel',
+    photos: [gallery2021, gallery2023, gallery2024, gallery2025, gallery2020],
+  },
+  'CP Plus': {
+    title: 'CP Plus',
+    photos: [gallery2020, gallery2024, gallery2022, gallery2025, gallery2021],
+  },
+  Rapido: {
+    title: 'Rapido',
+    photos: [gallery2025, gallery2022, gallery2021, gallery2024, gallery2023],
+  },
+}
+
 // Homepage gallery preview images. Add an image to src/assets, import it above,
 // then replace or append it here to update the homepage cards.
 const homeGalleryImages = [
@@ -46,6 +82,7 @@ const homeGalleryImages = [
 
 function Home() {
   const { t, tObject } = useLanguage()
+  const [activeSponsor, setActiveSponsor] = useState(null)
   const { data: gallery = fallbackGallery } = useQuery({
     queryKey: ['gallery-preview'],
     queryFn: async () => (await api.get('/gallery')).data,
@@ -93,7 +130,16 @@ function Home() {
               {[...sponsors, ...sponsors].map((item, index) => (
                 <div
                   key={`${item.name}-${index}`}
-                  className="sponsor-card min-w-52.5 rounded-lg border border-orange-200 bg-white px-5 py-5 text-center shadow-sm sm:min-w-60"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setActiveSponsor(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setActiveSponsor(item)
+                    }
+                  }}
+                  className="sponsor-card min-w-52.5 cursor-pointer rounded-lg border border-orange-200 bg-white px-5 py-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-gold hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-200 sm:min-w-60"
                 >
                   <div className="mx-auto grid h-24 w-24 place-items-center overflow-hidden rounded-lg bg-white text-2xl font-black text-brand-red">
                     {item.logo ? (
@@ -111,6 +157,14 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {activeSponsor && (
+        <SponsorGalleryModal
+          sponsor={activeSponsor}
+          gallery={sponsorGalleries[activeSponsor.name]}
+          onClose={() => setActiveSponsor(null)}
+        />
+      )}
 
       {/* MANDAL HISTORY SECTION */}
       <section className="bg-white px-4 py-10 sm:px-6 sm:py-20">
@@ -236,6 +290,76 @@ function Home() {
         </div>
       </section>
     </>
+  )
+}
+
+function SponsorGalleryModal({ sponsor, gallery, onClose }) {
+  const photos = gallery?.photos?.length ? gallery.photos : homeGalleryImages
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[250] overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 26, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-[2rem] bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
+      >
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-4 border-b border-orange-200 bg-[#fff9ed]/90 px-5 py-4 backdrop-blur sm:px-8">
+          <div className="flex items-center gap-4">
+            <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100">
+              {sponsor.logo ? (
+                <img src={sponsor.logo} alt={sponsor.name} className="h-full w-full object-contain p-2" />
+              ) : (
+                <span className="font-black text-brand-red">{sponsor.name.slice(0, 2)}</span>
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-red">Sponsor Gallery</p>
+              <h2 className="font-serif text-2xl font-black text-brand-dark-red sm:text-4xl">
+                {gallery?.title || sponsor.name}
+              </h2>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-11 w-11 place-items-center rounded-full bg-brand-red text-2xl font-light leading-none text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-dark-red"
+            aria-label="Close sponsor gallery"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="columns-1 gap-5 p-5 sm:columns-2 sm:p-8 lg:columns-3">
+          {photos.map((photo, index) => (
+            <motion.figure
+              key={`${sponsor.name}-${index}`}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.04 }}
+              className="group mb-5 break-inside-avoid overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-orange-100"
+            >
+              <img
+                src={photo}
+                alt={`${sponsor.name} memory ${index + 1}`}
+                className={`w-full object-cover transition duration-700 group-hover:scale-105 ${
+                  index % 3 === 0 ? 'h-96 sm:h-[34rem]' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
+                }`}
+              />
+            </motion.figure>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
