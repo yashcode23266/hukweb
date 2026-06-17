@@ -9,7 +9,7 @@ import bahu from '../assets/bahu.jpeg'
 import image2014 from '../assets/2014.jpeg'
 import image2015 from '../assets/2015.jpeg'
 import bananaImage from '../assets/banana.jpeg'
-import coconutImage from '../assets/coconut.jpeg'
+import coconutImage from '../assets/naral.jpeg'
 import krishImage from '../assets/krish.png'
 import logoImage from '../assets/logo.png.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
@@ -110,8 +110,8 @@ const aboutContent = {
       ['भगवान शिव', 'ध्यान, तपस्या आणि चिरंतन आध्यात्मिक शक्ती.'],
     ],
     creations: [
-      ['केळी गणपती', 'निसर्गाच्या देणगीतून साकारलेल्या या गणेशरूपाने भाविकांच्या मनावर अविस्मरणीय छाप उमटवली.'],
-      ['५,५५५ नारळ गणपती', 'नैवेद्य आणि श्रद्धेला भव्य आध्यात्मिक रूप देणारी अनोखी संकल्पना.'],
+      ['खऱ्या केळांपासून गणपती', 'निसर्गाच्या देणगीतून साकारलेल्या या गणेशरूपाने भाविकांच्या मनावर अविस्मरणीय छाप उमटवली.'],
+      ['५,५५५ नारळांपासून गणपती', 'नैवेद्य आणि श्रद्धेला भव्य आध्यात्मिक रूप देणारी अनोखी संकल्पना.'],
       ['बाहुबली गणपती', 'दर्शनाला सिनेमॅटिक भव्यता देणारी नाट्यमय आणि मोठ्या प्रमाणातील संकल्पना.'],
     ],
     seva: [
