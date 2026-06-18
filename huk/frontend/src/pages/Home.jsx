@@ -7,12 +7,6 @@ import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
 import heroGanpati from '../assets/gann.png'
 import historyGanpati from '../assets/ganpati-optimized.png'
-import gallery2022 from '../assets/2022.jpeg'
-import gallery2023 from '../assets/20233.jpeg'
-import gallery2024 from '../assets/20244.jpeg'
-import gallery2025 from '../assets/2025.jpeg'
-import gallery2021 from '../assets/2021.jpeg'
-import gallery2020 from '../assets/2020.jpeg'
 import colorsMarathiLogo from '../assets/Colors marathi.png'
 import cpLogo from '../assets/cp.png'
 import keshLogo from '../assets/Kesh.webp'
@@ -66,60 +60,6 @@ const sponsors = [
   { name: 'RR Kabel', logo: rrLogo },
   { name: 'CP Plus', logo: cpLogo },
   { name: 'Rapido', logo: rapidoLogo },
-]
-
-// Sponsor popup galleries. To use real sponsor photos later:
-// 1. Add images in src/assets
-// 2. Import them above
-// 3. Replace the photos array for that sponsor key
-const sponsorGalleries = {
-  'ZEE Marathi': {
-    title: 'ZEE Marathi',
-    photos: [zeesponsor1],
-  },
-  VERTIV: {
-    title: 'VERTIV',
-    photos: [vertivSponsor4, vertivSponsor5, vertivSponsor3, vertivSponsor6 ,vertivSponsor2, vertivSponsor1],
-  },
-  'Colors Marathi': {
-    title: 'Colors Marathi',
-    photos: [colorssponsor1, colorssponsor2, colorssponsor3],
-  },
-  'Kesh King': {
-    title: 'Kesh King',
-    photos: [kesgkingsponsor1, kesgkingsponsor2, kesgkingsponsor3, kesgkingsponsor4, kesgkingsponsor5, kesgkingsponsor6],
-  },
-  'RR Kabel': {
-    title: 'RR Kabel',
-    photos: [rrSponsor1, rrSponsor2, rrSponsor3, rrSponsor4, rrSponsor5 ,rrsponsor6],
-  },
-  'CP Plus': {
-    title: 'CP Plus',
-    photos: [cpsponsor1, cpsponsor2, cpsponsor3, cpsponsor4, cpsponsor5],
-  },
-  Rapido: {
-    title: 'Rapido',
-    photos: [
-      rapidoSponsor1,
-      rapidoSponsor2,
-      rapidoSponsor3,
-      rapidoSponsor4,
-      rapidoSponsor5,
-      rapidoSponsor6,
-      rapidoSponsor7,
-    ],
-  },
-}
-
-// Homepage gallery preview images. Add an image to src/assets, import it above,
-// then replace or append it here to update the homepage cards.
-const homeGalleryImages = [
-  gallery2025,
-  gallery2024,
-  gallery2023,
-  gallery2022,
-  gallery2021,
-  gallery2020,
 ]
 
 function Home() {
@@ -332,74 +272,6 @@ function Home() {
         </div>
       </section>
     </>
-  )
-}
-
-function SponsorGalleryModal({ sponsor, gallery, onClose }) {
-  const photos = gallery?.photos?.length ? gallery.photos : homeGalleryImages
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-[250] overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 26, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-[2rem] bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
-      >
-        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-4 border-b border-orange-200 bg-[#fff9ed]/90 px-5 py-4 backdrop-blur sm:px-8">
-          <div className="flex items-center gap-4">
-            <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100">
-              {sponsor.logo ? (
-                <img src={sponsor.logo} alt={sponsor.name} className="h-full w-full object-contain p-2" />
-              ) : (
-                <span className="font-black text-brand-red">{sponsor.name.slice(0, 2)}</span>
-              )}
-            </div>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-red">Sponsor Gallery</p>
-              <h2 className="font-serif text-2xl font-black text-brand-dark-red sm:text-4xl">
-                {gallery?.title || sponsor.name}
-              </h2>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="grid h-11 w-11 place-items-center rounded-full bg-brand-red text-2xl font-light leading-none text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-dark-red"
-            aria-label="Close sponsor gallery"
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-8 lg:grid-cols-3">
-          {photos.map((photo, index) => (
-            <motion.figure
-              key={`${sponsor.name}-${index}`}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.04 }}
-              className="group overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-orange-100"
-            >
-              <img
-                src={photo}
-                alt={`${sponsor.name} memory ${index + 1}`}
-                className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105"
-              />
-            </motion.figure>
-          ))}
-        </div>
-      </motion.div>
-    </motion.div>
   )
 }
 
