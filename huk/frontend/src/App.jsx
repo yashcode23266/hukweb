@@ -5,7 +5,6 @@ import Layout from './components/Layout'
 const About = lazy(() => import('./pages/About'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const Contact = lazy(() => import('./pages/Contact'))
-const Donation = lazy(() => import('./pages/Donation'))
 const Events = lazy(() => import('./pages/Events'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const Home = lazy(() => import('./pages/Home'))
@@ -35,7 +34,6 @@ function App() {
             <Route path="/events" element={<Events />} />
             <Route path="/social-work" element={<SocialWork />} />
             <Route path="/shop" element={<Shop />} />
-            <Route path="/donate" element={<Donation />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/admin" element={<AdminDashboard />} />

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
@@ -6,6 +7,12 @@ import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
 import heroGanpati from '../assets/gann.png'
 import historyGanpati from '../assets/ganpati-optimized.png'
+import gallery2022 from '../assets/2022.jpeg'
+import gallery2023 from '../assets/20233.jpeg'
+import gallery2024 from '../assets/20244.jpeg'
+import gallery2025 from '../assets/2025.jpeg'
+import gallery2021 from '../assets/2021.jpeg'
+import gallery2020 from '../assets/2020.jpeg'
 import colorsMarathiLogo from '../assets/Colors marathi.png'
 import cpLogo from '../assets/cp.png'
 import keshLogo from '../assets/Kesh.webp'
@@ -13,12 +20,46 @@ import rapidoLogo from '../assets/rapido-removebg-preview.png'
 import rrLogo from '../assets/rr.png'
 import vrtLogo from '../assets/vrt.png'
 import zeeLogo from '../assets/zee.png'
+import rapidoSponsor1 from '../sponsor/rapido1.png.jpeg'
+import rapidoSponsor2 from '../sponsor/rapido2.png.jpeg'
+import rapidoSponsor3 from '../sponsor/rapido3.png.jpeg'
+import rapidoSponsor4 from '../sponsor/rapido4.png.jpeg'
+import rapidoSponsor5 from '../sponsor/rapido5.png.jpeg'
+import rapidoSponsor6 from '../sponsor/rapido6.png.jpeg'
+import rapidoSponsor7 from '../sponsor/rapido7.png.jpeg'
+import rrsponsor6 from '../sponsor/rr6.png.jpeg'
+import rrSponsor1 from '../sponsor/rr1.png.jpeg'
+import rrSponsor2 from '../sponsor/rr2.png.jpeg'
+import rrSponsor3 from '../sponsor/rr3.png.jpeg'
+import rrSponsor4 from '../sponsor/rr4.png.jpeg'
+import rrSponsor5 from '../sponsor/rr5.png.jpeg'
+import cpsponsor1 from '../sponsor/cp1.png.jpeg'
+import cpsponsor2 from '../sponsor/cp2.png.jpeg'
+import cpsponsor3 from '../sponsor/cp3.png.jpeg'
+import cpsponsor4 from '../sponsor/cp4.png.jpeg'
+import cpsponsor5 from '../sponsor/cp5.png.jpeg'
+import zeesponsor1 from '../sponsor/zee1.png.jpeg'
+import vertivSponsor1 from '../sponsor/vertiv1.png.jpeg'
+import vertivSponsor2 from '../sponsor/vertiv2.png.jpeg'
+import vertivSponsor3 from '../sponsor/vertiv3.png.jpeg'
+import vertivSponsor4 from '../sponsor/vertiv4.png.jpeg'
+import vertivSponsor5 from '../sponsor/vertiv5.png.jpeg'
+import vertivSponsor6 from '../sponsor/vertiv6.png.jpeg'
+import colorssponsor1 from '../sponsor/colors1.png.jpeg'
+import colorssponsor2 from '../sponsor/colors2.png.jpeg'
+import colorssponsor3 from '../sponsor/colors3.png.jpeg'
+import kesgkingsponsor1 from '../sponsor/keshking1.png.jpeg'
+import kesgkingsponsor2 from '../sponsor/keshking2.png.jpeg'
+import kesgkingsponsor3 from '../sponsor/keshking3.png.jpeg'
+import kesgkingsponsor4 from '../sponsor/keshking4.png.jpeg'
+import kesgkingsponsor5 from '../sponsor/keshking5.png.jpeg'
+import kesgkingsponsor6 from '../sponsor/keshking6.png.jpeg'
 import { fallbackGallery } from '../data/fallback'
 import { mandalMapEmbedUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
 
 const sponsors = [
-  { name: 'Zee Marathi', logo: zeeLogo },
+  { name: 'ZEE Marathi', logo: zeeLogo },
   { name: 'VERTIV', logo: vrtLogo },
   { name: 'Colors Marathi', logo: colorsMarathiLogo },
   { name: 'Kesh King', logo: keshLogo },
@@ -27,16 +68,72 @@ const sponsors = [
   { name: 'Rapido', logo: rapidoLogo },
 ]
 
+// Sponsor popup galleries. To use real sponsor photos later:
+// 1. Add images in src/assets
+// 2. Import them above
+// 3. Replace the photos array for that sponsor key
+const sponsorGalleries = {
+  'ZEE Marathi': {
+    title: 'ZEE Marathi',
+    photos: [zeesponsor1],
+  },
+  VERTIV: {
+    title: 'VERTIV',
+    photos: [vertivSponsor4, vertivSponsor5, vertivSponsor3, vertivSponsor6 ,vertivSponsor2, vertivSponsor1],
+  },
+  'Colors Marathi': {
+    title: 'Colors Marathi',
+    photos: [colorssponsor1, colorssponsor2, colorssponsor3],
+  },
+  'Kesh King': {
+    title: 'Kesh King',
+    photos: [kesgkingsponsor1, kesgkingsponsor2, kesgkingsponsor3, kesgkingsponsor4, kesgkingsponsor5, kesgkingsponsor6],
+  },
+  'RR Kabel': {
+    title: 'RR Kabel',
+    photos: [rrSponsor1, rrSponsor2, rrSponsor3, rrSponsor4, rrSponsor5 ,rrsponsor6],
+  },
+  'CP Plus': {
+    title: 'CP Plus',
+    photos: [cpsponsor1, cpsponsor2, cpsponsor3, cpsponsor4, cpsponsor5],
+  },
+  Rapido: {
+    title: 'Rapido',
+    photos: [
+      rapidoSponsor1,
+      rapidoSponsor2,
+      rapidoSponsor3,
+      rapidoSponsor4,
+      rapidoSponsor5,
+      rapidoSponsor6,
+      rapidoSponsor7,
+    ],
+  },
+}
+
+// Homepage gallery preview images. Add an image to src/assets, import it above,
+// then replace or append it here to update the homepage cards.
+const homeGalleryImages = [
+  gallery2025,
+  gallery2024,
+  gallery2023,
+  gallery2022,
+  gallery2021,
+  gallery2020,
+]
+
 function Home() {
   const { t, tObject } = useLanguage()
+  const [activeSponsor, setActiveSponsor] = useState(null)
   const { data: gallery = fallbackGallery } = useQuery({
     queryKey: ['gallery-preview'],
     queryFn: async () => (await api.get('/gallery')).data,
     retry: 1,
   })
   const translatedGallery = tObject('galleryItems')
-  const galleryPreview = gallery.slice(0, 6).map((item) => ({
+  const galleryPreview = gallery.slice(0, 6).map((item, index) => ({
     ...item,
+    imageUrl: homeGalleryImages[index % homeGalleryImages.length],
     title: translatedGallery[item._id]?.title || item.title,
     story: translatedGallery[item._id]?.story || item.story,
   }))
@@ -75,7 +172,16 @@ function Home() {
               {[...sponsors, ...sponsors].map((item, index) => (
                 <div
                   key={`${item.name}-${index}`}
-                  className="sponsor-card min-w-52.5 rounded-lg border border-orange-200 bg-white px-5 py-5 text-center shadow-sm sm:min-w-60"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setActiveSponsor(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setActiveSponsor(item)
+                    }
+                  }}
+                  className="sponsor-card min-w-52.5 cursor-pointer rounded-lg border border-orange-200 bg-white px-5 py-5 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-gold hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-200 sm:min-w-60"
                 >
                   <div className="mx-auto grid h-24 w-24 place-items-center overflow-hidden rounded-lg bg-white text-2xl font-black text-brand-red">
                     {item.logo ? (
@@ -93,6 +199,14 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {activeSponsor && (
+        <SponsorGalleryModal
+          sponsor={activeSponsor}
+          gallery={sponsorGalleries[activeSponsor.name]}
+          onClose={() => setActiveSponsor(null)}
+        />
+      )}
 
       {/* MANDAL HISTORY SECTION */}
       <section className="bg-white px-4 py-10 sm:px-6 sm:py-20">
@@ -126,27 +240,6 @@ function Home() {
             </Link>
           </motion.div>
         </div>
-      </section>
-
-      {/* DONATION CTA SECTION */}
-      <section className="bg-[#fff1f1] px-4 py-12 text-center sm:px-6 sm:py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mx-auto max-w-5xl"
-        >
-          <h2 className="font-serif text-3xl font-black text-brand-red sm:text-6xl">{t('donation')}</h2>
-          <p className="mx-auto mt-5 max-w-4xl text-base leading-7 text-stone-800 sm:mt-6 sm:text-2xl sm:leading-9">
-            {t('homeDonationCopy')}
-          </p>
-          <Link
-            to="/donate"
-            className="mt-8 inline-flex rounded-full bg-brand-red px-8 py-4 text-base font-bold text-white shadow-xl shadow-red-900/20 transition hover:-translate-y-1 hover:bg-brand-dark-red sm:mt-10 sm:px-12 sm:py-5 sm:text-xl"
-          >
-            {t('donateNow')}
-          </Link>
-        </motion.div>
       </section>
 
       {/* PHOTO GALLERY PREVIEW */}
@@ -239,6 +332,74 @@ function Home() {
         </div>
       </section>
     </>
+  )
+}
+
+function SponsorGalleryModal({ sponsor, gallery, onClose }) {
+  const photos = gallery?.photos?.length ? gallery.photos : homeGalleryImages
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[250] overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 26, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-[2rem] bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
+      >
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-4 border-b border-orange-200 bg-[#fff9ed]/90 px-5 py-4 backdrop-blur sm:px-8">
+          <div className="flex items-center gap-4">
+            <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100">
+              {sponsor.logo ? (
+                <img src={sponsor.logo} alt={sponsor.name} className="h-full w-full object-contain p-2" />
+              ) : (
+                <span className="font-black text-brand-red">{sponsor.name.slice(0, 2)}</span>
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-brand-red">Sponsor Gallery</p>
+              <h2 className="font-serif text-2xl font-black text-brand-dark-red sm:text-4xl">
+                {gallery?.title || sponsor.name}
+              </h2>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-11 w-11 place-items-center rounded-full bg-brand-red text-2xl font-light leading-none text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-brand-dark-red"
+            aria-label="Close sponsor gallery"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="grid gap-5 p-5 sm:grid-cols-2 sm:p-8 lg:grid-cols-3">
+          {photos.map((photo, index) => (
+            <motion.figure
+              key={`${sponsor.name}-${index}`}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.04 }}
+              className="group overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-orange-100"
+            >
+              <img
+                src={photo}
+                alt={`${sponsor.name} memory ${index + 1}`}
+                className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105"
+              />
+            </motion.figure>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

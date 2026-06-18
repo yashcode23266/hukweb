@@ -21,7 +21,7 @@ const translations = {
     brandName: 'Hukmil Lane cha Raja',
     ticker: 'Hukmilane Sarvajanik GaneshUtsav Mandal | Established 1934',
     footerLine: 'Darshan, seva, celebrations, and community support.',
-    footerCopy: 'A devotional Ganpati mandal website for darshan, seva, announcements, donation and community updates.',
+    footerCopy: 'A devotional Ganpati mandal website for darshan, seva, gallery, shop and community updates.',
     importantLinks: 'Important Links',
     contactUs: 'Contact Us',
     langToggle: 'मराठी',
@@ -166,16 +166,16 @@ const translations = {
     allYears: 'All Years',
     galleryItems: {
       g1: {
-        title: 'Maha Aarti 2025',
-        story: 'A luminous evening of aarti, dhol, and community darshan.',
+        title: 'Anand',
+        story: 'A vibrant depiction of Lord Ganesha in a divine form, symbolizing joy, devotion, and the spirit of celebration..',
       },
       g2: {
-        title: 'Mandap Decoration',
-        story: 'Gold, marigold, and red silk details around the main mandap.',
+        title: 'Vaibhav',
+        story: 'Lord Ganesha portrayed in a powerful multi-armed form, representing strength, protection, and victory over obstacles..',
       },
       g3: {
-        title: 'Prasad Seva',
-        story: 'Volunteers serving devotees through the evening.',
+        title: 'Vidya',
+        story: 'Inspiring wisdom, learning, and artistic expression.',
       },
     },
 
@@ -198,7 +198,7 @@ const translations = {
 
     adminEyebrow: 'Admin',
     adminTitle: 'Mandal Dashboard',
-    adminCopy: 'Secure controls for products, orders, donations, announcements, gallery, and Excel exports.',
+    adminCopy: 'Secure controls for products, orders, gallery records, and Excel exports.',
     adminLogin: 'Admin Login',
     adminEmail: 'Admin email',
     adminPassword: 'Admin password',
@@ -340,7 +340,7 @@ const translations = {
     ticker: 'हुकमिल लेन सार्वजनिक गणेशोत्सव मंडळ | स्थापना १९३४',
     footerLine: 'दर्शन, सेवा, उत्सव आणि समाजासाठी मदत.',
     footerCopy:
-      'दर्शन, सेवा, सूचना, देणगी आणि समाजातील अपडेट्ससाठी भक्तिमय गणपती मंडळाची वेबसाइट.',
+      'दर्शन, सेवा, गॅलरी, दुकान आणि समाजातील अपडेट्ससाठी भक्तिमय गणपती मंडळाची वेबसाइट.',
     importantLinks: 'महत्त्वाचे दुवे',
     contactUs: 'संपर्क साधा',
     langToggle: 'English',
@@ -536,7 +536,7 @@ const translations = {
 
     adminEyebrow: 'अॅडमिन',
     adminTitle: 'मंडळ डॅशबोर्ड',
-    adminCopy: 'उत्पादने, ऑर्डर, देणग्या, सूचना, गॅलरी आणि एक्सेल एक्सपोर्टसाठी सुरक्षित नियंत्रण.',
+    adminCopy: 'उत्पादने, ऑर्डर, गॅलरी आणि एक्सेल एक्सपोर्टसाठी सुरक्षित नियंत्रण.',
     adminLogin: 'अॅडमिन लॉगिन',
     adminEmail: 'अॅडमिन ईमेल',
     adminPassword: 'अॅडमिन पासवर्ड',

@@ -266,11 +266,10 @@ function AdminDashboard() {
             onChange={(event) => setSearch(event.target.value)}
           />
 
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {[
               ['users', dashboard.data?.stats?.users ?? 0],
               ['orders', dashboard.data?.stats?.orders ?? 0],
-              ['donations', dashboard.data?.stats?.donations ?? 0],
               ['products', dashboard.data?.stats?.products ?? 0],
             ].map(([key, value]) => (
               <div key={key} className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
@@ -338,7 +337,6 @@ function AdminDashboard() {
             items={filterItems(dashboard.data?.recentOrders || [], search)}
             onStatusChange={(id, status) => updateOrderStatusMutation.mutate({ id, status })}
           />
-          <DonationManagement items={filterItems(dashboard.data?.recentDonations || [], search)} />
           <AuditLogList items={filterItems(dashboard.data?.auditLogs || [], search)} />
         </div>
         ) : (
@@ -666,35 +664,6 @@ function OrderManagement({ items, onStatusChange }) {
   )
 }
 
-function DonationManagement({ items }) {
-  const { t } = useLanguage()
-  return (
-    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-      <h2 className="wrap-break-word text-xl font-black">{t('donations')}</h2>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">
-        {items.length === 0 ? <p className="text-sm text-stone-600">{t('noDonations')}</p> : null}
-        {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-2xl bg-[#fff7e8] p-4 text-sm">
-            <p className="wrap-break-word font-black text-stone-950">{item.donor?.name}</p>
-            <p className="text-sm font-black text-[#b91111]">{item.receiptNumber || t('receiptPending')}</p>
-            <p className="wrap-break-word text-stone-600">{item.donor?.phone} / {item.donor?.email || t('noEmail')}</p>
-            <p className="mt-2 font-black">{money(item.amount)} / {item.status}</p>
-            <p className="mt-1 wrap-break-word text-stone-600">{item.paymentMode || 'razorpay'}{item.paymentReference ? ` / ${item.paymentReference}` : ''}</p>
-            <p className="mt-1 text-xs font-bold uppercase tracking-widest text-[#b91111]">{new Date(item.createdAt).toLocaleString()}</p>
-            {item.receiptUrl ? (
-              <a className="mt-2 inline-block font-black text-[#b91111]" href={item.receiptUrl} target="_blank" rel="noreferrer">
-                {t('receipt')}
-              </a>
-            ) : (
-              <p className="mt-2 text-stone-500">{t('noReceiptYet')}</p>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function AuditLogList({ items }) {
   const { t } = useLanguage()
   return (
@@ -718,6 +687,5 @@ function AuditLogList({ items }) {
 }
 
 export default AdminDashboard
-
 
 

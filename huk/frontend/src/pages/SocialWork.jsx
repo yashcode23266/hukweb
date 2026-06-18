@@ -1,9 +1,15 @@
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import ganpatiImage from '../assets/ganpati-optimized.png'
 import millImage from '../assets/health.jpeg'
 import peopleImage from '../assets/people.jpeg'
 import oldMandalImage from '../assets/blood.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
+import covidImage from '../assets/covid4.jpeg'
+import covidImage2 from '../assets/covid2.jpeg'
+import covidImage3 from '../assets/covid3.jpeg'
+import covidImage4 from '../assets/covid1.jpeg'
+import covidImage5 from '../assets/covid5.jpeg'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -17,9 +23,17 @@ const fadeUp = {
 const socialWorkImages = {
   hero: peopleImage,
   story: millImage,
-  chapters: [peopleImage, millImage, oldMandalImage],
+  chapters: [covidImage, millImage, oldMandalImage],
   final: ganpatiImage,
 }
+
+const covidGallery = [
+  covidImage,
+  covidImage2,
+  covidImage3,
+  covidImage4,
+  covidImage5,
+]
 
 const pageText = {
   en: {
@@ -64,33 +78,62 @@ const pageText = {
   },
 }
 
-function ImageFrame({ label, src = ganpatiImage, tall = false }) {
-  return (
+function ImageFrame({ label, src = ganpatiImage, tall = false, onClick }) {
+  const content = (
     <div
       className={`group relative overflow-hidden rounded-lg bg-[#fff0d4] shadow-[0_28px_80px_rgba(121,28,0,.15)] ${
         tall ? 'min-h-140' : 'min-h-90'
       }`}
     >
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,198,65,.28),rgba(255,250,240,.35)),repeating-linear-gradient(90deg,rgba(154,17,17,.05)_0_1px,transparent_1px_42px)]" />
+
       <img
         src={src}
-        alt=""
+        alt={label}
         className="absolute inset-0 h-full w-full object-cover opacity-85 transition duration-700 group-hover:scale-105"
       />
+
       <div className="absolute inset-0 bg-linear-to-t from-[#7c0909]/45 via-transparent to-transparent" />
+
       <p className="absolute bottom-6 left-6 right-6 text-sm font-black uppercase tracking-[0.28em] text-[#ffe0a1]">
         {label}
       </p>
+
+      {onClick && (
+        <div className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-red-700 opacity-0 transition-all duration-300 group-hover:opacity-100">
+          Click to View
+        </div>
+      )}
     </div>
   )
+
+  if (onClick) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') onClick()
+        }}
+        className="block cursor-pointer"
+      >
+        {content}
+      </div>
+    )
+  }
+
+  return <div className="block">{content}</div>
 }
 
 function SocialWork() {
   const { language } = useLanguage()
   const text = pageText[language] || pageText.en
+  const [showCovidGallery, setShowCovidGallery] = useState(false)
 
   return (
-    <main className="overflow-hidden bg-[#fff7e8] text-stone-950">
+    <>
+      <main className="overflow-hidden bg-[#fff7e8] text-stone-950">
       <section className="relative min-h-[calc(100vh-64px)] bg-linear-to-br from-[#fffdf5] via-[#fff4df] to-[#ffe8bd] px-4 py-16 sm:px-6 lg:py-20">
         <div className="absolute inset-0 bg-[repeating-radial-gradient(circle_at_center,transparent_0_20px,rgba(193,16,16,.07)_21px_22px)] opacity-70" />
         <div className="absolute left-1/2 top-10 h-115 w-115 -translate-x-1/2 rounded-full bg-[#ffc44d]/25 blur-3xl" />
@@ -162,12 +205,19 @@ function SocialWork() {
               viewport={{ once: true, amount: 0.25 }}
               className={`grid gap-10 lg:grid-cols-2 lg:items-center ${index % 2 ? 'lg:[&>*:first-child]:order-2' : ''}`}
             >
-              <ImageFrame label={title} src={socialWorkImages.chapters[index] || socialWorkImages.hero} />
-              <div>
-                <div className="mb-7 h-px max-w-sm bg-linear-to-r from-[#d69b19] to-transparent" />
-                <h3 className="font-serif text-4xl font-black text-[#9f1111] sm:text-6xl">{title}</h3>
-                <p className="mt-5 max-w-xl text-lg leading-8 text-stone-700 sm:text-xl">{copy}</p>
+              <div className="space-y-6">
+                <h3 className="text-3xl font-black text-[#9f1111]">{title}</h3>
+                <p className="text-lg leading-8 text-stone-800">{copy}</p>
               </div>
+              {index === 0 ? (
+                <ImageFrame
+                  label={title}
+                  src={socialWorkImages.chapters[index]}
+                  onClick={() => setShowCovidGallery(true)}
+                />
+              ) : (
+                <ImageFrame label={title} src={socialWorkImages.chapters[index]} />
+              )}
             </motion.article>
           ))}
         </div>
@@ -192,7 +242,37 @@ function SocialWork() {
           to { transform: translate3d(12px, -22px, 0) scale(1.28); opacity: .9; }
         }
       `}</style>
-    </main>
+      </main>
+
+      {showCovidGallery && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
+          <div className="relative max-h-[90vh] w-full max-w-7xl overflow-auto rounded-3xl bg-[#f9f4ea] p-8">
+
+            <button
+              onClick={() => setShowCovidGallery(false)}
+              className="absolute right-6 top-6 flex h-12 w-12 items-center justify-center rounded-full bg-red-700 text-xl font-bold text-white"
+            >
+              ✕
+            </button>
+
+            <h2 className="mb-8 text-4xl font-black text-red-800">
+              COVID Relief Support
+            </h2>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {covidGallery.map((img, i) => (
+                <img
+                  key={i}
+                  src={img}
+                  alt=""
+                  className="h-72 w-full rounded-2xl object-cover shadow-lg"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
 

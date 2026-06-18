@@ -1,240 +1,942 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
-import { useState } from 'react'
-import { api } from '../api/client'
-import { openRazorpayCheckout } from '../api/razorpay'
-import { useLanguage } from '../i18n/useLanguage'
-import useCartStore from '../store/cartStore'
-import { money } from '../utils/format'
+import { useState, useRef } from "react";
+import { useLanguage } from "../i18n/useLanguage";
+import imagetshirt from "../assets/tshirt.jpeg";
+import imageidcard from "../assets/id.jpeg";
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const TSHIRT_SIZES = Array.from(
+  { length: (50 - 20) / 2 + 1 },
+  (_, i) => String(20 + i * 2)
+);
+
+// const BACKEND_URL = "http://localhost:8080/tshirt";
+
+// const BACKEND_URL = "https://hukmillane-webiste-backend-production.up.railway.app/tshirt";
+
+const BACKEND_URL = "http://hukmillane-website-backend-env.ap-south-1.elasticbeanstalk.com/tshirt";
+
+
+
+const PRODUCT_CONFIG = [
+  {
+    id: "tshirt",
+    type: "tshirt",
+    price: 1,
+    image: imagetshirt,
+  },
+  {
+    id: "idcard",
+    type: "idcard",
+    price: 1,
+    image: imageidcard,
+  },
+];
 
 const shopText = {
   en: {
-    eyebrow: 'Official Store',
-    title: 'Festival Merchandise',
-    subtitle: 'Official Hukmill Lane Cha Raja merchandise for devotees and volunteers.',
-    checkout: 'Checkout',
-    items: 'items',
+    eyebrow: "Limited Edition 2026",
+    heroTitle: "Get Your Festival T-Shirt",
+    heroSub: "Official Hukmill Lane Cha Raja T-shirt and volunteer ID card for devotees and volunteers.",
+    buyNow: "Buy Now",
+    sizeHint: "Sizes 20 - 58 (step 2) · Same price all sizes",
+    faqEyebrow: "Shop Help",
+    faqTitle: "Frequently Asked Questions",
+    faqCopy: "Everything you need to know before ordering the official mandal T-shirt or ID card.",
+    products: {
+      tshirt: {
+        name: "Mandal T-Shirt",
+        description: "Premium cotton festival T-shirt. Price is uniform across all sizes.",
+        badge: "T-Shirt",
+      },
+      idcard: {
+        name: "Volunteer ID Card",
+        description: "Official laminated ID card for registered volunteers. Single standard size.",
+        badge: "Volunteers",
+      },
+    },
+    faqs: [
+      {
+        question: "How do I pay for my order?",
+        answer: "Choose your product, size and quantity, enter your details, and continue to Razorpay. Available options may include UPI, cards, net banking, and supported wallets.",
+      },
+      {
+        question: "Will I receive a payment receipt?",
+        answer: "Yes. After payment is successfully verified, an order confirmation and downloadable receipt are shown on the screen. Keep the receipt for your records.",
+      },
+      {
+        question: "Can I cancel my order or request a refund?",
+        answer: "No. Once an order is successfully placed and payment is confirmed, it cannot be cancelled and the amount is non-refundable. Please verify the product, size, quantity, and customer details before paying.",
+      },
+      {
+        question: "What if the transaction fails but money is debited?",
+        answer: "If the payment fails but money is debited, the amount is normally reversed automatically to the original payment method within 5 to 7 working days. The exact time depends on your bank or payment provider. Keep the payment reference until the reversal is completed.",
+      },
+      {
+        question: "How will I receive my T-shirt or ID card?",
+        answer: "The T-shirt and ID card must be collected from the mandal. Please keep your booking ID, payment receipt, and registered phone number ready during collection.",
+      },
+    ],
   },
   mr: {
-    eyebrow: 'अधिकृत दुकान',
-    title: 'उत्सव वस्तू',
-    subtitle: 'भक्त आणि स्वयंसेवकांसाठी हुकमिल लेन चा राजा अधिकृत वस्तू.',
-    checkout: 'चेकआउट',
-    items: 'वस्तू',
+    eyebrow: "मर्यादित आवृत्ती २०२६",
+    heroTitle: "उत्सवासाठी अधिकृत टी-शर्ट",
+    heroSub: "भक्त आणि स्वयंसेवकांसाठी हुकमिल लेन चा राजा अधिकृत टी-शर्ट आणि स्वयंसेवक आयडी कार्ड.",
+    buyNow: "आता खरेदी करा",
+    sizeHint: "साइज 20 - 58 (2 च्या फरकाने) · सर्व साइजसाठी समान किंमत",
+    faqEyebrow: "दुकान मदत",
+    faqTitle: "वारंवार विचारले जाणारे प्रश्न",
+    faqCopy: "अधिकृत मंडळ टी-शर्ट किंवा आयडी कार्ड ऑर्डर करण्यापूर्वी आवश्यक माहिती.",
+    products: {
+      tshirt: {
+        name: "मंडळ टी-शर्ट",
+        description: "प्रीमियम कॉटन उत्सव टी-शर्ट. सर्व साइजसाठी किंमत समान आहे.",
+        badge: "टी-शर्ट",
+      },
+      idcard: {
+        name: "स्वयंसेवक आयडी कार्ड",
+        description: "नोंदणीकृत स्वयंसेवकांसाठी अधिकृत लॅमिनेटेड आयडी कार्ड. एकच स्टँडर्ड साइज.",
+        badge: "स्वयंसेवक",
+      },
+    },
+    faqs: [
+      {
+        question: "ऑर्डरचे पेमेंट कसे करायचे?",
+        answer: "प्रोडक्ट, साइज आणि प्रमाण निवडा, तुमची माहिती भरा आणि Razorpay वर पेमेंट करा. UPI, कार्ड, नेट बँकिंग आणि उपलब्ध वॉलेट पर्याय वापरता येतील.",
+      },
+      {
+        question: "मला पेमेंट पावती मिळेल का?",
+        answer: "हो. पेमेंट यशस्वीरीत्या तपासल्यानंतर स्क्रीनवर ऑर्डर कन्फर्मेशन आणि डाउनलोड करता येणारी पावती दिसेल. पावती तुमच्या नोंदीसाठी जपून ठेवा.",
+      },
+      {
+        question: "ऑर्डर रद्द किंवा रिफंड मिळू शकतो का?",
+        answer: "नाही. ऑर्डर यशस्वीरीत्या झाल्यानंतर आणि पेमेंट कन्फर्म झाल्यानंतर ती रद्द करता येणार नाही आणि रक्कम परत केली जाणार नाही. पेमेंट करण्यापूर्वी प्रोडक्ट, साइज, प्रमाण आणि माहिती तपासा.",
+      },
+      {
+        question: "व्यवहार फेल झाला पण पैसे डेबिट झाले तर?",
+        answer: "पेमेंट फेल झाले पण पैसे डेबिट झाले असल्यास रक्कम सामान्यतः मूळ पेमेंट पद्धतीवर 5 ते 7 कामकाजाच्या दिवसांत आपोआप परत येते. अचूक वेळ बँक किंवा पेमेंट प्रदात्यावर अवलंबून असतो. रक्कम परत येईपर्यंत पेमेंट रेफरन्स जपून ठेवा.",
+      },
+      {
+        question: "टी-शर्ट किंवा आयडी कार्ड कसे मिळेल?",
+        answer: "टी-शर्ट आणि आयडी कार्ड मंडळातूनच घ्यावे लागेल. घेताना तुमचा बुकिंग आयडी, पेमेंट पावती आणि नोंदणीकृत फोन नंबर सोबत ठेवा.",
+      },
+    ],
   },
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const money = (n) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
+
+function validateName(name) {
+  const trimmed = name.trim();
+  if (!trimmed) return "Full name is required.";
+  if (trimmed.length < 2) return "Name must be at least 2 characters.";
+  if (!/^[a-zA-Z\s'.'-]+$/.test(trimmed)) return "Name can only contain letters and spaces.";
+  return null;
 }
 
-function Shop() {
-  const queryClient = useQueryClient()
-  const { t, language } = useLanguage()
-  const ui = shopText[language] || shopText.en
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: async () => (await api.get('/products')).data,
-  })
-  const { items, addItem, removeItem, setQuantity, clear, total } = useCartStore()
-  const [customer, setCustomer] = useState({ name: '', phone: '', email: '', address: '' })
-  const [status, setStatus] = useState('')
+function validatePhone(phone) {
+  const cleaned = phone.replace(/\D/g, "");
+  if (!cleaned) return "Phone number is required.";
+  if (cleaned.length !== 10) return "Enter a valid 10-digit phone number.";
+  if (!/^[6-9]/.test(cleaned)) return "Phone must start with 6, 7, 8, or 9.";
+  return null;
+}
 
-  async function checkout(event) {
-    event.preventDefault()
-    try {
-      setStatus(t('creatingPayment'))
-      const { data } = await api.post('/orders', { customer, items })
-      const payment = await openRazorpayCheckout({
-        key: data.razorpayKeyId,
-        amount: data.razorpayOrder.amount,
-        name: t('mandalAddressTitle'),
-        orderId: data.razorpayOrder.id,
-        description: t('shopOrder'),
-        prefill: customer,
-      })
-      const verified = await api.post('/orders/verify', {
-        orderId: data.order._id,
-        razorpayOrderId: payment.razorpay_order_id,
-        razorpayPaymentId: payment.razorpay_payment_id,
-        razorpaySignature: payment.razorpay_signature,
-      })
-      clear()
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-      setStatus(`${t('paymentSuccessful')} ${verified.data.order.receiptNumber || ''} ${t('receipt')}: ${verified.data.order.receiptUrl}`)
-    } catch (error) {
-      setStatus(error.response?.data?.message || error.message || t('paymentFailed'))
+function validateEmail(email) {
+  if (!email.trim()) return "Email address is required.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Enter a valid email address.";
+  return null;
+}
+
+function buildSizeNote(rows) {
+  return rows
+    .map((r) => (r.size === "Standard" ? `Standard x${r.quantity}` : `Size ${r.size} x${r.quantity}`))
+    .join(", ");
+}
+
+function openRazorpay(options) {
+  return new Promise((resolve, reject) => {
+    if (!window.Razorpay) {
+      reject(new Error("Razorpay SDK not loaded. Add the script tag to your HTML."));
+      return;
     }
-  }
+    const rzp = new window.Razorpay({ ...options, handler: resolve });
+    rzp.on("payment.failed", (resp) => reject(resp.error));
+    rzp.open();
+  });
+}
+
+async function createOrder(payload) {
+  const res = await fetch(`${BACKEND_URL}/createOrder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function paymentCallback(params) {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${BACKEND_URL}/paymentCallback?${query}`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// ── Processing Overlay ────────────────────────────────────────────────────────
+function ProcessingOverlay({ message }) {
+  return (
+    <div style={s.processingOverlay}>
+      <div style={s.processingCard}>
+        <div style={s.spinnerWrap}>
+          <svg style={s.spinner} viewBox="0 0 50 50">
+            <circle
+              cx="25" cy="25" r="20"
+              fill="none"
+              stroke="#b71c1c"
+              strokeWidth="4"
+              strokeDasharray="100 28"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
+        <p style={s.processingTitle}>Processing…</p>
+        <p style={s.processingMsg}>{message}</p>
+        <p style={s.processingHint}>Please don't close this window</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Reusable validated field ──────────────────────────────────────────────────
+function ValidatedInput({ type = "text", placeholder, value, onChange, error, valid, hint, prefix, maxLength, required }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <div style={{ position: "relative" }}>
+        {prefix && <span style={s.fieldPrefix}>{prefix}</span>}
+        <input
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          required={required}
+          onChange={onChange}
+          maxLength={maxLength}
+          style={{
+            ...s.input,
+            paddingLeft: prefix ? 44 : 14,
+            paddingRight: valid ? 36 : 14,
+            borderColor: error ? "#ef4444" : valid ? "#22c55e" : "#f5deb3",
+          }}
+        />
+        {valid && !error && <span style={s.fieldCheck}>✓</span>}
+      </div>
+      {error && <span style={s.fieldError}>{error}</span>}
+      {!error && hint && <span style={s.fieldHint}>{hint}</span>}
+    </div>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+export default function Shop() {
+  const { language } = useLanguage();
+  const copy = shopText[language] || shopText.en;
+  const products = PRODUCT_CONFIG.map((product) => ({
+    ...product,
+    ...copy.products[product.id],
+  }));
+
+  const [activeProduct, setActiveProduct] = useState(null);
+  const [receiptData, setReceiptData] = useState(null);
+  const [failureData, setFailureData] = useState(null);
 
   return (
-    <main className="bg-[#fff8ea] px-4 py-10 text-stone-950 sm:px-6 lg:py-14">
-      <motion.section
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl border border-[#e7c579]/60 bg-[#fffaf0] px-5 py-12 text-center shadow-[0_28px_90px_rgba(93,25,0,.10)] sm:px-8 lg:py-16"
-      >
-        <div className="absolute left-1/2 top-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#ffb72e]/20 blur-3xl" />
-        <div className="relative">
-          <p className="text-xs font-black uppercase tracking-[0.34em] text-[#b91111]">{ui.eyebrow}</p>
-          <h1 className="mt-4 font-serif text-5xl font-black leading-none text-[#9f1111] sm:text-7xl">{ui.title}</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-stone-700">
-            {ui.subtitle}
+    <div style={s.page}>
+      <section style={s.hero}>
+        <div style={s.heroContent}>
+          <p style={s.eyebrow}>{copy.eyebrow}</p>
+          <h1 style={s.heroTitle}>{copy.heroTitle}</h1>
+          <p style={s.heroSub}>
+            {copy.heroSub}
           </p>
         </div>
-      </motion.section>
+        <div style={s.heroDeco} />
+      </section>
 
-      <section className="mx-auto mt-10 grid max-w-7xl gap-7 lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_440px]">
-        <div className="grid gap-6 sm:grid-cols-2">
-          {products.map((product, index) => (
-            <ProductCard key={product._id || product.id} product={product} onAdd={addItem} index={index} />
+      <main style={s.main}>
+        <div style={s.grid}>
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} copy={copy} onAdd={() => setActiveProduct(p)} />
           ))}
         </div>
 
-        <aside className="h-fit rounded-[1.25rem] border border-[#e7c579]/70 bg-white/90 p-4 shadow-[0_24px_80px_rgba(93,25,0,.14)] backdrop-blur sm:p-5 lg:sticky lg:top-36">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-[#b91111]">{ui.checkout}</p>
-              <h2 className="mt-1 font-serif text-3xl font-black text-[#9f1111]">{t('cart')}</h2>
-            </div>
-            <span className="rounded-full bg-[#fff1d6] px-3 py-1 text-sm font-black text-[#8d0909]">{items.length} {ui.items}</span>
-          </div>
+        <ShopFaq copy={copy} />
+      </main>
 
-          <div className="mt-5 space-y-3">
-            {items.length === 0 ? <p className="rounded-2xl bg-[#fff7e8] p-4 text-stone-600">{t('cartEmpty')}</p> : null}
-            {items.map((item) => (
-              <div key={`${item.productId}-${item.size}`} className="grid min-w-0 gap-3 rounded-2xl bg-[#fff7e8] p-3 sm:grid-cols-[70px_1fr_auto]">
-                <img src={item.image} alt="" className="size-17.5 rounded-xl object-cover shadow-sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="wrap-break-word font-black text-stone-950">{item.name}</p>
-                  <p className="text-sm font-bold text-[#8d0909]">{item.size}</p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <input
-                      className="w-16 rounded-full border border-[#e7c579] bg-white px-3 py-1 font-bold"
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => setQuantity(item.productId, item.size, Number(e.target.value))}
-                    />
-                    {Number.isFinite(item.stock) ? <span className="text-xs font-bold text-stone-500">{t('max')} {item.stock}</span> : null}
-                    <button className="rounded-full bg-white px-3 py-1 text-sm font-black text-red-700 shadow-sm" onClick={() => removeItem(item.productId, item.size)}>
-                      {t('remove')}
-                    </button>
-                  </div>
-                </div>
-                <p className="font-black text-[#9f1111] sm:text-right">{money(item.price * item.quantity)}</p>
-              </div>
-            ))}
-          </div>
+      {activeProduct && (
+        <OrderPopup
+          product={activeProduct}
+          onClose={() => setActiveProduct(null)}
+          onSuccess={(data) => { setActiveProduct(null); setReceiptData(data); }}
+          onFailure={(err) => { setActiveProduct(null); setFailureData(err); }}
+        />
+      )}
 
-          <form className="mt-5 space-y-3" onSubmit={checkout}>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              {['name', 'phone', 'email', 'address'].map((field) => (
-                <input
-                  key={field}
-                  className={`focus-ring w-full rounded-2xl border border-[#e7c579] bg-[#fffdf7] px-4 py-3 shadow-inner ${field === 'address' ? 'sm:col-span-2 lg:col-span-1 xl:col-span-2' : ''}`}
-                  placeholder={
-                    field === 'address'
-                      ? t('deliveryAddress')
-                      : field === 'name'
-                        ? t('name')
-                        : field === 'phone'
-                          ? t('customerPhone')
-                          : t('customerEmail')
-                  }
-                  value={customer[field]}
-                  required={field === 'name' || field === 'phone'}
-                  onChange={(e) => setCustomer({ ...customer, [field]: e.target.value })}
-                />
-              ))}
-            </div>
-            <div className="flex items-center justify-between gap-3 border-t border-[#e7c579]/70 pt-4 text-2xl font-black">
-              <span>{t('total')}</span>
-              <span className="text-[#9f1111]">{money(total())}</span>
-            </div>
-            <button
-              className="w-full rounded-full bg-[#b91111] px-5 py-4 font-black text-white shadow-xl shadow-red-950/15 transition hover:-translate-y-0.5 hover:bg-[#8f0d0d] disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!items.length}
-            >
-              {status === t('creatingPayment') ? t('creatingPayment') : t('paySecurely')}
-            </button>
-          </form>
-          {status ? <p className="mt-4 wrap-break-word rounded-2xl bg-green-50 p-4 text-sm font-bold text-green-800">{status}</p> : null}
-        </aside>
-      </section>
-    </main>
-  )
+      {receiptData && <ReceiptPopup data={receiptData} onClose={() => setReceiptData(null)} />}
+      {failureData && <FailurePopup error={failureData} onClose={() => setFailureData(null)} onRetry={() => setFailureData(null)} />}
+    </div>
+  );
 }
 
-function ProductCard({ product, onAdd, index }) {
-  const { t, tObject } = useLanguage()
-  const productNames = tObject('productNames')
-  const productDescriptions = tObject('productDescriptions')
-  const displayName = productNames[product._id] || product.name
-  const displayDescription = productDescriptions[product._id] || product.description
-  const sizes = product.sizes?.length ? product.sizes : [t('standard')]
-  const stock = product.stock
-  const hasStockLimit = typeof stock === 'number'
-  const available = !hasStockLimit || stock > 0
-  const [size, setSize] = useState(sizes[0])
-  const [quantity, setQuantity] = useState(1)
+function ShopFaq({ copy }) {
+  return (
+    <section style={s.faqSection} aria-labelledby="shop-faq-title">
+      <div style={s.faqIntro}>
+        <p style={s.faqEyebrow}>{copy.faqEyebrow}</p>
+        <h2 id="shop-faq-title" style={s.faqTitle}>{copy.faqTitle}</h2>
+        <p style={s.faqCopy}>{copy.faqCopy}</p>
+      </div>
+
+      <div style={s.faqList}>
+        {copy.faqs.map((item, index) => (
+          <details key={item.question} style={s.faqItem} open={index === 0}>
+            <summary style={s.faqQuestion}>
+              <span>{item.question}</span>
+              <span aria-hidden="true" style={s.faqIcon}>+</span>
+            </summary>
+            <p style={s.faqAnswer}>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Product Card ──────────────────────────────────────────────────────────────
+function ProductCard({ product, copy, onAdd }) {
+  return (
+    <article style={s.card}>
+      <div style={{ position: "relative", overflow: "hidden" }}>
+        <img src={product.image} alt={product.name} style={s.cardImg} />
+        <span style={s.cardBadge}>{product.badge}</span>
+        <span style={s.cardPrice}>{money(product.price)}</span>
+      </div>
+      <div style={s.cardBody}>
+        <h2 style={s.cardTitle}>{product.name}</h2>
+        <p style={s.cardDesc}>{product.description}</p>
+        {product.type === "tshirt" && (
+          <p style={s.sizeHint}>{copy.sizeHint}</p>
+        )}
+        <button onClick={onAdd} style={s.addBtn}>{copy.buyNow}</button>
+      </div>
+    </article>
+  );
+}
+
+// ── Order Popup ───────────────────────────────────────────────────────────────
+function OrderPopup({ product, onClose, onSuccess, onFailure }) {
+  const isTshirt = product.type === "tshirt";
+  const sizes = isTshirt ? TSHIRT_SIZES : ["Standard"];
+
+  const [rows, setRows] = useState([{ size: sizes[0], quantity: 1 }]);
+  const [step, setStep] = useState(1);
+  const [customer, setCustomer] = useState({ name: "", phoneNumber: "", email: "" });
+  const [touched, setTouched] = useState({ name: false, phoneNumber: false, email: false });
+  const [loading, setLoading] = useState(false);
+
+  // ── Two separate overlay states ──────────────────────────────────────────
+  // "verifying" = payment was captured by Razorpay, now confirming with backend
+  // "bridging"  = Razorpay closed without payment (dismissed/failed), show
+  //               spinner briefly so the screen doesn't flicker straight to error
+  const [verifying, setVerifying] = useState(false);
+  const [verifyMsg, setVerifyMsg] = useState("Verifying your payment…");
+  const [bridging, setBridging] = useState(false);
+
+  const [inlineError, setInlineError] = useState(null);
+
+  const totalQty = rows.reduce((acc, r) => acc + r.quantity, 0);
+  const totalAmt = totalQty * product.price;
+
+  const nameError  = validateName(customer.name);
+  const phoneError = validatePhone(customer.phoneNumber);
+  const emailError = validateEmail(customer.email);
+
+  const nameValid  = !nameError  && customer.name.trim().length > 0;
+  const phoneValid = !phoneError && customer.phoneNumber.length === 10;
+  const emailValid = !emailError && customer.email.trim().length > 0;
+
+  const phoneHint = !phoneError && customer.phoneNumber.length > 0 && customer.phoneNumber.length < 10
+    ? `${10 - customer.phoneNumber.length} more digits needed`
+    : null;
+
+  function touch(field) { setTouched((t) => ({ ...t, [field]: true })); }
+
+  function updateRow(i, field, value) {
+    setRows((prev) => prev.map((r, idx) => idx === i ? { ...r, [field]: value } : r));
+  }
+  function addRow() { setRows((prev) => [...prev, { size: sizes[0], quantity: 1 }]); }
+  function removeRow(i) { setRows((prev) => prev.filter((_, idx) => idx !== i)); }
+
+  function goToStep2() {
+    if (totalQty === 0) return;
+    const merged = {};
+    rows.forEach(({ size, quantity }) => { merged[size] = (merged[size] || 0) + quantity; });
+    setRows(Object.entries(merged).map(([size, quantity]) => ({ size, quantity })));
+    setStep(2);
+  }
+
+  function handlePhoneChange(val) {
+    const digits = val.replace(/\D/g, "").slice(0, 10);
+    setCustomer((c) => ({ ...c, phoneNumber: digits }));
+  }
+
+  // Helper: show the "processing" spinner for `ms` ms, then call onFailure.
+  // This is used when Razorpay is dismissed without completing payment so the
+  // user sees a smooth transition instead of an abrupt popup switch.
+  function bridgeToFailure(errorObj, ms = 1500) {
+    setBridging(true);
+    setTimeout(() => {
+      setBridging(false);
+      onFailure(errorObj);
+    }, ms);
+  }
+
+  async function handlePay(e) {
+    e.preventDefault();
+    setTouched({ name: true, phoneNumber: true, email: true });
+    if (nameError || phoneError || emailError) return;
+
+    try {
+      setLoading(true);
+      setInlineError(null);
+
+      const payload = {
+        name: customer.name.trim(),
+        email: customer.email.trim(),
+        phoneNumber: customer.phoneNumber,
+        amount: totalAmt,
+        sizeQuantities: rows.map((r) => ({ size: r.size, quantity: r.quantity })),
+        totalQuantity: totalQty,
+      };
+
+      // 1. Create order
+      const order = await createOrder(payload);
+
+      // 2. Open Razorpay
+      let payment;
+      try {
+        payment = await openRazorpay({
+          key: order.razorpayKeyId || "rzp_live_T1Zc1AiFDYhjxe",
+          amount: order.amount * 100,
+          currency: "INR",
+          name: "HukmillLane Cha Raja",
+          description: `Order – ${product.name}`,
+          order_id: order.razorpayOrderId,
+          prefill: {
+            name: customer.name.trim(),
+            email: customer.email.trim(),
+            contact: customer.phoneNumber,
+          },
+          notes: {
+            name:customer.name,
+            product: product.name,
+            sizes_and_quantities: buildSizeNote(rows),
+            total_pieces: String(totalQty),
+            customer_phone: customer.phoneNumber,
+          },
+          theme: { color: "#b71c1c" },
+        });
+      } catch (rzpErr) {
+        // Razorpay was closed or payment failed inside the checkout modal.
+        // Fire the callback silently (best-effort) so the backend can record
+        // the failure, then show spinner → failure receipt.
+        setLoading(false);
+        if (rzpErr?.metadata) {
+          paymentCallback({
+            razorpay_order_id: rzpErr.metadata.order_id || order.razorpayOrderId,
+            razorpay_payment_id: rzpErr.metadata.payment_id || "",
+            razorpay_signature: "",
+          }).catch(() => {});
+        }
+        // Show spinner briefly so it doesn't feel like a harsh flash to error.
+        bridgeToFailure({
+          code: rzpErr?.code || "PAYMENT_CANCELLED",
+          description:
+            rzpErr?.description ||
+            "Payment was cancelled or not completed. Please try again.",
+          orderId: order.razorpayOrderId,
+        });
+        return;
+      }
+
+      // 3. Payment captured — show "Verifying" overlay while backend confirms.
+      setLoading(false);
+      setVerifying(true);
+      setVerifyMsg("Verifying your payment…");
+
+      const slowTimer = setTimeout(() => {
+        setVerifyMsg("Still confirming with our server… almost there.");
+      }, 5000);
+
+      let verified;
+      try {
+        verified = await Promise.race([
+          paymentCallback({
+            razorpay_order_id: payment.razorpay_order_id,
+            razorpay_payment_id: payment.razorpay_payment_id,
+            razorpay_signature: payment.razorpay_signature,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("TIMEOUT")), 30000)
+          ),
+        ]);
+      } catch (verifyErr) {
+        clearTimeout(slowTimer);
+        setVerifying(false);
+        // Backend timed-out or errored AFTER the user already paid — show
+        // failure receipt with the payment ID so they can contact support.
+        onFailure(
+          verifyErr.message === "TIMEOUT"
+            ? {
+                code: "VERIFY_TIMEOUT",
+                description:
+                  "Your payment was received but confirmation is taking too long. Please contact support with your payment ID.",
+                orderId: order.razorpayOrderId,
+                paymentId: payment.razorpay_payment_id,
+              }
+            : {
+                code: "VERIFY_FAILED",
+                description:
+                  verifyErr.message || "Payment verification failed. Contact support.",
+                orderId: order.razorpayOrderId,
+                paymentId: payment.razorpay_payment_id,
+              }
+        );
+        return;
+      }
+
+      clearTimeout(slowTimer);
+      setVerifying(false);
+
+      if (verified?.orderStatus === "PAYMENT_SUCCESS") {
+        onSuccess({
+          ...verified,
+          customerName: customer.name.trim(),
+          productName: product.name,
+        });
+      } else {
+        onFailure({
+          description: "Payment verification failed. Contact support.",
+          orderId: order.razorpayOrderId,
+          paymentId: payment.razorpay_payment_id,
+        });
+      }
+    } catch (err) {
+      setVerifying(false);
+      setInlineError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Show processing overlay for both "verifying" (post-payment backend call)
+  // and "bridging" (brief spinner after checkout dismissal).
+  if (verifying) return <ProcessingOverlay message={verifyMsg} />;
+  if (bridging)  return <ProcessingOverlay message="Checking payment status…" />;
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.05 }}
-      className="group min-w-0 overflow-hidden rounded-[1.25rem] border border-[#e7c579]/70 bg-white shadow-[0_20px_70px_rgba(93,25,0,.10)]"
-    >
-      <div className="relative overflow-hidden bg-[#fff1d6]">
-        <img src={product.image} alt={displayName} className="h-60 w-full object-cover transition duration-700 group-hover:scale-105 sm:h-72" />
-        <span className="absolute right-4 top-4 rounded-full bg-[#fff8ea] px-4 py-2 text-lg font-black text-[#9f1111] shadow-lg">{money(product.price)}</span>
-        <span className="absolute left-4 top-4 rounded-full bg-[#b91111] px-3 py-1 text-xs font-black uppercase tracking-wider text-white">
-          {hasStockLimit ? `${stock} ${t('inStock')}` : t('available')}
-        </span>
-      </div>
-      <div className="p-5">
-        <h3 className="wrap-break-word font-serif text-3xl font-black leading-tight text-[#9f1111]">{displayName}</h3>
-        <p className="mt-3 wrap-break-word leading-7 text-stone-700">{displayDescription}</p>
-
-        <div className="mt-5">
-          <span className="text-xs font-black uppercase tracking-[0.22em] text-stone-500">{t('size')}</span>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {sizes.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setSize(item)}
-                className={`rounded-full px-4 py-2 text-sm font-black transition ${size === item ? 'bg-[#b91111] text-white' : 'bg-[#fff1d6] text-[#8d0909] hover:bg-[#ffe4ad]'}`}
-              >
-                {item}
-              </button>
-            ))}
+    <div style={s.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div style={s.popup}>
+        {/* Header */}
+        <div style={s.popupHeader}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <img src={product.image} alt="" style={s.popupThumb} />
+            <div>
+              <p style={s.popupProductName}>{product.name}</p>
+              <p style={s.popupProductPrice}>{money(product.price)} per piece</p>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={s.steps}>
+              <span style={{ ...s.stepDot, background: "#b71c1c", color: "#fff" }}>1</span>
+              <div style={s.stepLine} />
+              <span style={{ ...s.stepDot, background: step === 2 ? "#b71c1c" : "#e0e0e0", color: step === 2 ? "#fff" : "#9e9e9e" }}>2</span>
+            </div>
+            <button onClick={onClose} style={s.closeBtn}>✕</button>
           </div>
         </div>
 
-        <div className="mt-5 flex items-end gap-4">
-          <label className="block max-w-32">
-            <span className="text-xs font-black uppercase tracking-[0.22em] text-stone-500">{t('qty')}</span>
-            <input
-              className="mt-2 w-full rounded-full border border-[#e7c579] bg-[#fffdf7] px-4 py-3 font-black"
-              type="number"
-              min="1"
-              max={hasStockLimit ? stock : undefined}
-              value={quantity}
-              onChange={(e) => setQuantity(Math.min(hasStockLimit ? stock : 9999, Math.max(1, Number(e.target.value))))}
-            />
-          </label>
-          <button
-            onClick={() => onAdd({ ...product, name: displayName, description: displayDescription }, size, quantity)}
-            className="flex-1 rounded-full bg-[#b91111] px-4 py-3 font-black text-white shadow-lg shadow-red-950/15 transition hover:-translate-y-0.5 hover:bg-[#8f0d0d] disabled:cursor-not-allowed disabled:opacity-50"
-            type="button"
-            disabled={!available}
-          >
-            {available ? t('addToCart') : t('outOfStock')}
-          </button>
-        </div>
+        {/* Step 1 */}
+        {step === 1 && (
+          <div style={s.popupBody}>
+            <p style={s.sectionLabel}>{isTshirt ? "Select Sizes & Quantities" : "Select Quantity"}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {rows.map((row, i) => (
+                <div key={i} style={s.modalRow}>
+                  {isTshirt && (
+                    <select value={row.size} onChange={(e) => updateRow(i, "size", e.target.value)} style={s.sizeSelect}>
+                      {sizes.map((sz) => <option key={sz} value={sz}>Size {sz}</option>)}
+                    </select>
+                  )}
+                  <div style={s.stepper}>
+                    <button type="button" style={s.stepBtn} onClick={() => updateRow(i, "quantity", Math.max(1, row.quantity - 1))}>−</button>
+                    <span style={s.stepNum}>{row.quantity}</span>
+                    <button type="button" style={s.stepBtn} onClick={() => updateRow(i, "quantity", row.quantity + 1)}>+</button>
+                  </div>
+                  <span style={s.rowAmt}>{money(row.quantity * product.price)}</span>
+                  {rows.length > 1 && <button type="button" style={s.removeRowBtn} onClick={() => removeRow(i)}>✕</button>}
+                </div>
+              ))}
+            </div>
+            {isTshirt && <button type="button" onClick={addRow} style={s.addSizeBtn}>+ Add another size</button>}
+            <div style={s.summaryBar}>
+              <div>
+                <span style={{ fontSize: 12, color: "#9e9e9e", fontWeight: 700 }}>TOTAL</span>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#b71c1c" }}>{money(totalAmt)}</div>
+                <span style={{ fontSize: 12, color: "#757575" }}>{totalQty} {totalQty === 1 ? "piece" : "pieces"}</span>
+              </div>
+              <button type="button" disabled={totalQty === 0} onClick={goToStep2} style={{ ...s.primaryBtn, opacity: totalQty === 0 ? 0.5 : 1 }}>
+                Continue →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2 */}
+        {step === 2 && (
+          <div style={s.popupBody}>
+            <div style={s.orderSummary}>
+              <p style={s.sectionLabel}>Your Order</p>
+              {rows.map((r) => (
+                <div key={r.size} style={s.summaryLine}>
+                  <span style={{ fontWeight: 700, color: "#424242" }}>{r.size === "Standard" ? "Standard" : `Size ${r.size}`} × {r.quantity}</span>
+                  <span style={{ fontWeight: 800, color: "#b71c1c" }}>{money(r.quantity * product.price)}</span>
+                </div>
+              ))}
+              <div style={{ ...s.summaryLine, borderTop: "1px solid #f5deb3", paddingTop: 8, marginTop: 4 }}>
+                <span style={{ fontWeight: 900, fontSize: 16 }}>Total</span>
+                <span style={{ fontWeight: 900, fontSize: 16, color: "#b71c1c" }}>{money(totalAmt)}</span>
+              </div>
+            </div>
+
+            <form onSubmit={handlePay} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <p style={s.sectionLabel}>Your Details</p>
+
+              <ValidatedInput
+                type="text" placeholder="Full Name *" value={customer.name} required
+                onChange={(e) => { setCustomer({ ...customer, name: e.target.value }); touch("name"); }}
+                error={touched.name ? nameError : null} valid={nameValid}
+              />
+              <ValidatedInput
+                type="tel" placeholder="10-digit phone number *" value={customer.phoneNumber}
+                required prefix="+91" maxLength={10}
+                onChange={(e) => { handlePhoneChange(e.target.value); touch("phoneNumber"); }}
+                error={touched.phoneNumber ? phoneError : null} valid={phoneValid} hint={phoneHint}
+              />
+              <ValidatedInput
+                type="email" placeholder="Email Address *" value={customer.email} required
+                onChange={(e) => { setCustomer({ ...customer, email: e.target.value }); touch("email"); }}
+                error={touched.email ? emailError : null} valid={emailValid}
+              />
+
+              {inlineError && <div style={s.inlineError}>{inlineError}</div>}
+
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                <button type="button" onClick={() => { setStep(1); setInlineError(null); }} style={s.backBtn}>← Back</button>
+                <button type="submit" disabled={loading} style={{ ...s.primaryBtn, flex: 1, opacity: loading ? 0.7 : 1 }}>
+                  {loading ? "Processing…" : `Pay ${money(totalAmt)}`}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
-    </motion.article>
-  )
+    </div>
+  );
 }
 
-export default Shop
+// ── Receipt / Success Popup ───────────────────────────────────────────────────
+function ReceiptPopup({ data, onClose }) {
+  const receiptRef = useRef(null);
 
+  const orderedAt = data.updatedAt
+    ? new Date(data.updatedAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
+    : new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
+
+  const pricePerPiece = data.totalQuantity > 0 ? data.amount / data.totalQuantity : 0;
+
+  function handleDownload() {
+    const sizeRows = data.sizeQuantities?.length > 0
+      ? `<div class="sizes">${data.sizeQuantities.map(sq => `<p>${sq.size === "Standard" ? "Standard" : `Size ${sq.size}`} × ${sq.quantity}</p>`).join("")}</div>`
+      : "";
+
+    const receiptHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><title>Receipt – ${data.razorpayOrderId || "Order"}</title>
+<style>
+  body{font-family:'Segoe UI',sans-serif;max-width:480px;margin:40px auto;color:#212121}
+  .header{text-align:center;border-bottom:2px solid #b71c1c;padding-bottom:16px;margin-bottom:24px}
+  .header h1{color:#b71c1c;font-size:22px;margin:0 0 4px}.header p{color:#757575;font-size:13px;margin:0}
+  .badge{display:inline-block;background:#dcfce7;color:#166534;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px}
+  .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:14px}
+  .row .label{color:#9e9e9e;font-weight:600}.row .value{font-weight:700;color:#212121}
+  .total-row{display:flex;justify-content:space-between;padding:12px 0;font-size:18px;font-weight:900;color:#b71c1c;border-top:2px solid #b71c1c;margin-top:8px}
+  .sizes{background:#fff9f0;border-radius:8px;padding:12px 14px;margin:12px 0}.sizes p{margin:4px 0;font-size:13px;font-weight:600}
+  .footer{text-align:center;margin-top:32px;font-size:12px;color:#bdbdbd}
+</style></head><body>
+  <div class="header"><h1>🎉 HukmillLane Cha Raja</h1><p>Official Payment Receipt</p></div>
+  <div style="text-align:center"><span class="badge">✅ Payment Successful</span></div>
+  <div class="row"><span class="label">Booking ID</span><span class="value">${data.bookingId || "—"}</span></div>
+  <div class="row"><span class="label">Customer</span><span class="value">${data.customerName || data.name || "—"}</span></div>
+  <div class="row"><span class="label">Phone</span><span class="value">${data.phoneNumber || "—"}</span></div>
+  ${data.email ? `<div class="row"><span class="label">Email</span><span class="value">${data.email}</span></div>` : ""}
+  <div class="row"><span class="label">Order ID</span><span class="value" style="font-family:monospace;font-size:12px">${data.razorpayOrderId || "—"}</span></div>
+  <div class="row"><span class="label">Payment ID</span><span class="value" style="font-family:monospace;font-size:12px">${data.razorpayPaymentId || "—"}</span></div>
+  <div class="row"><span class="label">Status</span><span class="value" style="color:#166534">CONFIRMED</span></div>
+  <div class="row"><span class="label">Total Quantity</span><span class="value">${data.totalQuantity}</span></div>
+  <div class="row"><span class="label">Date & Time</span><span class="value">${orderedAt}</span></div>
+  <div class="row"><span class="label">Product</span><span class="value">${data.productName || "Festival Item"}</span></div>
+  ${sizeRows}
+  <div class="total-row"><span>Total Paid</span><span>₹${data.amount || "—"}</span></div>
+  <div class="footer">Thank you for your order! Keep this receipt for your records.</div>
+</body></html>`;
+
+    const win = window.open("", "_blank");
+    win.document.write(receiptHtml);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 500);
+  }
+
+  return (
+    <div style={s.overlay}>
+      <div style={{ ...s.popup, maxWidth: 460 }}>
+        <div style={s.successHeader}>
+          <div style={s.successIcon}>🎉</div>
+          <h2 style={s.successTitle}>Payment Successful!</h2>
+          <p style={s.successSub}>Your order is confirmed. Here's your receipt.</p>
+        </div>
+
+        <div style={s.receiptBody} ref={receiptRef}>
+          <div style={s.receiptDivider}>
+            <div style={s.dashedLine} />
+            <span style={s.receiptLabel}>RECEIPT</span>
+            <div style={s.dashedLine} />
+          </div>
+
+          <ReceiptRow label="Booking ID" value={data.bookingId || "—"} />
+          <ReceiptRow label="Customer" value={data.customerName || data.name || "—"} />
+          <ReceiptRow label="Phone" value={data.phoneNumber || "—"} />
+          {data.email && <ReceiptRow label="Email" value={data.email} />}
+          <ReceiptRow label="Product" value={data.productName || "Festival Item"} />
+
+          {data.sizeQuantities?.length > 0 && (
+            <div style={s.sizesBox}>
+              {data.sizeQuantities.map((sq) => (
+                <div key={sq.size} style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 13, color: "#616161", fontWeight: 600 }}>
+                    {sq.size === "Standard" ? "Standard" : `Size ${sq.size}`} × {sq.quantity}
+                  </span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#424242" }}>
+                    {money(sq.quantity * pricePerPiece)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <ReceiptRow label="Total Quantity" value={`${data.totalQuantity} ${data.totalQuantity === 1 ? "piece" : "pieces"}`} />
+          <ReceiptRow label="Order ID" value={data.razorpayOrderId} mono />
+          <ReceiptRow label="Payment ID" value={data.razorpayPaymentId} mono />
+          <ReceiptRow label="Date" value={orderedAt} />
+          <ReceiptRow label="Status" value="✅ CONFIRMED" highlight />
+
+          <div style={{ ...s.receiptDivider, margin: "12px 0 0" }}>
+            <div style={s.dashedLine} />
+          </div>
+
+          <div style={s.receiptTotal}>
+            <span>Total Paid</span>
+            <span style={{ color: "#b71c1c" }}>{money(data.amount)}</span>
+          </div>
+        </div>
+
+        <div style={{ padding: "0 22px 24px", display: "flex", gap: 10 }}>
+          <button onClick={handleDownload} style={s.downloadBtn}>⬇ Download Receipt</button>
+          <button onClick={onClose} style={{ ...s.primaryBtn, flex: 1 }}>Done</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReceiptRow({ label, value, mono, highlight }) {
+  return (
+    <div style={s.receiptRow}>
+      <span style={s.receiptRowLabel}>{label}</span>
+      <span style={{
+        ...s.receiptRowValue,
+        fontFamily: mono ? "monospace" : "inherit",
+        fontSize: mono ? 12 : 14,
+        color: highlight ? "#166534" : "#212121",
+        background: highlight ? "#dcfce7" : "transparent",
+        padding: highlight ? "2px 8px" : 0,
+        borderRadius: highlight ? 20 : 0,
+      }}>
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+// ── Failure Popup ─────────────────────────────────────────────────────────────
+const FAILURE_TIPS = [
+  "Ensure you have sufficient balance.",
+  "Try a different payment method.",
+  "Contact your bank if the issue persists.",
+];
+
+function FailurePopup({ error, onClose, onRetry }) {
+  return (
+    <div style={s.overlay}>
+      <div style={{ ...s.popup, maxWidth: 420 }}>
+        <div style={s.failureHeader}>
+          <div style={s.failureIcon}>✕</div>
+          <h2 style={s.failureTitle}>Payment Failed</h2>
+          <p style={s.failureSub}>{error?.description || "Your payment could not be processed."}</p>
+        </div>
+        <div style={s.failureBody}>
+          {error?.orderId && (
+            <div style={s.failureDetail}>
+              <span style={s.failureDetailLabel}>Order Reference</span>
+              <span style={{ ...s.failureDetailValue, fontFamily: "monospace", fontSize: 12 }}>{error.orderId}</span>
+            </div>
+          )}
+          {error?.paymentId && (
+            <div style={s.failureDetail}>
+              <span style={s.failureDetailLabel}>Payment ID</span>
+              <span style={{ ...s.failureDetailValue, fontFamily: "monospace", fontSize: 12 }}>{error.paymentId}</span>
+            </div>
+          )}
+          <div style={s.failureTips}>
+            <p style={{ fontWeight: 800, fontSize: 13, marginBottom: 8, color: "#7c2d12" }}>What you can do:</p>
+            {FAILURE_TIPS.map((tip) => (
+              <p key={tip} style={{ fontSize: 13, color: "#9a3412", margin: "4px 0", paddingLeft: 14, position: "relative" }}>
+                <span style={{ position: "absolute", left: 0 }}>•</span>{tip}
+              </p>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding: "0 22px 24px", display: "flex", gap: 10 }}>
+          <button onClick={onClose} style={s.backBtn}>Close</button>
+          <button onClick={onRetry} style={{ ...s.primaryBtn, flex: 1 }}>Try Again</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+const s = {
+  page: { minHeight: "100vh", background: "linear-gradient(160deg,#fff8f0 0%,#fff3e0 50%,#fce4ec 100%)", fontFamily: "'Segoe UI',system-ui,sans-serif", color: "#212121" },
+  hero: { position: "relative", background: "linear-gradient(135deg,#b71c1c 0%,#880e0e 60%,#4a0000 100%)", color: "#fff", padding: "clamp(44px,8vw,64px) clamp(16px,4vw,24px)", overflow: "hidden", textAlign: "center" },
+  heroDeco: { position: "absolute", top: -60, right: -60, width: 300, height: 300, borderRadius: "50%", background: "rgba(255,200,0,0.10)", pointerEvents: "none" },
+  heroContent: { position: "relative", maxWidth: 640, margin: "0 auto" },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: "0.25em", color: "#ffcc80", textTransform: "uppercase", marginBottom: 12 },
+  heroTitle: { fontSize: "clamp(2rem,6vw,3.5rem)", fontWeight: 900, margin: "0 0 16px", lineHeight: 1.1, letterSpacing: "-1px" },
+  heroSub: { fontSize: 16, color: "rgba(255,255,255,0.82)", lineHeight: 1.7 },
+  main: { maxWidth: 1100, margin: "0 auto", padding: "clamp(34px,6vw,48px) clamp(14px,4vw,24px) 80px" },
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,300px),1fr))", gap: 28 },
+  faqSection: { marginTop: 72, paddingTop: 54, borderTop: "1px solid rgba(183,28,28,0.16)", display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,280px),1fr))", gap: 40, alignItems: "start" },
+  faqIntro: { maxWidth: 430 },
+  faqEyebrow: { margin: "0 0 12px", color: "#b71c1c", fontSize: 12, fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase" },
+  faqTitle: { margin: 0, color: "#7f1010", fontFamily: "Georgia,'Times New Roman',serif", fontSize: "clamp(2rem,5vw,3.2rem)", lineHeight: 1.08, fontWeight: 900 },
+  faqCopy: { margin: "18px 0 0", color: "#616161", fontSize: 16, lineHeight: 1.75 },
+  faqList: { display: "flex", flexDirection: "column", gap: 12 },
+  faqItem: { background: "rgba(255,255,255,0.86)", border: "1px solid rgba(214,155,25,0.38)", borderRadius: 14, padding: "0 clamp(14px,4vw,18px)", boxShadow: "0 12px 35px rgba(121,28,0,0.06)" },
+  faqQuestion: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, padding: "18px 0", color: "#4a1515", fontSize: "clamp(0.94rem,3.7vw,1rem)", fontWeight: 800, lineHeight: 1.45, cursor: "pointer", listStyle: "none" },
+  faqIcon: { display: "grid", placeItems: "center", flexShrink: 0, width: 28, height: 28, borderRadius: "50%", background: "#b71c1c", color: "#fff", fontSize: 19, fontWeight: 500, lineHeight: 1 },
+  faqAnswer: { margin: "0 0 19px", paddingRight: 0, color: "#616161", fontSize: 14, lineHeight: 1.75 },
+  card: { background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 8px 40px rgba(183,28,28,0.08)", border: "1px solid rgba(245,222,179,0.6)" },
+  cardImg: { width: "100%", height: 240, objectFit: "cover", display: "block" },
+  cardBadge: { position: "absolute", top: 14, left: 14, background: "#b71c1c", color: "#fff", fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 50, textTransform: "uppercase", letterSpacing: "0.06em" },
+  cardPrice: { position: "absolute", top: 14, right: 14, background: "rgba(255,255,255,0.96)", color: "#b71c1c", fontWeight: 900, fontSize: 18, padding: "4px 14px", borderRadius: 50, boxShadow: "0 2px 10px rgba(0,0,0,0.1)" },
+  cardBody: { padding: "22px 22px 26px" },
+  cardTitle: { fontSize: 24, fontWeight: 900, color: "#212121", margin: "0 0 8px" },
+  cardDesc: { fontSize: 14, color: "#616161", lineHeight: 1.7, margin: "0 0 10px" },
+  sizeHint: { fontSize: 12, fontWeight: 700, color: "#795548", background: "#fff8e1", borderRadius: 8, padding: "6px 10px", display: "inline-block", marginBottom: 16 },
+  addBtn: { width: "100%", background: "#b71c1c", color: "#fff", border: "none", borderRadius: 50, padding: "13px 20px", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 20px rgba(183,28,28,0.25)" },
+  overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(5px)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 },
+  popup: { background: "#fff", borderRadius: 22, width: "100%", maxWidth: 480, boxShadow: "0 30px 80px rgba(0,0,0,0.22)", maxHeight: "92vh", overflowY: "auto", display: "flex", flexDirection: "column" },
+  popupHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #f0e6d3", background: "#fff9f0", flexShrink: 0 },
+  popupThumb: { width: 48, height: 48, borderRadius: 10, objectFit: "cover" },
+  popupProductName: { fontWeight: 900, fontSize: 15, margin: 0 },
+  popupProductPrice: { fontSize: 13, fontWeight: 700, color: "#b71c1c", margin: "2px 0 0" },
+  steps: { display: "flex", alignItems: "center", gap: 4 },
+  stepDot: { width: 24, height: 24, borderRadius: "50%", fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
+  stepLine: { width: 20, height: 2, background: "#e0e0e0", borderRadius: 2 },
+  closeBtn: { width: 30, height: 30, border: "none", background: "#f5f5f5", borderRadius: "50%", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#757575", display: "flex", alignItems: "center", justifyContent: "center" },
+  popupBody: { padding: "20px 22px 26px", display: "flex", flexDirection: "column", gap: 16 },
+  sectionLabel: { fontSize: 10, fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase", color: "#9e9e9e" },
+  modalRow: { display: "flex", alignItems: "center", gap: 10 },
+  sizeSelect: { flex: 1, border: "1.5px solid #f5deb3", borderRadius: 10, padding: "9px 12px", fontSize: 14, fontWeight: 700, color: "#424242", background: "#fffdf7", cursor: "pointer", outline: "none" },
+  stepper: { display: "flex", alignItems: "center", gap: 2, background: "#fafafa", borderRadius: 10, border: "1.5px solid #f5deb3", padding: "2px 4px" },
+  stepBtn: { width: 32, height: 32, border: "none", background: "transparent", color: "#b71c1c", fontWeight: 900, fontSize: 18, cursor: "pointer", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" },
+  stepNum: { width: 28, textAlign: "center", fontWeight: 800, fontSize: 15 },
+  rowAmt: { fontSize: 14, fontWeight: 800, color: "#b71c1c", minWidth: 64, textAlign: "right" },
+  removeRowBtn: { border: "none", background: "transparent", color: "#bdbdbd", cursor: "pointer", fontSize: 14, fontWeight: 700, padding: 4 },
+  addSizeBtn: { border: "none", background: "none", color: "#b71c1c", fontWeight: 700, fontSize: 14, cursor: "pointer", textDecoration: "underline", padding: 0, alignSelf: "flex-start" },
+  summaryBar: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#fff9f0", borderRadius: 14, padding: "14px 18px", border: "1px solid #f5deb3", marginTop: 4 },
+  orderSummary: { background: "#fff9f0", borderRadius: 12, padding: "14px 16px", border: "1px solid #f5deb3", display: "flex", flexDirection: "column", gap: 6 },
+  summaryLine: { display: "flex", justifyContent: "space-between", fontSize: 14 },
+  fieldPrefix: { position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontWeight: 800, fontSize: 14, color: "#616161", pointerEvents: "none" },
+  fieldCheck: { position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#22c55e", fontWeight: 900, fontSize: 16 },
+  fieldError: { fontSize: 12, color: "#ef4444", fontWeight: 600 },
+  fieldHint: { fontSize: 12, color: "#9e9e9e", fontWeight: 600 },
+  inlineError: { padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "#fef2f2", color: "#991b1b", border: "1px solid #fecaca" },
+  input: { width: "100%", border: "1.5px solid #f5deb3", borderRadius: 10, padding: "11px 14px", fontSize: 14, boxSizing: "border-box", outline: "none", fontFamily: "inherit", color: "#212121" },
+  primaryBtn: { background: "#b71c1c", color: "#fff", border: "none", borderRadius: 50, padding: "13px 22px", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 20px rgba(183,28,28,0.25)" },
+  backBtn: { background: "#f5f5f5", color: "#424242", border: "none", borderRadius: 50, padding: "13px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+  processingOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)", zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center" },
+  processingCard: { background: "#fff", borderRadius: 20, padding: "40px 36px", textAlign: "center", maxWidth: 320, width: "90%", boxShadow: "0 30px 80px rgba(0,0,0,0.3)" },
+  spinnerWrap: { display: "flex", justifyContent: "center", marginBottom: 20 },
+  spinner: { width: 52, height: 52, animation: "spin 0.9s linear infinite" },
+  processingTitle: { margin: "0 0 8px", fontWeight: 900, fontSize: 18, color: "#212121" },
+  processingMsg: { margin: "0 0 10px", fontSize: 14, color: "#616161", lineHeight: 1.6 },
+  processingHint: { margin: 0, fontSize: 12, fontWeight: 700, color: "#b71c1c", textTransform: "uppercase", letterSpacing: "0.05em" },
+  successHeader: { background: "linear-gradient(135deg,#052e16,#14532d)", padding: "32px 24px 28px", textAlign: "center", borderRadius: "22px 22px 0 0" },
+  successIcon: { width: 64, height: 64, background: "rgba(255,255,255,0.15)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, margin: "0 auto 16px" },
+  successTitle: { margin: "0 0 8px", color: "#fff", fontSize: 22, fontWeight: 900 },
+  successSub: { margin: 0, color: "rgba(255,255,255,0.75)", fontSize: 14 },
+  receiptBody: { padding: "20px 22px", display: "flex", flexDirection: "column", gap: 0 },
+  receiptDivider: { display: "flex", alignItems: "center", gap: 10, margin: "8px 0 16px" },
+  dashedLine: { flex: 1, height: 1, borderTop: "2px dashed #e0e0e0" },
+  receiptLabel: { fontSize: 11, fontWeight: 900, letterSpacing: "0.2em", color: "#bdbdbd", whiteSpace: "nowrap" },
+  receiptRow: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #fafafa" },
+  receiptRowLabel: { fontSize: 12, fontWeight: 700, color: "#9e9e9e", textTransform: "uppercase", letterSpacing: "0.05em" },
+  receiptRowValue: { fontSize: 14, fontWeight: 700 },
+  sizesBox: { background: "#fff9f0", border: "1px solid #f5deb3", borderRadius: 10, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 4, margin: "4px 0" },
+  receiptTotal: { display: "flex", justifyContent: "space-between", fontSize: 20, fontWeight: 900, padding: "14px 0 4px" },
+  downloadBtn: { background: "#f0fdf4", color: "#166534", border: "1.5px solid #bbf7d0", borderRadius: 50, padding: "13px 18px", fontSize: 14, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" },
+  failureHeader: { background: "linear-gradient(135deg,#450a0a,#7f1d1d)", padding: "32px 24px 28px", textAlign: "center", borderRadius: "22px 22px 0 0" },
+  failureIcon: { width: 64, height: 64, background: "rgba(255,255,255,0.15)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 900, color: "#fff", margin: "0 auto 16px" },
+  failureTitle: { margin: "0 0 8px", color: "#fff", fontSize: 22, fontWeight: 900 },
+  failureSub: { margin: 0, color: "rgba(255,255,255,0.75)", fontSize: 14 },
+  failureBody: { padding: "20px 22px", display: "flex", flexDirection: "column", gap: 14 },
+  failureDetail: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#fef2f2", borderRadius: 10, border: "1px solid #fecaca" },
+  failureDetailLabel: { fontSize: 12, fontWeight: 700, color: "#9e9e9e", textTransform: "uppercase" },
+  failureDetailValue: { fontSize: 14, fontWeight: 700, color: "#991b1b" },
+  failureTips: { background: "#fff7ed", borderRadius: 12, padding: "14px 16px", border: "1px solid #fed7aa" },
+};
+
+if (typeof document !== "undefined" && !document.getElementById("shop-spinner-style")) {
+  const st = document.createElement("style");
+  st.id = "shop-spinner-style";
+  st.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
+  document.head.appendChild(st);
+}
