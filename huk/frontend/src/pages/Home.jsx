@@ -298,7 +298,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[250] overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
+      className="fixed inset-0 z-250 overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -310,7 +310,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
         initial={{ opacity: 0, y: 26, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-[2rem] bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
+        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-4xl bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
       >
         <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-4 border-b border-orange-200 bg-[#fff9ed]/90 px-5 py-4 backdrop-blur sm:px-8">
           <div className="flex items-center gap-4">
@@ -352,7 +352,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
                 src={photo}
                 alt={`${sponsor.name} memory ${index + 1}`}
                 className={`w-full object-cover transition duration-700 group-hover:scale-105 ${
-                  index % 3 === 0 ? 'h-96 sm:h-[34rem]' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
+                  index % 3 === 0 ? 'h-96 sm:h-136' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
                 }`}
               />
             </motion.figure>
