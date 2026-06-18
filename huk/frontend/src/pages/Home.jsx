@@ -7,6 +7,12 @@ import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
 import heroGanpati from '../assets/gann.png'
 import historyGanpati from '../assets/ganpati-optimized.png'
+import gallery2020 from '../assets/2020.jpeg'
+import gallery2021 from '../assets/2021.jpeg'
+import gallery2022 from '../assets/2022.jpeg'
+import gallery2023 from '../assets/20233.jpeg'
+import gallery2024 from '../assets/20244.jpeg'
+import gallery2025 from '../assets/2025.jpeg'
 import colorsMarathiLogo from '../assets/Colors marathi.png'
 import cpLogo from '../assets/cp.png'
 import keshLogo from '../assets/Kesh.webp'
@@ -21,7 +27,7 @@ import rapidoSponsor4 from '../sponsor/rapido4.png.jpeg'
 import rapidoSponsor5 from '../sponsor/rapido5.png.jpeg'
 import rapidoSponsor6 from '../sponsor/rapido6.png.jpeg'
 import rapidoSponsor7 from '../sponsor/rapido7.png.jpeg'
-import rrsponsor6 from '../sponsor/rr6.png.jpeg'
+import rrSponsor6 from '../sponsor/rr6.png.jpeg'
 import rrSponsor1 from '../sponsor/rr1.png.jpeg'
 import rrSponsor2 from '../sponsor/rr2.png.jpeg'
 import rrSponsor3 from '../sponsor/rr3.png.jpeg'
@@ -60,6 +66,61 @@ const sponsors = [
   { name: 'RR Kabel', logo: rrLogo },
   { name: 'CP Plus', logo: cpLogo },
   { name: 'Rapido', logo: rapidoLogo },
+]
+
+const sponsorGalleries = {
+  'ZEE Marathi': {
+    title: 'ZEE Marathi',
+    photos: [zeesponsor1],
+  },
+  VERTIV: {
+    title: 'VERTIV',
+    photos: [vertivSponsor1, vertivSponsor2, vertivSponsor3, vertivSponsor4, vertivSponsor5, vertivSponsor6],
+  },
+  'Colors Marathi': {
+    title: 'Colors Marathi',
+    photos: [colorssponsor1, colorssponsor2, colorssponsor3],
+  },
+  'Kesh King': {
+    title: 'Kesh King',
+    photos: [
+      kesgkingsponsor1,
+      kesgkingsponsor2,
+      kesgkingsponsor3,
+      kesgkingsponsor4,
+      kesgkingsponsor5,
+      kesgkingsponsor6,
+    ],
+  },
+  'RR Kabel': {
+    title: 'RR Kabel',
+    photos: [rrSponsor1, rrSponsor2, rrSponsor3, rrSponsor4, rrSponsor5, rrSponsor6],
+  },
+  'CP Plus': {
+    title: 'CP Plus',
+    photos: [cpsponsor1, cpsponsor2, cpsponsor3, cpsponsor4, cpsponsor5],
+  },
+  Rapido: {
+    title: 'Rapido',
+    photos: [
+      rapidoSponsor1,
+      rapidoSponsor2,
+      rapidoSponsor3,
+      rapidoSponsor4,
+      rapidoSponsor5,
+      rapidoSponsor6,
+      rapidoSponsor7,
+    ],
+  },
+}
+
+const homeGalleryImages = [
+  gallery2025,
+  gallery2024,
+  gallery2023,
+  gallery2022,
+  gallery2021,
+  gallery2020,
 ]
 
 function Home() {
