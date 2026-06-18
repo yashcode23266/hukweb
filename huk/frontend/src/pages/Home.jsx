@@ -7,12 +7,6 @@ import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
 import heroGanpati from '../assets/gann.png'
 import historyGanpati from '../assets/ganpati-optimized.png'
-import gallery2020 from '../assets/2020.jpeg'
-import gallery2021 from '../assets/2021.jpeg'
-import gallery2022 from '../assets/2022.jpeg'
-import gallery2023 from '../assets/20233.jpeg'
-import gallery2024 from '../assets/20244.jpeg'
-import gallery2025 from '../assets/2025.jpeg'
 import colorsMarathiLogo from '../assets/Colors marathi.png'
 import cpLogo from '../assets/cp.png'
 import keshLogo from '../assets/Kesh.webp'
@@ -20,6 +14,40 @@ import rapidoLogo from '../assets/rapido-removebg-preview.png'
 import rrLogo from '../assets/rr.png'
 import vrtLogo from '../assets/vrt.png'
 import zeeLogo from '../assets/zee.png'
+import rapidoSponsor1 from '../sponsor/rapido1.png.jpeg'
+import rapidoSponsor2 from '../sponsor/rapido2.png.jpeg'
+import rapidoSponsor3 from '../sponsor/rapido3.png.jpeg'
+import rapidoSponsor4 from '../sponsor/rapido4.png.jpeg'
+import rapidoSponsor5 from '../sponsor/rapido5.png.jpeg'
+import rapidoSponsor6 from '../sponsor/rapido6.png.jpeg'
+import rapidoSponsor7 from '../sponsor/rapido7.png.jpeg'
+import rrsponsor6 from '../sponsor/rr6.png.jpeg'
+import rrSponsor1 from '../sponsor/rr1.png.jpeg'
+import rrSponsor2 from '../sponsor/rr2.png.jpeg'
+import rrSponsor3 from '../sponsor/rr3.png.jpeg'
+import rrSponsor4 from '../sponsor/rr4.png.jpeg'
+import rrSponsor5 from '../sponsor/rr5.png.jpeg'
+import cpsponsor1 from '../sponsor/cp1.png.jpeg'
+import cpsponsor2 from '../sponsor/cp2.png.jpeg'
+import cpsponsor3 from '../sponsor/cp3.png.jpeg'
+import cpsponsor4 from '../sponsor/cp4.png.jpeg'
+import cpsponsor5 from '../sponsor/cp5.png.jpeg'
+import zeesponsor1 from '../sponsor/zee1.png.jpeg'
+import vertivSponsor1 from '../sponsor/vertiv1.png.jpeg'
+import vertivSponsor2 from '../sponsor/vertiv2.png.jpeg'
+import vertivSponsor3 from '../sponsor/vertiv3.png.jpeg'
+import vertivSponsor4 from '../sponsor/vertiv4.png.jpeg'
+import vertivSponsor5 from '../sponsor/vertiv5.png.jpeg'
+import vertivSponsor6 from '../sponsor/vertiv6.png.jpeg'
+import colorssponsor1 from '../sponsor/colors1.png.jpeg'
+import colorssponsor2 from '../sponsor/colors2.png.jpeg'
+import colorssponsor3 from '../sponsor/colors3.png.jpeg'
+import kesgkingsponsor1 from '../sponsor/keshking1.png.jpeg'
+import kesgkingsponsor2 from '../sponsor/keshking2.png.jpeg'
+import kesgkingsponsor3 from '../sponsor/keshking3.png.jpeg'
+import kesgkingsponsor4 from '../sponsor/keshking4.png.jpeg'
+import kesgkingsponsor5 from '../sponsor/keshking5.png.jpeg'
+import kesgkingsponsor6 from '../sponsor/keshking6.png.jpeg'
 import { fallbackGallery } from '../data/fallback'
 import { mandalMapEmbedUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
@@ -32,52 +60,6 @@ const sponsors = [
   { name: 'RR Kabel', logo: rrLogo },
   { name: 'CP Plus', logo: cpLogo },
   { name: 'Rapido', logo: rapidoLogo },
-]
-
-// Sponsor popup galleries. To use real sponsor photos later:
-// 1. Add images in src/assets
-// 2. Import them above
-// 3. Replace the photos array for that sponsor key
-const sponsorGalleries = {
-  'ZEE Marathi': {
-    title: 'ZEE Marathi',
-    photos: [gallery2025, gallery2024, gallery2023, gallery2022, gallery2021],
-  },
-  VERTIV: {
-    title: 'VERTIV',
-    photos: [gallery2024, gallery2020, gallery2025, gallery2021, gallery2023],
-  },
-  'Colors Marathi': {
-    title: 'Colors Marathi',
-    photos: [gallery2023, gallery2025, gallery2020, gallery2022, gallery2024],
-  },
-  'Kesh King': {
-    title: 'Kesh King',
-    photos: [gallery2022, gallery2021, gallery2025, gallery2020, gallery2024],
-  },
-  'RR Kabel': {
-    title: 'RR Kabel',
-    photos: [gallery2021, gallery2023, gallery2024, gallery2025, gallery2020],
-  },
-  'CP Plus': {
-    title: 'CP Plus',
-    photos: [gallery2020, gallery2024, gallery2022, gallery2025, gallery2021],
-  },
-  Rapido: {
-    title: 'Rapido',
-    photos: [gallery2025, gallery2022, gallery2021, gallery2024, gallery2023],
-  },
-}
-
-// Homepage gallery preview images. Add an image to src/assets, import it above,
-// then replace or append it here to update the homepage cards.
-const homeGalleryImages = [
-  gallery2025,
-  gallery2024,
-  gallery2023,
-  gallery2022,
-  gallery2021,
-  gallery2020,
 ]
 
 function Home() {
@@ -298,7 +280,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-250 overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
+      className="fixed inset-0 z-[250] overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -310,7 +292,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
         initial={{ opacity: 0, y: 26, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-4xl bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
+        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-[2rem] bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
       >
         <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-4 border-b border-orange-200 bg-[#fff9ed]/90 px-5 py-4 backdrop-blur sm:px-8">
           <div className="flex items-center gap-4">
@@ -352,7 +334,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
                 src={photo}
                 alt={`${sponsor.name} memory ${index + 1}`}
                 className={`w-full object-cover transition duration-700 group-hover:scale-105 ${
-                  index % 3 === 0 ? 'h-96 sm:h-136' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
+                  index % 3 === 0 ? 'h-96 sm:h-[34rem]' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
                 }`}
               />
             </motion.figure>

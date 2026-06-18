@@ -18,7 +18,7 @@ const translations = {
     navMore: 'More',
     shree: 'Shree',
     mandalName: 'Ganpati Mandal',
-    brandName: 'Hukmil Lanecha Raja',
+    brandName: 'Hukmil Lane cha Raja',
     ticker: 'Hukmilane Sarvajanik GaneshUtsav Mandal | Established 1934',
     footerLine: 'Darshan, seva, celebrations, and community support.',
     footerCopy: 'A devotional Ganpati mandal website for darshan, seva, gallery, shop and community updates.',
@@ -55,7 +55,7 @@ const translations = {
     
 
     aboutEyebrow: 'Mandal Info',
-    aboutTitle: 'About Hukmilane Lanecha Raja',
+    aboutTitle: 'About Hukmilane Lane cha Raja',
     aboutParagraphs: [
       'Hukmill Lane Cha Raja, located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The Hukmill Lane Sarvajanik Ganeshotsav Mandal was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.',
       'With a rich legacy spanning over nine decades, this Ganpati is considered a living symbol of Girangaon cultural heritage. The unique identity of Hukmill Lane Cha Raja is its tradition of presenting something new every year.',
@@ -166,16 +166,16 @@ const translations = {
     allYears: 'All Years',
     galleryItems: {
       g1: {
-        title: 'Maha Aarti 2025',
-        story: 'A luminous evening of aarti, dhol, and community darshan.',
+        title: 'Anand',
+        story: 'A vibrant depiction of Lord Ganesha in a divine form, symbolizing joy, devotion, and the spirit of celebration..',
       },
       g2: {
-        title: 'Mandap Decoration',
-        story: 'Gold, marigold, and red silk details around the main mandap.',
+        title: 'Vaibhav',
+        story: 'Lord Ganesha portrayed in a powerful multi-armed form, representing strength, protection, and victory over obstacles..',
       },
       g3: {
-        title: 'Prasad Seva',
-        story: 'Volunteers serving devotees through the evening.',
+        title: 'Vidya',
+        story: 'Inspiring wisdom, learning, and artistic expression.',
       },
     },
 
@@ -322,11 +322,11 @@ const translations = {
   },
   mr: {
     navHome: 'मुख्यपृष्ठ',
-    navShop: 'दुकान',
+    navShop: 'शॉप',
     navDonate: 'देणगी',
     navGallery: 'गॅलरी',
     navContact: 'संपर्क',
-    navAdmin: 'अॅडमिन',
+    navAdmin: 'ॲडमिन',
     navMandalInfo: 'मंडळ माहिती',
     navInitiatives: 'उपक्रम',
     navAbout: 'आमच्याबद्दल',
