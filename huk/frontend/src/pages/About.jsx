@@ -62,8 +62,8 @@ const aboutContent = {
       ['Lord Shiva', 'Meditative energy, austerity, and timeless spiritual force.'],
     ],
     creations: [
-      ['Banana Ganpati', 'This unique form of Lord Ganesha, crafted from nature bounty, left an unforgettable impression on the hearts of devotees.'],
-      ['5,555 Coconut Ganpati', 'A striking idol concept that transformed everyday offerings into a grand spiritual form.'],
+      ['Ganpati Made By Real Banana', 'This unique form of Lord Ganesha, crafted from nature bounty, left an unforgettable impression on the hearts of devotees.'],
+      ['Real Coconut Ganpati', 'A striking idol concept that transformed everyday offerings into a grand spiritual form.'],
       ['Bahubali Ganpati', 'A dramatic large-scale theme that brought cinematic scale to the mandal’s darshan experience.'],
     ],
     seva: [
@@ -75,7 +75,7 @@ const aboutContent = {
   mr: {
     heroKicker: 'स्थापना १९३४',
     heroTitle: 'हुकमिल लेनचा राजा',
-    heroCopy: 'भव्यतेने परंपरा जपणारा श्रद्धेचा उत्सव.',
+    heroCopy: 'जपुणी संस्कृतीचे भान राखुनी भव्यतेची शान.',
     exploreLegacy: 'परंपरा पाहा',
     viewGallery: 'गॅलरी पाहा',
     visualKicker: 'गिरणगावची भावना',

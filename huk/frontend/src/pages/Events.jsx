@@ -9,6 +9,8 @@ import bananaImage from '../assets/banana.jpeg'
 import coconutImage from '../assets/coconut.jpeg'
 import shivaImage from '../assets/shiva.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
+import hplimage from '../assets/hpl.jpeg'
+import pplimage from '../assets/ppl.jpeg'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -35,7 +37,7 @@ const moreThanEventsImages = [
     images: [
       { src: coconutImage, height: 'h-64' },
       { src: image2014, height: 'h-52' },
-      { src: shivaImage, height: 'h-80' },
+      { src: hplimage, height: 'h-80' },
     ],
   },
   {
@@ -68,9 +70,9 @@ const moreThanEventsImages = [
 ]
 
 const eventImages = {
-  hero: image2015,
+  hero: pplimage,
   diwali: peopleImage,
-  youth: millImage,
+  youth: hplimage,
   patriotic: image2014,
   moreThanEvents: moreThanEventsImages,
 }
@@ -207,7 +209,7 @@ function Events() {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.12 }} className="relative mt-14 w-full max-w-5xl">
+          <motion.div variants={fadeUp} initial="hidden" animate="show" transition={{ delay: 0.12 }} className="relative mt-14 w-full max-w-3xl">
             <div className="absolute -inset-6 rounded-full bg-[#ffc44d]/20 blur-3xl" />
             <div className="relative overflow-hidden rounded-lg border border-[#e9c56f]/50 bg-white/55 p-3 shadow-[0_30px_90px_rgba(121,28,0,.16)] backdrop-blur-sm">
               <VisualPanel label={text.label} src={eventImages.hero} />

@@ -56,6 +56,10 @@ const shopText = {
     },
     faqs: [
       {
+        question: "How can I contact the Mandal for any enquiry?",
+        answer: "Please reach out to us at Abhishek Bachankar on +91-9867174946 or Omkar Patne on +91-7208224609 ",
+      },
+      {
         question: "How do I pay for my order?",
         answer: "Choose your product, size and quantity, enter your details, and continue to Razorpay. Available options may include UPI, cards, net banking, and supported wallets.",
       },
@@ -99,6 +103,10 @@ const shopText = {
       },
     },
     faqs: [
+      {
+        question: "कुठल्या प्रकारच्या चौकशीसाठी मी मंडळाशी संपर्क करू शकतो?",
+        answer: "कृपया अभिषेक बाचणकर यांच्याशी +91-9867174946 वर किंवा ओमकार पाटणे यांच्याशी +91-7208224609 वर संपर्क साधा.",
+      },
       {
         question: "ऑर्डरचे पेमेंट कसे करायचे?",
         answer: "प्रोडक्ट, साइज आणि प्रमाण निवडा, तुमची माहिती भरा आणि Razorpay वर पेमेंट करा. UPI, कार्ड, नेट बँकिंग आणि उपलब्ध वॉलेट पर्याय वापरता येतील.",
