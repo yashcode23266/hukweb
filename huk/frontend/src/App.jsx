@@ -1,13 +1,13 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
+import Home from './pages/Home'
 
 const About = lazy(() => import('./pages/About'))
 const AdminRoute = lazy(() => import('./pages/AdminRoute'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Events = lazy(() => import('./pages/Events'))
 const Gallery = lazy(() => import('./pages/Gallery'))
-const Home = lazy(() => import('./pages/Home'))
 const LegalPage = lazy(() => import('./pages/LegalPage'))
 const Shop = lazy(() => import('./pages/Shop'))
 const SocialWork = lazy(() => import('./pages/SocialWork'))

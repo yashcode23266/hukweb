@@ -1,6 +1,6 @@
 {
-  "name": "Hukmilane Lanecha Raja",
-  "short_name": "Lanecha Raja",
+  "name": "Hukmill Lane Cha Raja",
+  "short_name": "Hukmill Raja",
   "description": "Devotional Ganpati Mandal website for darshan, seva, donations, gallery, shop, and announcements.",
   "start_url": "/",
   "display": "standalone",
@@ -8,9 +8,9 @@
   "theme_color": "#BF0404",
   "icons": [
     {
-      "src": "/og-logo.jpeg",
-      "sizes": "512x512",
-      "type": "image/jpeg",
+      "src": "/favicon.png",
+      "sizes": "500x500",
+      "type": "image/png",
       "purpose": "any"
     }
   ]

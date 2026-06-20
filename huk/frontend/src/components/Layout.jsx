@@ -40,31 +40,31 @@ const socialLinks = {
 const seoByPath = {
   '/': {
     title: 'Home',
-    description: 'Official Hukmilane Lanecha Raja Ganpati Mandal website for darshan, gallery, shop, and community updates.',
+    description: 'Official website of Hukmill Lane Cha Raja, established in 1934, for Ganpati darshan, gallery, T-shirts, and community updates.',
   },
   '/about': {
     title: 'About Mandal',
-    description: 'Learn about the legacy, origin, and devotional journey of Hukmilane Lanecha Raja since 1934.',
+    description: 'Learn about the legacy, origin, and devotional journey of Hukmill Lane Cha Raja since 1934.',
   },
   '/social-work': {
     title: 'Social Work',
-    description: 'Explore the seva, social work, and community initiatives of Hukmilane Lanecha Raja.',
+    description: 'Explore the seva, social work, and community initiatives of Hukmill Lane Cha Raja.',
   },
   '/events': {
     title: 'Events',
-    description: 'Discover cultural events, celebrations, and community activities by Hukmilane Lanecha Raja.',
+    description: 'Discover cultural events, celebrations, and community activities by Hukmill Lane Cha Raja.',
   },
   '/gallery': {
     title: 'Gallery',
-    description: 'Browse year-wise Ganpati memories and visual archive of Hukmilane Lanecha Raja.',
+    description: 'Browse the year-wise Ganpati memories and visual archive of Hukmill Lane Cha Raja.',
   },
   '/shop': {
     title: 'Shop',
-    description: 'Buy official Hukmilane Lanecha Raja merchandise including festival T-shirts and ID cards.',
+    description: 'Order official Hukmill Lane Cha Raja festival T-shirts and volunteer ID cards.',
   },
   '/contact': {
     title: 'Contact',
-    description: 'Find Hukmilane Lanecha Raja contact details and mandal location.',
+    description: 'Find Hukmill Lane Cha Raja contact details and Mandal location.',
   },
   '/admin': {
     title: 'Admin',
@@ -72,11 +72,11 @@ const seoByPath = {
   },
   '/privacy-policy': {
     title: 'Privacy Policy',
-    description: 'How Hukmilane Lanecha Raja handles devotee, order, and admin information.',
+    description: 'How Hukmill Lane Cha Raja handles devotee, order, and admin information.',
   },
   '/terms-and-conditions': {
     title: 'Terms & Conditions',
-    description: 'Terms for using Hukmilane Lanecha Raja website, shop, and admin features.',
+    description: 'Terms for using the Hukmill Lane Cha Raja website, shop, and admin features.',
   },
   '/refund-policy': {
     title: 'Refund Policy',
@@ -174,7 +174,7 @@ function Layout() {
             <Link to="/" onClick={closeMobileMenu} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
               <img
                 src={logo}
-                alt="Hukmilane Lanecha Raja logo"
+                alt="Hukmill Lane Cha Raja logo"
                 width="500"
                 height="500"
                 decoding="async"
@@ -323,7 +323,7 @@ function Layout() {
           <div className="flex flex-col items-center md:items-start">
             <img
               src={logo}
-              alt="Hukmilane Lanecha Raja logo"
+              alt="Hukmill Lane Cha Raja logo"
               width="500"
               height="500"
               loading="lazy"
