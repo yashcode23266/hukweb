@@ -11,6 +11,8 @@ import shivaImage from '../assets/shiva.jpeg'
 import { useLanguage } from '../i18n/useLanguage'
 import hplimage from '../assets/hpl.jpeg'
 import pplimage from '../assets/ppl.jpeg'
+import deepaImage from '../assets/deepa.jpeg'
+import republicImage from '../assets/republic.jpeg'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -26,7 +28,7 @@ const moreThanEventsImages = [
     duration: 36,
     reverse: false,
     images: [
-      { src: image2015, height: 'h-56' },
+      { src: deepaImage, height: 'h-56' },
       { src: peopleImage, height: 'h-72' },
       { src: bananaImage, height: 'h-48' },
     ],
@@ -55,7 +57,7 @@ const moreThanEventsImages = [
     images: [
       { src: peopleImage, height: 'h-80' },
       { src: bananaImage, height: 'h-48' },
-      { src: coconutImage, height: 'h-64' },
+      { src: republicImage, height: 'h-64' },
     ],
   },
   {
@@ -71,9 +73,9 @@ const moreThanEventsImages = [
 
 const eventImages = {
   hero: pplimage,
-  diwali: peopleImage,
+  diwali: deepaImage,
   youth: hplimage,
-  patriotic: image2014,
+  patriotic: republicImage,
   moreThanEvents: moreThanEventsImages,
 }
 

@@ -37,7 +37,7 @@ const aboutContent = {
     originPartOne: 'Hukmill Lane Cha Raja',
     originPartTwo:
       ', located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The ',
-    originHighlight: 'Hukmill Lane Sarvajanik Ganeshotsav Mandal',
+    originHighlight: 'Hukmill Lane Sarvajanik Ganeshutsav Mandal',
     originPartThree:
       ' was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.',
     timelineKicker: 'Timeline Journey',
@@ -51,8 +51,8 @@ const aboutContent = {
     sevaTitle: 'Beyond Celebration',
     timeline: [
       ['1934', 'Mandal Established', 'The same hands that once powered the textile mills lit the sacred flame of Ganesha devotion, a flame that continues to illuminate our legacy across generations.'],
-      ['1990-2016', 'Kashinath Matavkar Era', 'Through the vision, leadership, and tireless dedication of shree Kashinath Matavkar, Hukum Mill Lane Cha Raja reached new heights of grandeur and popularity.'],
-      ['2015', 'Bahubali Theme Ganpati', 'Such was the grandeur of its presentation that Hukum Mill Lane Cha Raja became a prominent topic of discussion throughout Mumbai Ganesh festival community.'],
+      ['1990-2016', 'Kashinath Matavkar Era', 'Through the vision, leadership, and tireless dedication of shree Kashinath Matavkar, Hukmill Lane Cha Raja reached new heights of grandeur and popularity.'],
+      ['2015', 'Bahubali Theme Ganpati', 'Such was the grandeur of its presentation that Hukmill Lane Cha Raja became a prominent topic of discussion throughout Mumbai Ganesh festival community.'],
       ['Today', 'Digital Devotion & Community Seva', 'Darshan memories, seva work, and community updates continue with a modern presence.'],
     ],
     divineForms: [
