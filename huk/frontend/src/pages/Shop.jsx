@@ -132,6 +132,35 @@ const shopText = {
   },
 };
 
+const idCardText = {
+  en: {
+    sectionTitle: "ID Card Details",
+    namePlaceholder: "Name to print on ID card *",
+    photoTitle: "Passport-size photo *",
+    photoHelp: "Use a clear, front-facing photo. It will be cropped to passport size automatically.",
+    camera: "Take Photo",
+    gallery: "Choose from Gallery",
+    processing: "Preparing photo...",
+    photoRequired: "Please add a photo for the ID card.",
+    photoInvalid: "Use a JPG, PNG, or WebP image up to 8 MB.",
+    previewAlt: "Passport-size ID card preview",
+    optimized: "Optimized photo",
+  },
+  mr: {
+    sectionTitle: "आयडी कार्ड माहिती",
+    namePlaceholder: "आयडी कार्डवर छापायचे नाव *",
+    photoTitle: "पासपोर्ट साइज फोटो *",
+    photoHelp: "समोरून काढलेला स्पष्ट फोटो वापरा. फोटो आपोआप पासपोर्ट साइजमध्ये क्रॉप केला जाईल.",
+    camera: "फोटो काढा",
+    gallery: "गॅलरीमधून निवडा",
+    processing: "फोटो तयार होत आहे...",
+    photoRequired: "आयडी कार्डसाठी फोटो जोडा.",
+    photoInvalid: "8 MB पर्यंतचा JPG, PNG किंवा WebP फोटो वापरा.",
+    previewAlt: "पासपोर्ट साइज आयडी कार्ड फोटो",
+    optimized: "ऑप्टिमाइज केलेला फोटो",
+  },
+};
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const money = (n) =>
   new Intl.NumberFormat("en-IN", {
@@ -168,10 +197,134 @@ function buildSizeNote(rows) {
     .join(", ");
 }
 
-function openRazorpay(options) {
+const PASSPORT_PHOTO_WIDTH = 413;
+const PASSPORT_PHOTO_HEIGHT = 531;
+const TARGET_PHOTO_BYTES = 100 * 1024;
+
+function getDataUrlByteSize(dataUrl) {
+  const base64 = dataUrl.split(",")[1] || "";
+  const padding = (base64.match(/=*$/)?.[0].length || 0);
+  return Math.max(0, Math.ceil((base64.length * 3) / 4) - padding);
+}
+
+function validateCardName(name) {
+  const trimmed = name.trim();
+  if (!trimmed) return "Name for the ID card is required.";
+  if (trimmed.length < 2) return "ID card name must be at least 2 characters.";
+  if (!/^[\p{L}\p{M}\s'.-]+$/u.test(trimmed)) return "Use letters and spaces only for the ID card name.";
+  return null;
+}
+
+function createPassportPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type) || file.size > 8 * 1024 * 1024) {
+      reject(new Error("INVALID_PHOTO"));
+      return;
+    }
+
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = PASSPORT_PHOTO_WIDTH;
+      canvas.height = PASSPORT_PHOTO_HEIGHT;
+      const context = canvas.getContext("2d");
+      const targetRatio = PASSPORT_PHOTO_WIDTH / PASSPORT_PHOTO_HEIGHT;
+      const sourceRatio = image.naturalWidth / image.naturalHeight;
+      let sourceX = 0;
+      let sourceY = 0;
+      let sourceWidth = image.naturalWidth;
+      let sourceHeight = image.naturalHeight;
+
+      if (sourceRatio > targetRatio) {
+        sourceWidth = sourceHeight * targetRatio;
+        sourceX = (image.naturalWidth - sourceWidth) / 2;
+      } else {
+        sourceHeight = sourceWidth / targetRatio;
+        sourceY = (image.naturalHeight - sourceHeight) / 2;
+      }
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(
+        image,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
+
+      URL.revokeObjectURL(objectUrl);
+      let quality = 0.86;
+      let photoBase64 = canvas.toDataURL("image/jpeg", quality);
+      let photoByteSize = getDataUrlByteSize(photoBase64);
+
+      while (photoByteSize > TARGET_PHOTO_BYTES && quality > 0.5) {
+        quality = Math.max(0.5, quality - 0.07);
+        photoBase64 = canvas.toDataURL("image/jpeg", quality);
+        photoByteSize = getDataUrlByteSize(photoBase64);
+      }
+
+      resolve({
+        photoBase64,
+        photoFileName: `${file.name.replace(/\.[^.]+$/, "") || "id-photo"}.jpg`,
+        photoMimeType: "image/jpeg",
+        photoWidth: PASSPORT_PHOTO_WIDTH,
+        photoHeight: PASSPORT_PHOTO_HEIGHT,
+        photoByteSize,
+        compressionQuality: Number(quality.toFixed(2)),
+      });
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("INVALID_PHOTO"));
+    };
+
+    image.src = objectUrl;
+  });
+}
+
+let razorpaySdkPromise;
+
+function loadRazorpaySdk() {
+  if (window.Razorpay) return Promise.resolve();
+  if (razorpaySdkPromise) return razorpaySdkPromise;
+
+  razorpaySdkPromise = new Promise((resolve, reject) => {
+    const existingScript = document.getElementById("razorpay-checkout-sdk");
+    if (existingScript) {
+      existingScript.addEventListener("load", resolve, { once: true });
+      existingScript.addEventListener("error", () => reject(new Error("Razorpay SDK failed to load.")), { once: true });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-checkout-sdk";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = resolve;
+    script.onerror = () => {
+      razorpaySdkPromise = null;
+      reject(new Error("Razorpay SDK failed to load."));
+    };
+    document.head.appendChild(script);
+  });
+
+  return razorpaySdkPromise;
+}
+
+async function openRazorpay(options) {
+  await loadRazorpaySdk();
   return new Promise((resolve, reject) => {
     if (!window.Razorpay) {
-      reject(new Error("Razorpay SDK not loaded. Add the script tag to your HTML."));
+      reject(new Error("Razorpay SDK not loaded."));
       return;
     }
     const rzp = new window.Razorpay({ ...options, handler: resolve });
@@ -291,6 +444,7 @@ export default function Shop() {
       {activeProduct && (
         <OrderPopup
           product={activeProduct}
+          idCopy={idCardText[language] || idCardText.en}
           onClose={() => setActiveProduct(null)}
           onSuccess={(data) => { setActiveProduct(null); setReceiptData(data); }}
           onFailure={(err) => { setActiveProduct(null); setFailureData(err); }}
@@ -349,15 +503,22 @@ function ProductCard({ product, copy, onAdd }) {
 }
 
 // ── Order Popup ───────────────────────────────────────────────────────────────
-function OrderPopup({ product, onClose, onSuccess, onFailure }) {
+function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
   const isTshirt = product.type === "tshirt";
+  const isIdCard = product.type === "idcard";
   const sizes = isTshirt ? TSHIRT_SIZES : ["Standard"];
 
   const [rows, setRows] = useState([{ size: sizes[0], quantity: 1 }]);
   const [step, setStep] = useState(1);
   const [customer, setCustomer] = useState({ name: "", phoneNumber: "", email: "" });
   const [touched, setTouched] = useState({ name: false, phoneNumber: false, email: false });
+  const [idCard, setIdCard] = useState({ cardholderName: "", photo: null });
+  const [idCardTouched, setIdCardTouched] = useState(false);
+  const [photoError, setPhotoError] = useState(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
 
   // ── Two separate overlay states ──────────────────────────────────────────
   // "verifying" = payment was captured by Razorpay, now confirming with backend
@@ -375,6 +536,7 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
   const nameError  = validateName(customer.name);
   const phoneError = validatePhone(customer.phoneNumber);
   const emailError = validateEmail(customer.email);
+  const cardNameError = isIdCard ? validateCardName(idCard.cardholderName) : null;
 
   const nameValid  = !nameError  && customer.name.trim().length > 0;
   const phoneValid = !phoneError && customer.phoneNumber.length === 10;
@@ -405,6 +567,25 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
     setCustomer((c) => ({ ...c, phoneNumber: digits }));
   }
 
+  async function handleIdPhoto(event) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    setPhotoProcessing(true);
+    setPhotoError(null);
+    try {
+      const processedPhoto = await createPassportPhoto(file);
+      setIdCard((current) => ({ ...current, photo: processedPhoto }));
+    } catch {
+      setIdCard((current) => ({ ...current, photo: null }));
+      setPhotoError(idCopy.photoInvalid);
+    } finally {
+      setPhotoProcessing(false);
+      input.value = "";
+    }
+  }
+
   // Helper: show the "processing" spinner for `ms` ms, then call onFailure.
   // This is used when Razorpay is dismissed without completing payment so the
   // user sees a smooth transition instead of an abrupt popup switch.
@@ -419,7 +600,11 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
   async function handlePay(e) {
     e.preventDefault();
     setTouched({ name: true, phoneNumber: true, email: true });
-    if (nameError || phoneError || emailError) return;
+    setIdCardTouched(true);
+    if (nameError || phoneError || emailError || (isIdCard && (cardNameError || !idCard.photo))) {
+      if (isIdCard && !idCard.photo && !photoError) setPhotoError(idCopy.photoRequired);
+      return;
+    }
 
     try {
       setLoading(true);
@@ -429,9 +614,16 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
         name: customer.name.trim(),
         email: customer.email.trim(),
         phoneNumber: customer.phoneNumber,
+        productType: product.type,
         amount: totalAmt,
         sizeQuantities: rows.map((r) => ({ size: r.size, quantity: r.quantity })),
         totalQuantity: totalQty,
+        ...(isIdCard && {
+          idCardDetails: {
+            cardholderName: idCard.cardholderName.trim(),
+            ...idCard.photo,
+          },
+        }),
       };
 
       // 1. Create order
@@ -455,6 +647,8 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
           notes: {
             name:customer.name,
             product: product.name,
+            id_card_name: isIdCard ? idCard.cardholderName.trim() : "",
+            has_id_card_photo: isIdCard ? "yes" : "no",
             sizes_and_quantities: buildSizeNote(rows),
             total_pieces: String(totalQty),
             customer_phone: customer.phoneNumber,
@@ -654,11 +848,95 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
                 error={touched.email ? emailError : null} valid={emailValid}
               />
 
+              {isIdCard && (
+                <section style={s.idCardPanel} aria-labelledby="id-card-details-title">
+                  <p id="id-card-details-title" style={s.idCardTitle}>{idCopy.sectionTitle}</p>
+
+                  <ValidatedInput
+                    type="text"
+                    placeholder={idCopy.namePlaceholder}
+                    value={idCard.cardholderName}
+                    required
+                    maxLength={60}
+                    onChange={(event) => {
+                      setIdCard((current) => ({ ...current, cardholderName: event.target.value }));
+                      setIdCardTouched(true);
+                    }}
+                    error={idCardTouched ? cardNameError : null}
+                    valid={!cardNameError && idCard.cardholderName.trim().length > 0}
+                  />
+
+                  <div>
+                    <p style={s.idPhotoLabel}>{idCopy.photoTitle}</p>
+                    <p style={s.idPhotoHelp}>{idCopy.photoHelp}</p>
+
+                    <div style={s.idPhotoLayout}>
+                      <div style={s.passportFrame}>
+                        {idCard.photo ? (
+                          <img
+                            src={idCard.photo.photoBase64}
+                            alt={idCopy.previewAlt}
+                            style={s.passportPreview}
+                          />
+                        ) : (
+                          <div style={s.passportPlaceholder} aria-hidden="true">
+                            <span style={s.passportHead} />
+                            <span style={s.passportBody} />
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={s.idPhotoActions}>
+                        <input
+                          ref={cameraInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          capture="user"
+                          onChange={handleIdPhoto}
+                          style={s.hiddenFileInput}
+                        />
+                        <input
+                          ref={galleryInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleIdPhoto}
+                          style={s.hiddenFileInput}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => cameraInputRef.current?.click()}
+                          disabled={photoProcessing}
+                          style={s.photoActionBtn}
+                        >
+                          {photoProcessing ? idCopy.processing : idCopy.camera}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => galleryInputRef.current?.click()}
+                          disabled={photoProcessing}
+                          style={s.photoSecondaryBtn}
+                        >
+                          {idCopy.gallery}
+                        </button>
+                      </div>
+                    </div>
+
+                    {idCard.photo && (
+                      <p style={s.optimizedPhotoNote}>
+                        {idCopy.optimized}: {Math.max(1, Math.round(idCard.photo.photoByteSize / 1024))} KB · 413 × 531
+                      </p>
+                    )}
+                    {photoError && <p style={s.fieldError}>{photoError}</p>}
+                  </div>
+                </section>
+              )}
+
               {inlineError && <div style={s.inlineError}>{inlineError}</div>}
 
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
                 <button type="button" onClick={() => { setStep(1); setInlineError(null); }} style={s.backBtn}>← Back</button>
-                <button type="submit" disabled={loading} style={{ ...s.primaryBtn, flex: 1, opacity: loading ? 0.7 : 1 }}>
+                <button type="submit" disabled={loading || photoProcessing} style={{ ...s.primaryBtn, flex: 1, opacity: loading || photoProcessing ? 0.7 : 1 }}>
                   {loading ? "Processing…" : `Pay ${money(totalAmt)}`}
                 </button>
               </div>
@@ -909,6 +1187,21 @@ const s = {
   fieldHint: { fontSize: 12, color: "#9e9e9e", fontWeight: 600 },
   inlineError: { padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700, background: "#fef2f2", color: "#991b1b", border: "1px solid #fecaca" },
   input: { width: "100%", border: "1.5px solid #f5deb3", borderRadius: 10, padding: "11px 14px", fontSize: 14, boxSizing: "border-box", outline: "none", fontFamily: "inherit", color: "#212121" },
+  idCardPanel: { display: "flex", flexDirection: "column", gap: 14, marginTop: 4, padding: "16px", border: "1px solid #f5c77a", borderRadius: 14, background: "#fffaf1" },
+  idCardTitle: { margin: 0, color: "#7f1010", fontSize: 15, fontWeight: 900 },
+  idPhotoLabel: { margin: "0 0 4px", color: "#424242", fontSize: 14, fontWeight: 800 },
+  idPhotoHelp: { margin: "0 0 12px", color: "#757575", fontSize: 12, lineHeight: 1.5 },
+  idPhotoLayout: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: 14 },
+  passportFrame: { position: "relative", width: 112, aspectRatio: "35 / 45", flexShrink: 0, overflow: "hidden", border: "2px solid #b71c1c", borderRadius: 10, background: "#f3eee6", boxShadow: "0 6px 18px rgba(121,28,0,0.12)" },
+  passportPreview: { display: "block", width: "100%", height: "100%", objectFit: "cover" },
+  passportPlaceholder: { position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg,#fff,#eee5da)", overflow: "hidden" },
+  passportHead: { width: 38, height: 38, borderRadius: "50%", background: "#d1b9a6", marginBottom: 8 },
+  passportBody: { width: 78, height: 52, borderRadius: "50% 50% 0 0", background: "#d1b9a6", transform: "translateY(12px)" },
+  idPhotoActions: { display: "flex", flex: "1 1 190px", flexDirection: "column", gap: 9 },
+  hiddenFileInput: { position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" },
+  photoActionBtn: { width: "100%", border: "none", borderRadius: 50, padding: "11px 14px", background: "#b71c1c", color: "#fff", fontSize: 13, fontWeight: 800, cursor: "pointer" },
+  photoSecondaryBtn: { width: "100%", border: "1.5px solid #b71c1c", borderRadius: 50, padding: "10px 14px", background: "#fff", color: "#8b1111", fontSize: 13, fontWeight: 800, cursor: "pointer" },
+  optimizedPhotoNote: { margin: "10px 0 0", color: "#166534", fontSize: 12, fontWeight: 800 },
   primaryBtn: { background: "#b71c1c", color: "#fff", border: "none", borderRadius: 50, padding: "13px 22px", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 20px rgba(183,28,28,0.25)" },
   backBtn: { background: "#f5f5f5", color: "#424242", border: "none", borderRadius: 50, padding: "13px 18px", fontSize: 14, fontWeight: 700, cursor: "pointer" },
   processingOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", backdropFilter: "blur(8px)", zIndex: 400, display: "flex", alignItems: "center", justifyContent: "center" },

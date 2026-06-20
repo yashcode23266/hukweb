@@ -1,18 +1,10 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import Countdown from '../components/Countdown'
 import SectionTitle from '../components/SectionTitle'
-import heroGanpati from '../assets/gann.png'
+import heroGanpati from '../assets/gann-optimized.webp'
 import historyGanpati from '../assets/ganpati-optimized.png'
-import gallery2020 from '../assets/2020.jpeg'
-import gallery2021 from '../assets/2021.jpeg'
-import gallery2022 from '../assets/2022.jpeg'
-import gallery2023 from '../assets/20233.jpeg'
-import gallery2024 from '../assets/20244.jpeg'
-import gallery2025 from '../assets/2025.jpeg'
 import colorsMarathiLogo from '../assets/Colors marathi.png'
 import cpLogo from '../assets/cp.png'
 import keshLogo from '../assets/Kesh.webp'
@@ -20,41 +12,8 @@ import rapidoLogo from '../assets/rapido-removebg-preview.png'
 import rrLogo from '../assets/rr.png'
 import vrtLogo from '../assets/vrt.png'
 import zeeLogo from '../assets/zee.png'
-import rapidoSponsor1 from '../sponsor/rapido1.png.jpeg'
-import rapidoSponsor2 from '../sponsor/rapido2.png.jpeg'
-import rapidoSponsor3 from '../sponsor/rapido3.png.jpeg'
-import rapidoSponsor4 from '../sponsor/rapido4.png.jpeg'
-import rapidoSponsor5 from '../sponsor/rapido5.png.jpeg'
-import rapidoSponsor6 from '../sponsor/rapido6.png.jpeg'
-import rapidoSponsor7 from '../sponsor/rapido7.png.jpeg'
-import rrSponsor6 from '../sponsor/rr6.png.jpeg'
-import rrSponsor1 from '../sponsor/rr1.png.jpeg'
-import rrSponsor2 from '../sponsor/rr2.png.jpeg'
-import rrSponsor3 from '../sponsor/rr3.png.jpeg'
-import rrSponsor4 from '../sponsor/rr4.png.jpeg'
-import rrSponsor5 from '../sponsor/rr5.png.jpeg'
-import cpsponsor1 from '../sponsor/cp1.png.jpeg'
-import cpsponsor2 from '../sponsor/cp2.png.jpeg'
-import cpsponsor3 from '../sponsor/cp3.png.jpeg'
-import cpsponsor4 from '../sponsor/cp4.png.jpeg'
-import cpsponsor5 from '../sponsor/cp5.png.jpeg'
-import zeesponsor1 from '../sponsor/zee1.png.jpeg'
-import vertivSponsor1 from '../sponsor/vertiv1.png.jpeg'
-import vertivSponsor2 from '../sponsor/vertiv2.png.jpeg'
-import vertivSponsor3 from '../sponsor/vertiv3.png.jpeg'
-import vertivSponsor4 from '../sponsor/vertiv4.png.jpeg'
-import vertivSponsor5 from '../sponsor/vertiv5.png.jpeg'
-import vertivSponsor6 from '../sponsor/vertiv6.png.jpeg'
-import colorssponsor1 from '../sponsor/colors1.png.jpeg'
-import colorssponsor2 from '../sponsor/colors2.png.jpeg'
-import colorssponsor3 from '../sponsor/colors3.png.jpeg'
-import kesgkingsponsor1 from '../sponsor/keshking1.png.jpeg'
-import kesgkingsponsor2 from '../sponsor/keshking2.png.jpeg'
-import kesgkingsponsor3 from '../sponsor/keshking3.png.jpeg'
-import kesgkingsponsor4 from '../sponsor/keshking4.png.jpeg'
-import kesgkingsponsor5 from '../sponsor/keshking5.png.jpeg'
-import kesgkingsponsor6 from '../sponsor/keshking6.png.jpeg'
 import { fallbackGallery } from '../data/fallback'
+import { homeGalleryImages, sponsorGalleries } from '../data/homeMedia'
 import { mandalMapEmbedUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
 
@@ -68,71 +27,23 @@ const sponsors = [
   { name: 'Rapido', logo: rapidoLogo },
 ]
 
-const sponsorGalleries = {
-  'ZEE Marathi': {
-    title: 'ZEE Marathi',
-    photos: [zeesponsor1],
-  },
-  VERTIV: {
-    title: 'VERTIV',
-    photos: [vertivSponsor1, vertivSponsor2, vertivSponsor3, vertivSponsor4, vertivSponsor5, vertivSponsor6],
-  },
-  'Colors Marathi': {
-    title: 'Colors Marathi',
-    photos: [colorssponsor1, colorssponsor2, colorssponsor3],
-  },
-  'Kesh King': {
-    title: 'Kesh King',
-    photos: [
-      kesgkingsponsor1,
-      kesgkingsponsor2,
-      kesgkingsponsor3,
-      kesgkingsponsor4,
-      kesgkingsponsor5,
-      kesgkingsponsor6,
-    ],
-  },
-  'RR Kabel': {
-    title: 'RR Kabel',
-    photos: [rrSponsor1, rrSponsor2, rrSponsor3, rrSponsor4, rrSponsor5, rrSponsor6],
-  },
-  'CP Plus': {
-    title: 'CP Plus',
-    photos: [cpsponsor1, cpsponsor2, cpsponsor3, cpsponsor4, cpsponsor5],
-  },
-  Rapido: {
-    title: 'Rapido',
-    photos: [
-      rapidoSponsor1,
-      rapidoSponsor2,
-      rapidoSponsor3,
-      rapidoSponsor4,
-      rapidoSponsor5,
-      rapidoSponsor6,
-      rapidoSponsor7,
-    ],
-  },
-}
-
-const homeGalleryImages = [
-  gallery2025,
-  gallery2024,
-  gallery2023,
-  gallery2022,
-  gallery2021,
-  gallery2020,
-]
-
 function Home() {
   const { t, tObject } = useLanguage()
   const [activeSponsor, setActiveSponsor] = useState(null)
-  const { data: gallery = fallbackGallery } = useQuery({
-    queryKey: ['gallery-preview'],
-    queryFn: async () => (await api.get('/gallery')).data,
-    retry: 1,
-  })
+  const [gallery, setGallery] = useState(fallbackGallery)
+
+  useEffect(() => {
+    let active = true
+    api.get('/gallery')
+      .then((response) => {
+        if (active && Array.isArray(response.data)) setGallery(response.data)
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
   const translatedGallery = tObject('galleryItems')
-  const galleryPreview = gallery.slice(0, 6).map((item, index) => ({
+  const galleryItems = Array.isArray(gallery) ? gallery : fallbackGallery
+  const galleryPreview = galleryItems.slice(0, 6).map((item, index) => ({
     ...item,
     imageUrl: homeGalleryImages[index % homeGalleryImages.length],
     title: translatedGallery[item._id]?.title || item.title,
@@ -144,13 +55,14 @@ function Home() {
       {/* HERO SECTION */}
       <section className="relative h-[calc(100vh-64px)] min-h-130 overflow-hidden bg-[#fffdf9]">
         <div className="relative h-full w-full">
-          <motion.img
+          <img
             src={heroGanpati}
             alt="Ganpati Bappa"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.7 }}
-            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-700"
+            width="1122"
+            height="1402"
+            fetchPriority="high"
+            decoding="async"
+            className="hero-image-fade absolute inset-0 h-full w-full object-contain"
           />
         </div>
       </section>
@@ -186,7 +98,7 @@ function Home() {
                 >
                   <div className="mx-auto grid h-24 w-24 place-items-center overflow-hidden rounded-lg bg-white text-2xl font-black text-brand-red">
                     {item.logo ? (
-                      <img src={item.logo} alt={item.name} className="h-full w-full object-contain" />
+                      <img src={item.logo} alt={item.name} loading="lazy" decoding="async" className="h-full w-full object-contain" />
                     ) : (
                       item.name.slice(0, 2).toUpperCase()
                     )}
@@ -212,20 +124,11 @@ function Home() {
       {/* MANDAL HISTORY SECTION */}
       <section className="bg-white px-4 py-10 sm:px-6 sm:py-20">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="overflow-hidden rounded-3xl bg-[#f6f1e7] shadow-2xl"
-          >
-            <img src={historyGanpati} alt="Ganpati History" className="h-72 w-full object-cover sm:h-105" />
-          </motion.div>
+          <div className="overflow-hidden rounded-3xl bg-[#f6f1e7] shadow-2xl">
+            <img src={historyGanpati} alt="Ganpati History" loading="lazy" decoding="async" className="h-72 w-full object-cover sm:h-105" />
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
+          <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-brand-red">{t('mandalHistory')}</p>
             <h2 className="mt-4 wrap-break-word font-serif text-3xl font-black leading-tight text-brand-dark-red sm:text-5xl lg:text-6xl">
               {t('historyTitle')}
@@ -239,7 +142,7 @@ function Home() {
             >
               {t('readMore')}
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -251,19 +154,17 @@ function Home() {
           </SectionTitle>
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {galleryPreview.map((item, index) => (
-              <motion.article
+            {galleryPreview.map((item) => (
+              <article
                 key={item._id}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
                 className="group min-w-0 overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-orange-200 sm:rounded-3xl"
               >
                 <div className="relative h-52 overflow-hidden sm:h-72">
                   <img
                     src={item.imageUrl}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   />
                   <div className="absolute left-4 top-4 rounded-full bg-brand-red px-4 py-2 text-sm font-black text-white shadow-lg">
@@ -274,7 +175,7 @@ function Home() {
                   <h3 className="text-xl font-black text-brand-dark-red">{item.title}</h3>
                   <p className="mt-2 line-clamp-2 leading-7 text-stone-700">{item.story}</p>
                 </div>
-              </motion.article>
+              </article>
             ))}
           </div>
 
@@ -311,12 +212,7 @@ function Home() {
               </div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="overflow-hidden rounded-3xl shadow-2xl"
-            >
+            <div className="overflow-hidden rounded-3xl shadow-2xl">
               <iframe
                 title={t('locationTitle')}
                 src={mandalMapEmbedUrl}
@@ -328,7 +224,7 @@ function Home() {
                 referrerPolicy="no-referrer-when-downgrade"
                 className="w-full"
               />
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -340,26 +236,18 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
   const photos = gallery?.photos?.length ? gallery.photos : homeGalleryImages
 
   return (
-    <motion.div
-      className="fixed inset-0 z-[250] overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+    <div
+      className="fixed inset-0 z-250 overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 26, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-[2rem] bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200"
-      >
+      <div className="mx-auto min-h-[90vh] max-w-7xl overflow-hidden rounded-4xl bg-[#fff9ed] shadow-2xl ring-1 ring-orange-200">
         <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-4 border-b border-orange-200 bg-[#fff9ed]/90 px-5 py-4 backdrop-blur sm:px-8">
           <div className="flex items-center gap-4">
             <div className="grid h-14 w-14 place-items-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-orange-100">
               {sponsor.logo ? (
-                <img src={sponsor.logo} alt={sponsor.name} className="h-full w-full object-contain p-2" />
+                <img src={sponsor.logo} alt={sponsor.name} loading="lazy" decoding="async" className="h-full w-full object-contain p-2" />
               ) : (
                 <span className="font-black text-brand-red">{sponsor.name.slice(0, 2)}</span>
               )}
@@ -384,25 +272,24 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
 
         <div className="columns-1 gap-5 p-5 sm:columns-2 sm:p-8 lg:columns-3">
           {photos.map((photo, index) => (
-            <motion.figure
+            <figure
               key={`${sponsor.name}-${index}`}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.04 }}
               className="group mb-5 break-inside-avoid overflow-hidden rounded-3xl bg-white shadow-xl ring-1 ring-orange-100"
             >
               <img
                 src={photo}
                 alt={`${sponsor.name} memory ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className={`w-full object-cover transition duration-700 group-hover:scale-105 ${
-                  index % 3 === 0 ? 'h-96 sm:h-[34rem]' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
+                  index % 3 === 0 ? 'h-96 sm:h-136' : index % 3 === 1 ? 'h-72' : 'h-80 sm:h-96'
                 }`}
               />
-            </motion.figure>
+            </figure>
           ))}
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }
 

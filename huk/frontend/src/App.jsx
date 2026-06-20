@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 
 const About = lazy(() => import('./pages/About'))
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const AdminRoute = lazy(() => import('./pages/AdminRoute'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Events = lazy(() => import('./pages/Events'))
 const Gallery = lazy(() => import('./pages/Gallery'))
@@ -36,7 +36,7 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminRoute />} />
             <Route path="/privacy-policy" element={<LegalPage page="privacy" />} />
             <Route path="/terms-and-conditions" element={<LegalPage page="terms" />} />
             <Route path="/refund-policy" element={<LegalPage page="refund" />} />

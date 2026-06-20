@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import logo from '../assets/logo.png.jpeg'
+import logo from '../assets/logo-optimized.webp'
 import { useLanguage } from '../i18n/useLanguage'
 import PageMeta from './PageMeta'
 
 const mobileLinks = [
+  ['/gallery', 'navGallery'],
   ['/shop', 'navShop'],
   ['/admin', 'navAdmin'],
 ]
@@ -16,16 +17,19 @@ const desktopLinks = [
 ]
 
 const navItemClass =
-  'inline-flex h-10 items-center rounded-full px-4 font-sans text-base font-extrabold leading-none tracking-normal transition'
+  'inline-flex h-10 items-center rounded-full px-4 font-sans text-base font-bold leading-none tracking-normal transition'
 const navInactiveClass = `${navItemClass} text-white hover:bg-white/10`
 const navActiveClass = `${navItemClass} bg-white/15 text-white hover:bg-white/20`
 const dropdownClass =
   'invisible absolute left-0 top-full z-50 w-56 overflow-hidden rounded-xl bg-white py-2 font-sans text-brand-red opacity-0 shadow-xl ring-1 ring-black/5 transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100'
 const dropdownLinkClass =
-  'block px-5 py-3 text-base font-extrabold leading-none tracking-normal transition hover:bg-amber-50'
+  'block px-5 py-3 text-base font-bold leading-none tracking-normal transition hover:bg-amber-50'
 
 const mobilePanelLinkClass =
-  'block rounded-lg px-3 py-2 text-base font-extrabold text-amber-50/95 transition hover:bg-white/10'
+  'block rounded-lg px-3 py-2 text-base font-semibold text-amber-50/95 transition hover:bg-white/10'
+
+const mobileDirectLinkClass = ({ isActive }) =>
+  `flex min-h-14 items-center border-b border-white/10 px-0 text-xl font-bold text-white transition hover:bg-white/5 ${isActive ? 'bg-white/10' : ''}`
 
 const socialLinks = {
   youtube: 'https://m.youtube.com/%40hukmil_lane1934?fbclid=PAb21jcASTq_RleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA81NjcwNjczNDMzNTI0MjcAAaeoiXuGO-c2Us80JVSLE4TkRY-4rDmKqSBGvO6M_IJU7fNXBdfSP1b-annOzA_aem_qqEoSIxZ7NPqkAkjq4w-hQ',
@@ -135,7 +139,7 @@ function MenuIcon({ isOpen }) {
 function MobileMenuSection({ title, children }) {
   return (
     <details className="group border-b border-white/10 py-1">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-xl font-black text-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-xl font-bold text-white">
         <span>{title}</span>
         <svg
           aria-hidden="true"
@@ -171,6 +175,9 @@ function Layout() {
               <img
                 src={logo}
                 alt="Hukmilane Lanecha Raja logo"
+                width="500"
+                height="500"
+                decoding="async"
                 className="h-10 w-10 shrink-0 rounded-full object-contain min-[390px]:h-12 min-[390px]:w-12 sm:h-14 sm:w-14"
               />
 
@@ -284,19 +291,13 @@ function Layout() {
               </NavLink>
             </MobileMenuSection>
 
-            <MobileMenuSection title={t('navBroadcastMedia')}>
-              <NavLink onClick={closeMobileMenu} className={mobilePanelLinkClass} to="/gallery">
-                {t('navGallery')}
-              </NavLink>
-            </MobileMenuSection>
-
-            <MobileMenuSection title={t('navMore')}>
+            <div>
               {mobileLinks.map(([to, labelKey]) => (
-                <NavLink key={to} onClick={closeMobileMenu} to={to} className={mobilePanelLinkClass}>
+                <NavLink key={to} onClick={closeMobileMenu} to={to} className={mobileDirectLinkClass}>
                   {t(labelKey)}
                 </NavLink>
               ))}
-            </MobileMenuSection>
+            </div>
           </div>
         ) : null}
       </header>
@@ -323,6 +324,10 @@ function Layout() {
             <img
               src={logo}
               alt="Hukmilane Lanecha Raja logo"
+              width="500"
+              height="500"
+              loading="lazy"
+              decoding="async"
               className="mb-4 h-20 w-20 rounded-full object-contain"
             />
             <h3 className="font-serif text-2xl font-black text-brand-gold">
