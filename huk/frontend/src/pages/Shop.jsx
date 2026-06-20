@@ -9,13 +9,9 @@ const TSHIRT_SIZES = Array.from(
   (_, i) => String(20 + i * 2)
 );
 
-// const BACKEND_URL = "http://localhost:8080/tshirt";
+const BACKEND_URL = "https://api.hukmillanecharaja.in";
 
-// const BACKEND_URL = "https://hukmillane-webiste-backend-production.up.railway.app/tshirt";
-
-// const BACKEND_URL = "http://hukmillane-website-backend-env.ap-south-1.elasticbeanstalk.com/tshirt";
-
-const BACKEND_URL = "https://api.hukmillanecharaja.in/tshirt";
+// const BACKEND_URL = "http://localhost:8080";
 
 
 const PRODUCT_CONFIG = [
@@ -39,7 +35,7 @@ const shopText = {
     heroTitle: "Get Your Festival T-Shirt",
     heroSub: "Official Hukmill Lane Cha Raja T-shirt and volunteer ID card for devotees and volunteers.",
     buyNow: "Buy Now",
-    sizeHint: "Sizes 20 - 58 (step 2) · Same price all sizes",
+    sizeHint: "Sizes 20 - 50 (step 2) · Same price all sizes",
     faqEyebrow: "Shop Help",
     faqTitle: "Frequently Asked Questions",
     faqCopy: "Everything you need to know before ordering the official mandal T-shirt or ID card.",
@@ -58,7 +54,7 @@ const shopText = {
     faqs: [
       {
         question: "How can I contact the Mandal for any enquiry?",
-        answer: "Please reach out to us at Abhishek Bachankar on +91-9867174946 or Omkar Patne on +91-7208224609 ",
+        answer: "Please reach out to us at Abhishek Bachankar on +91-9867174946 or Omkar Patne on +91-7208224609.",
       },
       {
         question: "How do I pay for my order?",
@@ -87,7 +83,7 @@ const shopText = {
     heroTitle: "उत्सवासाठी अधिकृत टी-शर्ट",
     heroSub: "भक्त आणि स्वयंसेवकांसाठी हुकमिल लेन चा राजा अधिकृत टी-शर्ट आणि स्वयंसेवक आयडी कार्ड.",
     buyNow: "आता खरेदी करा",
-    sizeHint: "साइज 20 - 58 (2 च्या फरकाने) · सर्व साइजसाठी समान किंमत",
+    sizeHint: "साइज 20 - 50 (2 च्या फरकाने) · सर्व साइजसाठी समान किंमत",
     faqEyebrow: "दुकान मदत",
     faqTitle: "वारंवार विचारले जाणारे प्रश्न",
     faqCopy: "अधिकृत मंडळ टी-शर्ट किंवा आयडी कार्ड ऑर्डर करण्यापूर्वी आवश्यक माहिती.",
@@ -191,9 +187,17 @@ function validateEmail(email) {
   return null;
 }
 
+function validateCardName(name) {
+  const trimmed = name.trim();
+  if (!trimmed) return "Name for the ID card is required.";
+  if (trimmed.length < 2) return "ID card name must be at least 2 characters.";
+  if (!/^[\p{L}\p{M}\s'.-]+$/u.test(trimmed)) return "Use letters and spaces only for the ID card name.";
+  return null;
+}
+
 function buildSizeNote(rows) {
   return rows
-    .map((r) => (r.size === "Standard" ? `Standard x${r.quantity}` : `Size ${r.size} x${r.quantity}`))
+    .map((r) => `Size ${r.size} x${r.quantity}`)
     .join(", ");
 }
 
@@ -207,12 +211,14 @@ function getDataUrlByteSize(dataUrl) {
   return Math.max(0, Math.ceil((base64.length * 3) / 4) - padding);
 }
 
-function validateCardName(name) {
-  const trimmed = name.trim();
-  if (!trimmed) return "Name for the ID card is required.";
-  if (trimmed.length < 2) return "ID card name must be at least 2 characters.";
-  if (!/^[\p{L}\p{M}\s'.-]+$/u.test(trimmed)) return "Use letters and spaces only for the ID card name.";
-  return null;
+function dataUrlToFile(dataUrl, fileName) {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) u8arr[n] = bstr.charCodeAt(n);
+  return new File([u8arr], fileName, { type: mime });
 }
 
 function createPassportPhoto(file) {
@@ -248,17 +254,7 @@ function createPassportPhoto(file) {
 
       context.fillStyle = "#ffffff";
       context.fillRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(
-        image,
-        sourceX,
-        sourceY,
-        sourceWidth,
-        sourceHeight,
-        0,
-        0,
-        canvas.width,
-        canvas.height,
-      );
+      context.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, canvas.width, canvas.height);
 
       URL.revokeObjectURL(objectUrl);
       let quality = 0.86;
@@ -304,7 +300,6 @@ function loadRazorpaySdk() {
       existingScript.addEventListener("error", () => reject(new Error("Razorpay SDK failed to load.")), { once: true });
       return;
     }
-
     const script = document.createElement("script");
     script.id = "razorpay-checkout-sdk";
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
@@ -333,8 +328,14 @@ async function openRazorpay(options) {
   });
 }
 
-async function createOrder(payload) {
-  const res = await fetch(`${BACKEND_URL}/createOrder`, {
+// ── Segregated API calls ──────────────────────────────────────────────────────
+
+/**
+ * T-Shirt: POST /tshirt/createOrder  — plain JSON body
+ */
+async function createTshirtOrder(payload) {
+  console.log("This is my payload ",payload);
+  const res = await fetch(`${BACKEND_URL}/tshirt/createOrder`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -343,9 +344,49 @@ async function createOrder(payload) {
   return res.json();
 }
 
-async function paymentCallback(params) {
+/**
+ * T-Shirt: POST /tshirt/paymentCallback  — query params
+ */
+async function tshirtPaymentCallback(params) {
   const query = new URLSearchParams(params).toString();
-  const res = await fetch(`${BACKEND_URL}/paymentCallback?${query}`, {
+  const res = await fetch(`${BACKEND_URL}/tshirt/paymentCallback?${query}`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+/**
+ * ID Card: POST /id-card/createOrder  — multipart/form-data
+ *   - Part "orders": JSON blob (application/json)
+ *   - Part "multipartFile": the passport photo file
+ */
+async function createIdCardOrder(payload, photoFile) {
+  console.log("This ID CARD INPUT CONTENT ",payload);
+  console.log("This ID CARD INPUT Photo ",photoFile);
+
+  const formData = new FormData();
+
+  // Spring @RequestBody expects the JSON part as a blob with application/json
+  const jsonBlob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+  formData.append("orders", jsonBlob);
+  formData.append("multipartFile", photoFile);
+
+  const res = await fetch(`${BACKEND_URL}/id-card/createOrder`, {
+    method: "POST",
+    body: formData,
+    // Do NOT set Content-Type header — browser sets it with boundary automatically
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+/**
+ * ID Card: POST /id-card/paymentCallback  — query params
+ */
+async function idCardPaymentCallback(params) {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${BACKEND_URL}/id-card/paymentCallback?${query}`, {
     method: "POST",
   });
   if (!res.ok) throw new Error(await res.text());
@@ -424,9 +465,7 @@ export default function Shop() {
         <div style={s.heroContent}>
           <p style={s.eyebrow}>{copy.eyebrow}</p>
           <h1 style={s.heroTitle}>{copy.heroTitle}</h1>
-          <p style={s.heroSub}>
-            {copy.heroSub}
-          </p>
+          <p style={s.heroSub}>{copy.heroSub}</p>
         </div>
         <div style={s.heroDeco} />
       </section>
@@ -437,7 +476,6 @@ export default function Shop() {
             <ProductCard key={p.id} product={p} copy={copy} onAdd={() => setActiveProduct(p)} />
           ))}
         </div>
-
         <ShopFaq copy={copy} />
       </main>
 
@@ -465,7 +503,6 @@ function ShopFaq({ copy }) {
         <h2 id="shop-faq-title" style={s.faqTitle}>{copy.faqTitle}</h2>
         <p style={s.faqCopy}>{copy.faqCopy}</p>
       </div>
-
       <div style={s.faqList}>
         {copy.faqs.map((item, index) => (
           <details key={item.question} style={s.faqItem} open={index === 0}>
@@ -506,31 +543,31 @@ function ProductCard({ product, copy, onAdd }) {
 function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
   const isTshirt = product.type === "tshirt";
   const isIdCard = product.type === "idcard";
-  const sizes = isTshirt ? TSHIRT_SIZES : ["Standard"];
 
-  const [rows, setRows] = useState([{ size: sizes[0], quantity: 1 }]);
+  // T-shirt state — sizes + quantities
+  const [rows, setRows] = useState([{ size: TSHIRT_SIZES[0], quantity: 1 }]);
+
   const [step, setStep] = useState(1);
   const [customer, setCustomer] = useState({ name: "", phoneNumber: "", email: "" });
   const [touched, setTouched] = useState({ name: false, phoneNumber: false, email: false });
-  const [idCard, setIdCard] = useState({ cardholderName: "", photo: null });
+
+  // ID Card specific state
+  const [idCard, setIdCard] = useState({ cardholderName: "", photo: null, rawFile: null });
   const [idCardTouched, setIdCardTouched] = useState(false);
   const [photoError, setPhotoError] = useState(null);
   const [photoProcessing, setPhotoProcessing] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const cameraInputRef = useRef(null);
-  const galleryInputRef = useRef(null);
 
-  // ── Two separate overlay states ──────────────────────────────────────────
-  // "verifying" = payment was captured by Razorpay, now confirming with backend
-  // "bridging"  = Razorpay closed without payment (dismissed/failed), show
-  //               spinner briefly so the screen doesn't flicker straight to error
+  const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verifyMsg, setVerifyMsg] = useState("Verifying your payment…");
   const [bridging, setBridging] = useState(false);
-
   const [inlineError, setInlineError] = useState(null);
 
-  const totalQty = rows.reduce((acc, r) => acc + r.quantity, 0);
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
+
+  // ID Card: quantity is always 1
+  const totalQty = isIdCard ? 1 : rows.reduce((acc, r) => acc + r.quantity, 0);
   const totalAmt = totalQty * product.price;
 
   const nameError  = validateName(customer.name);
@@ -551,14 +588,16 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
   function updateRow(i, field, value) {
     setRows((prev) => prev.map((r, idx) => idx === i ? { ...r, [field]: value } : r));
   }
-  function addRow() { setRows((prev) => [...prev, { size: sizes[0], quantity: 1 }]); }
+  function addRow() { setRows((prev) => [...prev, { size: TSHIRT_SIZES[0], quantity: 1 }]); }
   function removeRow(i) { setRows((prev) => prev.filter((_, idx) => idx !== i)); }
 
   function goToStep2() {
-    if (totalQty === 0) return;
-    const merged = {};
-    rows.forEach(({ size, quantity }) => { merged[size] = (merged[size] || 0) + quantity; });
-    setRows(Object.entries(merged).map(([size, quantity]) => ({ size, quantity })));
+    if (isTshirt && totalQty === 0) return;
+    if (isTshirt) {
+      const merged = {};
+      rows.forEach(({ size, quantity }) => { merged[size] = (merged[size] || 0) + quantity; });
+      setRows(Object.entries(merged).map(([size, quantity]) => ({ size, quantity })));
+    }
     setStep(2);
   }
 
@@ -576,9 +615,11 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
     setPhotoError(null);
     try {
       const processedPhoto = await createPassportPhoto(file);
-      setIdCard((current) => ({ ...current, photo: processedPhoto }));
+      // Convert the base64 back to a File so we can send it via FormData
+      const photoFile = dataUrlToFile(processedPhoto.photoBase64, processedPhoto.photoFileName);
+      setIdCard((current) => ({ ...current, photo: processedPhoto, rawFile: photoFile }));
     } catch {
-      setIdCard((current) => ({ ...current, photo: null }));
+      setIdCard((current) => ({ ...current, photo: null, rawFile: null }));
       setPhotoError(idCopy.photoInvalid);
     } finally {
       setPhotoProcessing(false);
@@ -586,9 +627,6 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
     }
   }
 
-  // Helper: show the "processing" spinner for `ms` ms, then call onFailure.
-  // This is used when Razorpay is dismissed without completing payment so the
-  // user sees a smooth transition instead of an abrupt popup switch.
   function bridgeToFailure(errorObj, ms = 1500) {
     setBridging(true);
     setTimeout(() => {
@@ -601,8 +639,10 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
     e.preventDefault();
     setTouched({ name: true, phoneNumber: true, email: true });
     setIdCardTouched(true);
-    if (nameError || phoneError || emailError || (isIdCard && (cardNameError || !idCard.photo))) {
-      if (isIdCard && !idCard.photo && !photoError) setPhotoError(idCopy.photoRequired);
+
+    if (nameError || phoneError || emailError) return;
+    if (isIdCard && (cardNameError || !idCard.photo)) {
+      if (!idCard.photo && !photoError) setPhotoError(idCopy.photoRequired);
       return;
     }
 
@@ -610,26 +650,33 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
       setLoading(true);
       setInlineError(null);
 
-      const payload = {
-        name: customer.name.trim(),
-        email: customer.email.trim(),
-        phoneNumber: customer.phoneNumber,
-        productType: product.type,
-        amount: totalAmt,
-        sizeQuantities: rows.map((r) => ({ size: r.size, quantity: r.quantity })),
-        totalQuantity: totalQty,
-        ...(isIdCard && {
-          idCardDetails: {
-            cardholderName: idCard.cardholderName.trim(),
-            ...idCard.photo,
-          },
-        }),
-      };
+      let order;
 
-      // 1. Create order
-      const order = await createOrder(payload);
+      if (isTshirt) {
+        // ── T-Shirt: JSON body to /tshirt/createOrder ─────────────────────
+        const payload = {
+          name: customer.name.trim(),
+          email: customer.email.trim(),
+          phoneNumber: customer.phoneNumber,
+          amount: totalAmt,
+          sizeQuantities: rows.map((r) => ({ size: r.size, quantity: r.quantity })),
+          totalQuantity: totalQty,
+        };
+        order = await createTshirtOrder(payload);
+      } else {
+        // ── ID Card: multipart/form-data to /id-card/createOrder ──────────
+        const payload = {
+          name: customer.name.trim(),
+          email: customer.email.trim(),
+          phoneNumber: customer.phoneNumber,
+          amount: totalAmt,
+          totalQuantity: 1,
+          idCardHolderName: idCard.cardholderName.trim(),
+        };
+        order = await createIdCardOrder(payload, idCard.rawFile);
+      }
 
-      // 2. Open Razorpay
+      // ── Open Razorpay ─────────────────────────────────────────────────────
       let payment;
       try {
         payment = await openRazorpay({
@@ -645,40 +692,33 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
             contact: customer.phoneNumber,
           },
           notes: {
-            name:customer.name,
+            name: customer.name.trim(),
             product: product.name,
-            id_card_name: isIdCard ? idCard.cardholderName.trim() : "",
-            has_id_card_photo: isIdCard ? "yes" : "no",
-            sizes_and_quantities: buildSizeNote(rows),
-            total_pieces: String(totalQty),
+            ...(isTshirt && { sizes_and_quantities: buildSizeNote(rows), total_pieces: String(totalQty) }),
+            ...(isIdCard && { id_card_name: idCard.cardholderName.trim() }),
             customer_phone: customer.phoneNumber,
           },
           theme: { color: "#b71c1c" },
         });
       } catch (rzpErr) {
-        // Razorpay was closed or payment failed inside the checkout modal.
-        // Fire the callback silently (best-effort) so the backend can record
-        // the failure, then show spinner → failure receipt.
         setLoading(false);
+        const callbackFn = isTshirt ? tshirtPaymentCallback : idCardPaymentCallback;
         if (rzpErr?.metadata) {
-          paymentCallback({
+          callbackFn({
             razorpay_order_id: rzpErr.metadata.order_id || order.razorpayOrderId,
             razorpay_payment_id: rzpErr.metadata.payment_id || "",
             razorpay_signature: "",
           }).catch(() => {});
         }
-        // Show spinner briefly so it doesn't feel like a harsh flash to error.
         bridgeToFailure({
           code: rzpErr?.code || "PAYMENT_CANCELLED",
-          description:
-            rzpErr?.description ||
-            "Payment was cancelled or not completed. Please try again.",
+          description: rzpErr?.description || "Payment was cancelled or not completed. Please try again.",
           orderId: order.razorpayOrderId,
         });
         return;
       }
 
-      // 3. Payment captured — show "Verifying" overlay while backend confirms.
+      // ── Verify payment with the correct backend endpoint ──────────────────
       setLoading(false);
       setVerifying(true);
       setVerifyMsg("Verifying your payment…");
@@ -687,10 +727,12 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
         setVerifyMsg("Still confirming with our server… almost there.");
       }, 5000);
 
+      const callbackFn = isTshirt ? tshirtPaymentCallback : idCardPaymentCallback;
+
       let verified;
       try {
         verified = await Promise.race([
-          paymentCallback({
+          callbackFn({
             razorpay_order_id: payment.razorpay_order_id,
             razorpay_payment_id: payment.razorpay_payment_id,
             razorpay_signature: payment.razorpay_signature,
@@ -702,21 +744,17 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
       } catch (verifyErr) {
         clearTimeout(slowTimer);
         setVerifying(false);
-        // Backend timed-out or errored AFTER the user already paid — show
-        // failure receipt with the payment ID so they can contact support.
         onFailure(
           verifyErr.message === "TIMEOUT"
             ? {
                 code: "VERIFY_TIMEOUT",
-                description:
-                  "Your payment was received but confirmation is taking too long. Please contact support with your payment ID.",
+                description: "Your payment was received but confirmation is taking too long. Please contact support with your payment ID.",
                 orderId: order.razorpayOrderId,
                 paymentId: payment.razorpay_payment_id,
               }
             : {
                 code: "VERIFY_FAILED",
-                description:
-                  verifyErr.message || "Payment verification failed. Contact support.",
+                description: verifyErr.message || "Payment verification failed. Contact support.",
                 orderId: order.razorpayOrderId,
                 paymentId: payment.razorpay_payment_id,
               }
@@ -732,6 +770,7 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
           ...verified,
           customerName: customer.name.trim(),
           productName: product.name,
+          ...(isTshirt && { sizeQuantities: rows }),
         });
       } else {
         onFailure({
@@ -748,8 +787,6 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
     }
   }
 
-  // Show processing overlay for both "verifying" (post-payment backend call)
-  // and "bridging" (brief spinner after checkout dismissal).
   if (verifying) return <ProcessingOverlay message={verifyMsg} />;
   if (bridging)  return <ProcessingOverlay message="Checking payment status…" />;
 
@@ -766,6 +803,7 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Only show step indicator for T-shirt (ID card is always step 1 → 2) */}
             <div style={s.steps}>
               <span style={{ ...s.stepDot, background: "#b71c1c", color: "#fff" }}>1</span>
               <div style={s.stepLine} />
@@ -775,53 +813,88 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
           </div>
         </div>
 
-        {/* Step 1 */}
+        {/* ── Step 1 ─────────────────────────────────────────────────────── */}
         {step === 1 && (
           <div style={s.popupBody}>
-            <p style={s.sectionLabel}>{isTshirt ? "Select Sizes & Quantities" : "Select Quantity"}</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {rows.map((row, i) => (
-                <div key={i} style={s.modalRow}>
-                  {isTshirt && (
-                    <select value={row.size} onChange={(e) => updateRow(i, "size", e.target.value)} style={s.sizeSelect}>
-                      {sizes.map((sz) => <option key={sz} value={sz}>Size {sz}</option>)}
-                    </select>
-                  )}
-                  <div style={s.stepper}>
-                    <button type="button" style={s.stepBtn} onClick={() => updateRow(i, "quantity", Math.max(1, row.quantity - 1))}>−</button>
-                    <span style={s.stepNum}>{row.quantity}</span>
-                    <button type="button" style={s.stepBtn} onClick={() => updateRow(i, "quantity", row.quantity + 1)}>+</button>
-                  </div>
-                  <span style={s.rowAmt}>{money(row.quantity * product.price)}</span>
-                  {rows.length > 1 && <button type="button" style={s.removeRowBtn} onClick={() => removeRow(i)}>✕</button>}
+            {isTshirt ? (
+              <>
+                <p style={s.sectionLabel}>Select Sizes &amp; Quantities</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {rows.map((row, i) => (
+                    <div key={i} style={s.modalRow}>
+                      <select
+                        value={row.size}
+                        onChange={(e) => updateRow(i, "size", e.target.value)}
+                        style={s.sizeSelect}
+                      >
+                        {TSHIRT_SIZES.map((sz) => (
+                          <option key={sz} value={sz}>Size {sz}</option>
+                        ))}
+                      </select>
+                      <div style={s.stepper}>
+                        <button type="button" style={s.stepBtn} onClick={() => updateRow(i, "quantity", Math.max(1, row.quantity - 1))}>−</button>
+                        <span style={s.stepNum}>{row.quantity}</span>
+                        <button type="button" style={s.stepBtn} onClick={() => updateRow(i, "quantity", row.quantity + 1)}>+</button>
+                      </div>
+                      <span style={s.rowAmt}>{money(row.quantity * product.price)}</span>
+                      {rows.length > 1 && (
+                        <button type="button" style={s.removeRowBtn} onClick={() => removeRow(i)}>✕</button>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            {isTshirt && <button type="button" onClick={addRow} style={s.addSizeBtn}>+ Add another size</button>}
+                <button type="button" onClick={addRow} style={s.addSizeBtn}>+ Add another size</button>
+              </>
+            ) : (
+              /* ID Card — no size/quantity selection needed */
+              <div style={s.idCardSummaryBox}>
+                <span style={s.idCardSummaryIcon}>🪪</span>
+                <div>
+                  <p style={{ margin: "0 0 4px", fontWeight: 900, fontSize: 15, color: "#424242" }}>Volunteer ID Card</p>
+                  <p style={{ margin: 0, fontSize: 13, color: "#757575", lineHeight: 1.5 }}>
+                    1 laminated ID card · Standard size
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div style={s.summaryBar}>
               <div>
                 <span style={{ fontSize: 12, color: "#9e9e9e", fontWeight: 700 }}>TOTAL</span>
                 <div style={{ fontSize: 22, fontWeight: 900, color: "#b71c1c" }}>{money(totalAmt)}</div>
                 <span style={{ fontSize: 12, color: "#757575" }}>{totalQty} {totalQty === 1 ? "piece" : "pieces"}</span>
               </div>
-              <button type="button" disabled={totalQty === 0} onClick={goToStep2} style={{ ...s.primaryBtn, opacity: totalQty === 0 ? 0.5 : 1 }}>
+              <button
+                type="button"
+                disabled={isTshirt && totalQty === 0}
+                onClick={goToStep2}
+                style={{ ...s.primaryBtn, opacity: (isTshirt && totalQty === 0) ? 0.5 : 1 }}
+              >
                 Continue →
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 2 */}
+        {/* ── Step 2 ─────────────────────────────────────────────────────── */}
         {step === 2 && (
           <div style={s.popupBody}>
+            {/* Order Summary */}
             <div style={s.orderSummary}>
               <p style={s.sectionLabel}>Your Order</p>
-              {rows.map((r) => (
-                <div key={r.size} style={s.summaryLine}>
-                  <span style={{ fontWeight: 700, color: "#424242" }}>{r.size === "Standard" ? "Standard" : `Size ${r.size}`} × {r.quantity}</span>
-                  <span style={{ fontWeight: 800, color: "#b71c1c" }}>{money(r.quantity * product.price)}</span>
+              {isTshirt ? (
+                rows.map((r) => (
+                  <div key={r.size} style={s.summaryLine}>
+                    <span style={{ fontWeight: 700, color: "#424242" }}>Size {r.size} × {r.quantity}</span>
+                    <span style={{ fontWeight: 800, color: "#b71c1c" }}>{money(r.quantity * product.price)}</span>
+                  </div>
+                ))
+              ) : (
+                <div style={s.summaryLine}>
+                  <span style={{ fontWeight: 700, color: "#424242" }}>ID Card × 1</span>
+                  <span style={{ fontWeight: 800, color: "#b71c1c" }}>{money(product.price)}</span>
                 </div>
-              ))}
+              )}
               <div style={{ ...s.summaryLine, borderTop: "1px solid #f5deb3", paddingTop: 8, marginTop: 4 }}>
                 <span style={{ fontWeight: 900, fontSize: 16 }}>Total</span>
                 <span style={{ fontWeight: 900, fontSize: 16, color: "#b71c1c" }}>{money(totalAmt)}</span>
@@ -848,6 +921,7 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
                 error={touched.email ? emailError : null} valid={emailValid}
               />
 
+              {/* ID Card extra fields */}
               {isIdCard && (
                 <section style={s.idCardPanel} aria-labelledby="id-card-details-title">
                   <p id="id-card-details-title" style={s.idCardTitle}>{idCopy.sectionTitle}</p>
@@ -902,7 +976,6 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
                           onChange={handleIdPhoto}
                           style={s.hiddenFileInput}
                         />
-
                         <button
                           type="button"
                           onClick={() => cameraInputRef.current?.click()}
@@ -936,7 +1009,11 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
 
               <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
                 <button type="button" onClick={() => { setStep(1); setInlineError(null); }} style={s.backBtn}>← Back</button>
-                <button type="submit" disabled={loading || photoProcessing} style={{ ...s.primaryBtn, flex: 1, opacity: loading || photoProcessing ? 0.7 : 1 }}>
+                <button
+                  type="submit"
+                  disabled={loading || photoProcessing}
+                  style={{ ...s.primaryBtn, flex: 1, opacity: loading || photoProcessing ? 0.7 : 1 }}
+                >
                   {loading ? "Processing…" : `Pay ${money(totalAmt)}`}
                 </button>
               </div>
@@ -960,7 +1037,7 @@ function ReceiptPopup({ data, onClose }) {
 
   function handleDownload() {
     const sizeRows = data.sizeQuantities?.length > 0
-      ? `<div class="sizes">${data.sizeQuantities.map(sq => `<p>${sq.size === "Standard" ? "Standard" : `Size ${sq.size}`} × ${sq.quantity}</p>`).join("")}</div>`
+      ? `<div class="sizes">${data.sizeQuantities.map(sq => `<p>Size ${sq.size} × ${sq.quantity}</p>`).join("")}</div>`
       : "";
 
     const receiptHtml = `<!DOCTYPE html>
@@ -979,7 +1056,7 @@ function ReceiptPopup({ data, onClose }) {
   <div class="header"><h1>🎉 HukmillLane Cha Raja</h1><p>Official Payment Receipt</p></div>
   <div style="text-align:center"><span class="badge">✅ Payment Successful</span></div>
   <div class="row"><span class="label">Booking ID</span><span class="value">${data.bookingId || "—"}</span></div>
-  <div class="row"><span class="label">Customer</span><span class="value">${data.customerName || data.name || "—"}</span></div>
+  <div class="row"><span class="label">Customer</span><span class="value">${data.customerName || data.Name || "—"}</span></div>
   <div class="row"><span class="label">Phone</span><span class="value">${data.phoneNumber || "—"}</span></div>
   ${data.email ? `<div class="row"><span class="label">Email</span><span class="value">${data.email}</span></div>` : ""}
   <div class="row"><span class="label">Order ID</span><span class="value" style="font-family:monospace;font-size:12px">${data.razorpayOrderId || "—"}</span></div>
@@ -1017,17 +1094,18 @@ function ReceiptPopup({ data, onClose }) {
           </div>
 
           <ReceiptRow label="Booking ID" value={data.bookingId || "—"} />
-          <ReceiptRow label="Customer" value={data.customerName || data.name || "—"} />
+          <ReceiptRow label="Customer" value={data.customerName || data.Name || "—"} />
           <ReceiptRow label="Phone" value={data.phoneNumber || "—"} />
           {data.email && <ReceiptRow label="Email" value={data.email} />}
           <ReceiptRow label="Product" value={data.productName || "Festival Item"} />
 
+          {/* T-Shirt sizes breakdown */}
           {data.sizeQuantities?.length > 0 && (
             <div style={s.sizesBox}>
               {data.sizeQuantities.map((sq) => (
                 <div key={sq.size} style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontSize: 13, color: "#616161", fontWeight: 600 }}>
-                    {sq.size === "Standard" ? "Standard" : `Size ${sq.size}`} × {sq.quantity}
+                    Size {sq.size} × {sq.quantity}
                   </span>
                   <span style={{ fontSize: 13, fontWeight: 700, color: "#424242" }}>
                     {money(sq.quantity * pricePerPiece)}
@@ -1035,6 +1113,11 @@ function ReceiptPopup({ data, onClose }) {
                 </div>
               ))}
             </div>
+          )}
+
+          {/* ID Card holder name */}
+          {data.idCardHolderName && (
+            <ReceiptRow label="ID Card Name" value={data.idCardHolderName} />
           )}
 
           <ReceiptRow label="Total Quantity" value={`${data.totalQuantity} ${data.totalQuantity === 1 ? "piece" : "pieces"}`} />
@@ -1170,6 +1253,8 @@ const s = {
   closeBtn: { width: 30, height: 30, border: "none", background: "#f5f5f5", borderRadius: "50%", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#757575", display: "flex", alignItems: "center", justifyContent: "center" },
   popupBody: { padding: "20px 22px 26px", display: "flex", flexDirection: "column", gap: 16 },
   sectionLabel: { fontSize: 10, fontWeight: 900, letterSpacing: "0.22em", textTransform: "uppercase", color: "#9e9e9e" },
+  idCardSummaryBox: { display: "flex", alignItems: "center", gap: 16, background: "#fff9f0", border: "1px solid #f5deb3", borderRadius: 14, padding: "16px 18px" },
+  idCardSummaryIcon: { fontSize: 32, flexShrink: 0 },
   modalRow: { display: "flex", alignItems: "center", gap: 10 },
   sizeSelect: { flex: 1, border: "1.5px solid #f5deb3", borderRadius: 10, padding: "9px 12px", fontSize: 14, fontWeight: 700, color: "#424242", background: "#fffdf7", cursor: "pointer", outline: "none" },
   stepper: { display: "flex", alignItems: "center", gap: 2, background: "#fafafa", borderRadius: 10, border: "1.5px solid #f5deb3", padding: "2px 4px" },
