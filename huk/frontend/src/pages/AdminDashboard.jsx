@@ -1,50 +1,231 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-import { api, downloadAdminExport } from '../api/client'
+import { useEffect, useMemo, useState } from 'react'
+import { api } from '../api/client'
 import { useLanguage } from '../i18n/useLanguage'
 import { money } from '../utils/format'
 
-const emptyProduct = {
-  name: '',
-  price: '',
-  description: '',
-  image: '',
-  imageFile: null,
-  sizes: 'Standard',
-  stock: 0,
-  isActive: true,
-}
-
-const emptyGallery = { title: '', year: new Date().getFullYear(), story: '', imageUrl: '', imageFile: null }
-const orderStatuses = ['paid', 'processing', 'ready', 'delivered', 'cancelled', 'failed']
-
-const adminText = {
+const COPY = {
   en: {
-    dashboardTitle: 'Mandal Dashboard',
-    secureAccess: 'Secure Access',
+    eyebrow: 'Distribution Management',
+    title: 'Mandal Order Desk',
+    subtitle: 'Manage T-shirt and ID-card bookings, collection status, and separate Excel records.',
+    secure: 'Secure access',
+    loginTitle: 'Admin Login',
+    email: 'Admin email',
+    password: 'Password',
+    login: 'Login',
+    loggingIn: 'Signing in...',
+    logout: 'Logout',
+    loginRequired: 'Login to manage bookings',
+    loginRequiredCopy: 'Only authorized Mandal members can view customer and ID-card information.',
+    tshirts: 'T-Shirts',
+    ids: 'ID Cards',
+    totalBookings: 'Bookings',
+    pending: 'Pending collection',
+    collected: 'Collected',
+    search: 'Search by name, phone, email, booking ID, payment ID, or size',
+    exportTshirts: 'Export T-Shirts',
+    exportIds: 'Export ID Cards',
+    noOrders: 'No bookings found in this section.',
+    booking: 'Booking ID',
+    date: 'Booking Date',
+    customer: 'Customer',
+    contact: 'Contact',
+    orderDetails: 'Order Details',
+    payment: 'Payment',
+    handover: 'Distribution',
+    idHolder: 'Name on ID',
+    photo: 'Photo',
+    sizes: 'Sizes / Quantity',
+    quantity: 'Total Qty.',
+    amount: 'Amount',
+    status: 'Payment Status',
+    receipt: 'Receipt',
+    view: 'View',
+    notAvailable: 'Not available',
+    markCollected: 'T-shirt collected',
+    markIdCollected: 'ID card collected',
+    collectedOn: 'Collected / handed over',
+    statusUpdated: 'Distribution status updated.',
+    statusFailed: 'Could not update distribution status.',
+    exportEmpty: 'There are no records to export.',
+    sessionExpired: 'Your admin session expired. Please log in again.',
+    loginSuccessful: 'Admin login successful.',
+    loginFailed: 'Login failed.',
+    loggedOut: 'Logged out successfully.',
   },
   mr: {
-    dashboardTitle: 'मंडळ डॅशबोर्ड',
-    secureAccess: 'सुरक्षित प्रवेश',
+    eyebrow: 'वितरण व्यवस्थापन',
+    title: 'मंडळ ऑर्डर डेस्क',
+    subtitle: 'टी-शर्ट आणि आयडी कार्ड बुकिंग, वितरण स्थिती आणि स्वतंत्र एक्सेल नोंदी व्यवस्थापित करा.',
+    secure: 'सुरक्षित प्रवेश',
+    loginTitle: 'अॅडमिन लॉगिन',
+    email: 'अॅडमिन ईमेल',
+    password: 'पासवर्ड',
+    login: 'लॉगिन',
+    loggingIn: 'लॉगिन होत आहे...',
+    logout: 'लॉगआउट',
+    loginRequired: 'बुकिंग व्यवस्थापनासाठी लॉगिन करा',
+    loginRequiredCopy: 'फक्त अधिकृत मंडळ सदस्य ग्राहक आणि आयडी कार्ड माहिती पाहू शकतात.',
+    tshirts: 'टी-शर्ट',
+    ids: 'आयडी कार्ड',
+    totalBookings: 'बुकिंग',
+    pending: 'वितरण बाकी',
+    collected: 'वितरित',
+    search: 'नाव, फोन, ईमेल, बुकिंग आयडी, पेमेंट आयडी किंवा साइज शोधा',
+    exportTshirts: 'टी-शर्ट एक्सेल',
+    exportIds: 'आयडी कार्ड एक्सेल',
+    noOrders: 'या विभागात कोणतेही बुकिंग सापडले नाही.',
+    booking: 'बुकिंग आयडी',
+    date: 'बुकिंग तारीख',
+    customer: 'ग्राहक',
+    contact: 'संपर्क',
+    orderDetails: 'ऑर्डर माहिती',
+    payment: 'पेमेंट',
+    handover: 'वितरण',
+    idHolder: 'आयडीवरील नाव',
+    photo: 'फोटो',
+    sizes: 'साइज / प्रमाण',
+    quantity: 'एकूण नग',
+    amount: 'रक्कम',
+    status: 'पेमेंट स्थिती',
+    receipt: 'पावती',
+    view: 'पाहा',
+    notAvailable: 'उपलब्ध नाही',
+    markCollected: 'टी-शर्ट घेतला',
+    markIdCollected: 'आयडी कार्ड घेतले',
+    collectedOn: 'वितरित / सुपूर्द',
+    statusUpdated: 'वितरण स्थिती अपडेट झाली.',
+    statusFailed: 'वितरण स्थिती अपडेट करता आली नाही.',
+    exportEmpty: 'एक्सपोर्ट करण्यासाठी नोंदी नाहीत.',
+    sessionExpired: 'अॅडमिन सत्र संपले. पुन्हा लॉगिन करा.',
+    loginSuccessful: 'अॅडमिन लॉगिन यशस्वी.',
+    loginFailed: 'लॉगिन अयशस्वी.',
+    loggedOut: 'यशस्वीपणे लॉगआउट झाले.',
   },
 }
 
-function filterItems(items, query) {
+function firstValue(...values) {
+  return values.find((value) => value !== undefined && value !== null && value !== '')
+}
+
+function normalizeLines(order) {
+  if (Array.isArray(order.sizeQuantities) && order.sizeQuantities.length) {
+    return order.sizeQuantities.map((line) => ({
+      size: firstValue(line.size, 'Standard'),
+      quantity: Number(firstValue(line.quantity, line.qty, 1)),
+    }))
+  }
+
+  if (Array.isArray(order.items) && order.items.length) {
+    return order.items.map((line) => ({
+      size: firstValue(line.size, line.selectedSize, 'Standard'),
+      quantity: Number(firstValue(line.quantity, line.qty, 1)),
+      name: firstValue(line.name, line.productName, ''),
+    }))
+  }
+
+  return [{ size: firstValue(order.size, 'Standard'), quantity: Number(firstValue(order.totalQuantity, order.quantity, 1)) }]
+}
+
+function getProductType(order) {
+  const explicit = String(firstValue(order.productType, order.type, order.category, '')).toLowerCase()
+  const itemNames = (order.items || []).map((line) => `${line.name || ''} ${line.productName || ''}`).join(' ').toLowerCase()
+  const combined = `${explicit} ${itemNames}`
+  return combined.includes('idcard') || combined.includes('id card') ? 'idcard' : 'tshirt'
+}
+
+function normalizeOrder(order) {
+  const customer = order.customer || order.user || {}
+  const idDetails = order.idCardDetails || order.idCard || {}
+  const lines = normalizeLines(order)
+  const status = String(firstValue(order.status, order.orderStatus, order.paymentStatus, 'paid')).toLowerCase()
+  const photo = firstValue(
+    idDetails.photoBase64,
+    idDetails.photoUrl,
+    idDetails.photo,
+    order.idCardPhotoUrl,
+    order.photoUrl,
+  )
+
+  return {
+    raw: order,
+    id: String(firstValue(order._id, order.id, order.orderId, order.razorpayOrderId, '')),
+    bookingId: String(firstValue(order.bookingId, order.receiptNumber, order.razorpayOrderId, order.orderId, order._id, order.id, '—')),
+    paymentId: String(firstValue(order.razorpayPaymentId, order.paymentId, '—')),
+    type: getProductType(order),
+    name: String(firstValue(order.name, customer.name, customer.fullName, '—')),
+    phone: String(firstValue(order.phoneNumber, order.phone, customer.phoneNumber, customer.phone, '—')),
+    email: String(firstValue(order.email, customer.email, '—')),
+    date: firstValue(order.createdAt, order.orderDate, order.paidAt),
+    lines,
+    quantity: Number(firstValue(order.totalQuantity, lines.reduce((sum, line) => sum + line.quantity, 0), 1)),
+    amount: Number(firstValue(order.amount, order.totalAmount, order.total, 0)),
+    status,
+    collected: Boolean(order.collectedAt) || ['delivered', 'collected', 'completed', 'distributed'].includes(status),
+    collectedAt: firstValue(order.collectedAt, order.deliveredAt, order.updatedAt),
+    receiptUrl: firstValue(order.receiptUrl, order.receiptLink),
+    idHolderName: String(firstValue(idDetails.cardholderName, idDetails.name, order.idCardName, order.cardholderName, '—')),
+    photo,
+  }
+}
+
+function filterOrders(items, query) {
   const value = query.trim().toLowerCase()
   if (!value) return items
   return items.filter((item) => JSON.stringify(item).toLowerCase().includes(value))
 }
 
+function displayDate(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString('en-IN')
+}
+
+function lineSummary(order) {
+  return order.lines.map((line) => `${line.size} × ${line.quantity}`).join(', ')
+}
+
+function escapeExcel(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+}
+
+function exportOrdersToExcel(type, orders) {
+  if (!orders.length) return false
+  const isId = type === 'idcard'
+  const headers = isId
+    ? ['Sr. No.', 'Booking ID', 'Booking Date', 'Name on ID', 'Customer Name', 'Phone', 'Email', 'Quantity', 'Amount', 'Payment ID', 'Payment Status', 'Distribution Status', 'Distributed On']
+    : ['Sr. No.', 'Booking ID', 'Booking Date', 'Customer Name', 'Phone', 'Email', 'Sizes / Quantity', 'Total Quantity', 'Amount', 'Payment ID', 'Payment Status', 'Distribution Status', 'Distributed On']
+
+  const rows = orders.map((order, index) => isId
+    ? [index + 1, order.bookingId, displayDate(order.date), order.idHolderName, order.name, order.phone, order.email, order.quantity, order.amount, order.paymentId, order.status, order.collected ? 'Collected' : 'Pending', order.collected ? displayDate(order.collectedAt) : '—']
+    : [index + 1, order.bookingId, displayDate(order.date), order.name, order.phone, order.email, lineSummary(order), order.quantity, order.amount, order.paymentId, order.status, order.collected ? 'Collected' : 'Pending', order.collected ? displayDate(order.collectedAt) : '—'])
+
+  const tableRows = [headers, ...rows]
+    .map((row, rowIndex) => `<tr>${row.map((cell) => `<${rowIndex === 0 ? 'th' : 'td'}>${escapeExcel(cell)}</${rowIndex === 0 ? 'th' : 'td'}>`).join('')}</tr>`)
+    .join('')
+  const title = isId ? 'ID Card Bookings' : 'T-Shirt Bookings'
+  const html = `<!doctype html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif}h1{color:#8d0909}table{border-collapse:collapse}th{background:#8d0909;color:#fff;font-weight:bold;text-align:center}th,td{border:1px solid #b7a16d;padding:8px;white-space:nowrap}td:nth-child(1){text-align:center}tr:nth-child(even) td{background:#fff8e8}</style></head><body><h1>${title}</h1><p>Exported: ${escapeExcel(new Date().toLocaleString('en-IN'))}</p><table>${tableRows}</table></body></html>`
+  const url = URL.createObjectURL(new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' }))
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${isId ? 'id-card' : 'tshirt'}-bookings-${new Date().toISOString().slice(0, 10)}.xls`
+  link.click()
+  URL.revokeObjectURL(url)
+  return true
+}
+
 function AdminDashboard() {
   const queryClient = useQueryClient()
-  const { t, language } = useLanguage()
-  const ui = adminText[language] || adminText.en
+  const { language } = useLanguage()
+  const copy = COPY[language] || COPY.en
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '')
   const [login, setLogin] = useState({ email: 'admin@mandal.com', password: '' })
-  const [gallery, setGallery] = useState(emptyGallery)
-  const [editingGallery, setEditingGallery] = useState(null)
-  const [product, setProduct] = useState(emptyProduct)
-  const [editingProduct, setEditingProduct] = useState(null)
+  const [activeTab, setActiveTab] = useState('tshirt')
   const [search, setSearch] = useState('')
   const [message, setMessage] = useState('')
 
@@ -56,636 +237,223 @@ function AdminDashboard() {
 
   useEffect(() => {
     function handleExpired() {
+      localStorage.removeItem('adminToken')
       setAdminToken('')
-      setMessage(t('sessionExpired'))
+      setMessage(copy.sessionExpired)
       queryClient.removeQueries({ queryKey: ['admin-dashboard'] })
     }
-
     window.addEventListener('admin-session-expired', handleExpired)
     return () => window.removeEventListener('admin-session-expired', handleExpired)
-  }, [queryClient, t])
+  }, [copy.sessionExpired, queryClient])
 
   const loginMutation = useMutation({
     mutationFn: async () => (await api.post('/auth/admin/login', login)).data,
     onSuccess: (data) => {
       localStorage.setItem('adminToken', data.token)
       setAdminToken(data.token)
-      setMessage(t('adminLoginSuccessful'))
+      setMessage(copy.loginSuccessful)
       queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
     },
-    onError: (error) => setMessage(error.response?.data?.message || t('loginFailed')),
+    onError: (error) => setMessage(error.response?.data?.message || copy.loginFailed),
   })
 
-  const galleryMutation = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData()
-      formData.append('title', gallery.title)
-      formData.append('year', gallery.year)
-      if (gallery.story) formData.append('story', gallery.story)
-      if (gallery.imageUrl) formData.append('imageUrl', gallery.imageUrl)
-      if (gallery.imageFile) formData.append('image', gallery.imageFile)
-      return (await api.post('/gallery', formData)).data
-    },
+  const statusMutation = useMutation({
+    mutationFn: async ({ id, collected }) => (await api.put(`/orders/${id}/status`, { status: collected ? 'delivered' : 'ready' })).data,
     onSuccess: () => {
-      setGallery(emptyGallery)
-      setMessage(t('galleryAdded'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['gallery'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('gallerySaveFailed')),
-  })
-
-  const productMutation = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData()
-      formData.append('name', product.name)
-      formData.append('price', product.price)
-      formData.append('description', product.description)
-      formData.append('sizes', product.sizes)
-      formData.append('stock', product.stock || 0)
-      formData.append('isActive', String(product.isActive))
-      if (product.image) formData.append('image', product.image)
-      if (product.imageFile) formData.append('imageFile', product.imageFile)
-      return (await api.post('/products', formData)).data
-    },
-    onSuccess: () => {
-      setProduct(emptyProduct)
-      setMessage(t('productAdded'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('productSaveFailed')),
-  })
-
-  const deleteProductMutation = useMutation({
-    mutationFn: async (id) => api.delete(`/products/${id}`),
-    onSuccess: () => {
-      setMessage(t('productDeleted'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-    },
-  })
-
-  const updateProductMutation = useMutation({
-    mutationFn: async ({ id, values }) => {
-      const formData = new FormData()
-      formData.append('name', values.name)
-      formData.append('price', values.price)
-      formData.append('description', values.description)
-      formData.append('sizes', values.sizes)
-      formData.append('stock', values.stock || 0)
-      formData.append('isActive', String(values.isActive))
-      if (values.image) formData.append('image', values.image)
-      if (values.imageFile) formData.append('imageFile', values.imageFile)
-      return (await api.put(`/products/${id}`, formData)).data
-    },
-    onSuccess: () => {
-      setEditingProduct(null)
-      setMessage(t('productUpdated'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['products'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('productUpdateFailed')),
-  })
-
-  const deleteGalleryMutation = useMutation({
-    mutationFn: async (id) => api.delete(`/gallery/${id}`),
-    onSuccess: () => {
-      setMessage(t('galleryDeleted'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['gallery'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('galleryDeleteFailed')),
-  })
-
-  const updateGalleryMutation = useMutation({
-    mutationFn: async ({ id, values }) => {
-      const formData = new FormData()
-      formData.append('title', values.title)
-      formData.append('year', values.year)
-      if (values.story) formData.append('story', values.story)
-      if (values.imageUrl) formData.append('imageUrl', values.imageUrl)
-      if (values.imageFile) formData.append('image', values.imageFile)
-      return (await api.put(`/gallery/${id}`, formData)).data
-    },
-    onSuccess: () => {
-      setEditingGallery(null)
-      setMessage(t('galleryUpdated'))
-      queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['gallery'] })
-    },
-    onError: (error) => setMessage(error.response?.data?.message || t('galleryUpdateFailed')),
-  })
-
-  const updateOrderStatusMutation = useMutation({
-    mutationFn: async ({ id, status }) => (await api.put(`/orders/${id}/status`, { status })).data,
-    onSuccess: () => {
-      setMessage(t('orderStatusUpdated'))
+      setMessage(copy.statusUpdated)
       queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
     },
-    onError: (error) => setMessage(error.response?.data?.message || t('orderStatusUpdateFailed')),
+    onError: (error) => setMessage(error.response?.data?.message || copy.statusFailed),
   })
 
-  function exportExcel() {
-    downloadAdminExport()
-  }
+  const orders = useMemo(
+    () => (dashboard.data?.recentOrders || dashboard.data?.orders || []).map(normalizeOrder),
+    [dashboard.data],
+  )
+  const tshirtOrders = useMemo(() => orders.filter((order) => order.type === 'tshirt'), [orders])
+  const idOrders = useMemo(() => orders.filter((order) => order.type === 'idcard'), [orders])
+  const visibleOrders = filterOrders(activeTab === 'tshirt' ? tshirtOrders : idOrders, search)
+  const currentOrders = activeTab === 'tshirt' ? tshirtOrders : idOrders
+  const collectedCount = currentOrders.filter((order) => order.collected).length
 
   function logout() {
     localStorage.removeItem('adminToken')
     setAdminToken('')
-    setMessage(t('loggedOut'))
+    setMessage(copy.loggedOut)
     queryClient.removeQueries({ queryKey: ['admin-dashboard'] })
   }
 
-  function confirmDelete(label, action) {
-    if (window.confirm(`${t('confirmDeletePrefix')} ${label}? ${t('confirmDeleteSuffix')}`)) action()
+  function handleExport(type, records) {
+    if (!exportOrdersToExcel(type, records)) setMessage(copy.exportEmpty)
   }
 
-  const isBusy =
-    galleryMutation.isPending ||
-    updateGalleryMutation.isPending ||
-    deleteGalleryMutation.isPending ||
-    productMutation.isPending ||
-    updateProductMutation.isPending ||
-    deleteProductMutation.isPending ||
-    updateOrderStatusMutation.isPending
-
   return (
-    <main className="bg-[#fff8ea] px-4 py-10 text-stone-950 sm:px-6 lg:py-14">
-      <section className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl border border-[#e7c579]/60 bg-linear-to-br from-[#fffaf0] via-[#fff1da] to-[#ffe8bf] px-5 py-10 shadow-[0_28px_90px_rgba(93,25,0,.10)] sm:px-8">
-        <div className="absolute right-12 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-[#ffb72e]/20 blur-3xl" />
-        <div className="relative grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+    <main className="min-h-screen bg-[#fff8ea] px-4 py-8 text-stone-950 sm:px-6 lg:py-12">
+      <section className="mx-auto max-w-7xl rounded-3xl border border-[#e7c579]/70 bg-[#fffdf7] px-5 py-8 shadow-[0_24px_80px_rgba(93,25,0,.10)] sm:px-8 lg:px-10">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.34em] text-[#b91111]">{t('adminEyebrow')}</p>
-            <h1 className="mt-3 font-serif text-5xl font-black leading-none text-[#9f1111] sm:text-7xl">{ui.dashboardTitle}</h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-stone-700">{t('adminCopy')}</p>
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[#b91111]">{copy.eyebrow}</p>
+            <h1 className="mt-3 font-serif text-4xl font-black leading-tight text-[#8d0909] sm:text-6xl">{copy.title}</h1>
+            <p className="mt-3 max-w-3xl text-base leading-7 text-stone-700 sm:text-lg">{copy.subtitle}</p>
           </div>
           {adminToken ? (
-            <div className="flex flex-wrap gap-3 lg:justify-end">
-              <button className="rounded-full bg-[#b91111] px-5 py-3 font-black text-white shadow-lg shadow-red-950/15 disabled:opacity-50" type="button" onClick={exportExcel} disabled={!adminToken}>
-                {t('exportExcel')}
-              </button>
-              <button className="rounded-full border border-[#9f1111]/25 bg-[#b91111] px-5 py-3 font-black text-white disabled:opacity-50" type="button" onClick={logout} disabled={!adminToken}>
-                {t('logout')}
-              </button>
-            </div>
+            <button type="button" onClick={logout} className="w-fit rounded-full bg-[#8d0909] px-6 py-3 font-black text-white shadow-lg">
+              {copy.logout}
+            </button>
           ) : null}
         </div>
       </section>
 
-      <div className="mx-auto mt-8 grid max-w-7xl gap-6 lg:grid-cols-[330px_minmax(0,1fr)] xl:grid-cols-[370px_minmax(0,1fr)]">
-        <aside className="h-fit min-w-0 rounded-[1.25rem] border border-[#e7c579]/70 bg-white/90 p-5 shadow-[0_24px_80px_rgba(93,25,0,.12)] backdrop-blur lg:sticky lg:top-36">
-          <p className="text-xs font-black uppercase tracking-[0.26em] text-[#b91111]">{ui.secureAccess}</p>
-          <h2 className="mt-2 wrap-break-word font-serif text-3xl font-black text-[#9f1111]">{t('adminLogin')}</h2>
+      {!adminToken ? (
+        <section className="mx-auto mt-8 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="rounded-3xl bg-[#8d0909] p-7 text-white shadow-2xl sm:p-10">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-amber-300">{copy.secure}</p>
+            <h2 className="mt-3 font-serif text-4xl font-black">{copy.loginRequired}</h2>
+            <p className="mt-4 leading-7 text-red-50/85">{copy.loginRequiredCopy}</p>
+          </div>
           <form
-            className="mt-5 space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault()
-              loginMutation.mutate()
-            }}
+            className="rounded-3xl border border-[#e7c579]/70 bg-white p-6 shadow-xl sm:p-8"
+            onSubmit={(event) => { event.preventDefault(); loginMutation.mutate() }}
           >
-            <input className="w-full min-w-0 rounded-2xl border border-[#e7c579] bg-[#fffdf7] px-4 py-3" placeholder={t('adminEmail')} value={login.email} onChange={(e) => setLogin({ ...login, email: e.target.value })} />
-            <input className="w-full min-w-0 rounded-2xl border border-[#e7c579] bg-[#fffdf7] px-4 py-3" placeholder={t('adminPassword')} type="password" value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} />
-            <button className="w-full rounded-full bg-[#b91111] px-4 py-3 font-black text-white shadow-lg shadow-red-950/15">{loginMutation.isPending ? t('saving') : t('login')}</button>
+            <h2 className="font-serif text-3xl font-black text-[#8d0909]">{copy.loginTitle}</h2>
+            <label className="mt-6 block text-sm font-black text-stone-700">
+              {copy.email}
+              <input required type="email" value={login.email} onChange={(event) => setLogin({ ...login, email: event.target.value })} className="mt-2 w-full rounded-xl border border-[#d9bd79] bg-[#fffdf7] px-4 py-3 font-medium outline-none focus:ring-2 focus:ring-[#b91111]/25" />
+            </label>
+            <label className="mt-4 block text-sm font-black text-stone-700">
+              {copy.password}
+              <input required type="password" value={login.password} onChange={(event) => setLogin({ ...login, password: event.target.value })} className="mt-2 w-full rounded-xl border border-[#d9bd79] bg-[#fffdf7] px-4 py-3 font-medium outline-none focus:ring-2 focus:ring-[#b91111]/25" />
+            </label>
+            <button disabled={loginMutation.isPending} className="mt-6 w-full rounded-full bg-[#b91111] px-6 py-3 font-black text-white shadow-lg disabled:opacity-60">
+              {loginMutation.isPending ? copy.loggingIn : copy.login}
+            </button>
+            {message ? <p className="mt-4 rounded-xl bg-amber-50 p-3 text-sm font-bold text-[#8d0909]">{message}</p> : null}
           </form>
-          <button className="mt-3 w-full rounded-full bg-[#b91111] px-4 py-3 font-black text-amber-100 disabled:opacity-50" type="button" onClick={exportExcel} disabled={!adminToken}>
-            {t('exportExcel')}
-          </button>
-          <button className="mt-3 w-full rounded-full border border-[#9f1111]/25 bg-[#b91111] px-4 py-3 font-black text-white disabled:opacity-50" type="button" onClick={logout} disabled={!adminToken}>
-            {t('logout')}
-          </button>
-          {message ? <p className="mt-4 wrap-break-word rounded-2xl bg-green-50 p-4 text-sm font-bold text-green-800">{message}</p> : null}
-        </aside>
-
-        {adminToken ? (
-        <div className="min-w-0 space-y-6">
-          <input
-            className="w-full min-w-0 rounded-2xl border border-[#e7c579]/80 bg-white px-5 py-4 shadow-[0_16px_45px_rgba(93,25,0,.08)]"
-            placeholder={t('searchAdmin')}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {[
-              ['users', dashboard.data?.stats?.users ?? 0],
-              ['orders', dashboard.data?.stats?.orders ?? 0],
-              ['products', dashboard.data?.stats?.products ?? 0],
-            ].map(([key, value]) => (
-              <div key={key} className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-                <p className="wrap-break-word text-xs font-black uppercase tracking-[0.14em] text-[#b91111] sm:text-sm sm:tracking-[0.2em]">{t(key)}</p>
-                <p className="mt-2 font-serif text-4xl font-black text-[#9f1111]">{value}</p>
-              </div>
-            ))}
+        </section>
+      ) : (
+        <section className="mx-auto mt-8 max-w-7xl">
+          <div className="grid grid-cols-2 gap-3 rounded-2xl bg-[#f2ddae] p-2 sm:w-fit sm:min-w-105">
+            <TabButton active={activeTab === 'tshirt'} count={tshirtOrders.length} onClick={() => setActiveTab('tshirt')}>{copy.tshirts}</TabButton>
+            <TabButton active={activeTab === 'idcard'} count={idOrders.length} onClick={() => setActiveTab('idcard')}>{copy.ids}</TabButton>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-2">
-            <ProductForm disabled={productMutation.isPending} product={product} setProduct={setProduct} onSubmit={() => productMutation.mutate()} />
-            <GalleryForm disabled={galleryMutation.isPending} gallery={gallery} setGallery={setGallery} onSubmit={() => galleryMutation.mutate()} />
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <Stat label={copy.totalBookings} value={currentOrders.length} />
+            <Stat label={copy.pending} value={currentOrders.length - collectedCount} />
+            <Stat label={copy.collected} value={collectedCount} />
           </div>
 
-          <ProductList
-            editingProduct={editingProduct}
-            items={filterItems(dashboard.data?.products || [], search)}
-            onCancelEdit={() => setEditingProduct(null)}
-            disabled={isBusy}
-            onDelete={(id) => confirmDelete(t('thisProduct'), () => deleteProductMutation.mutate(id))}
-            onEdit={(item) =>
-              setEditingProduct({
-                _id: item._id,
-                name: item.name,
-                price: item.price,
-                description: item.description,
-                image: item.image,
-                imageFile: null,
-                sizes: item.sizes?.join(',') || 'Standard',
-                stock: item.stock ?? 0,
-                isActive: Boolean(item.isActive),
-              })
-            }
-            onSave={(id, values) => updateProductMutation.mutate({ id, values })}
-            setEditingProduct={setEditingProduct}
-          />
-          <GalleryList
-            editingGallery={editingGallery}
-            items={filterItems(dashboard.data?.galleryItems || [], search)}
-            onCancelEdit={() => setEditingGallery(null)}
-            disabled={isBusy}
-            onDelete={(id) => confirmDelete(t('thisGalleryItem'), () => deleteGalleryMutation.mutate(id))}
-            onEdit={(item) =>
-              setEditingGallery({
-                _id: item._id,
-                title: item.title,
-                year: item.year,
-                story: item.story || '',
-                imageUrl: item.imageUrl || '',
-                imageFile: null,
-              })
-            }
-            onSave={(id, values) => updateGalleryMutation.mutate({ id, values })}
-            setEditingGallery={setEditingGallery}
-          />
-
-          <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-            <h2 className="wrap-break-word font-serif text-2xl font-black text-[#9f1111]">{t('recentUsers')}</h2>
-            <div className="mt-4">
-              <UserList items={filterItems(dashboard.data?.recentUsers || [], search)} />
-            </div>
+          <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-[#e7c579]/70 bg-white p-4 shadow-lg sm:flex-row sm:items-center">
+            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={copy.search} className="min-w-0 flex-1 rounded-xl border border-[#d9bd79] bg-[#fffdf7] px-4 py-3 outline-none focus:ring-2 focus:ring-[#b91111]/20" />
+            <button type="button" onClick={() => handleExport(activeTab, currentOrders)} className="rounded-full bg-[#b91111] px-6 py-3 font-black text-white shadow-md">
+              {activeTab === 'tshirt' ? copy.exportTshirts : copy.exportIds}
+            </button>
           </div>
 
-          <OrderManagement
-            items={filterItems(dashboard.data?.recentOrders || [], search)}
-            onStatusChange={(id, status) => updateOrderStatusMutation.mutate({ id, status })}
-          />
-          <AuditLogList items={filterItems(dashboard.data?.auditLogs || [], search)} />
-        </div>
-        ) : (
-          <div className="min-w-0 rounded-[1.25rem] border border-[#e7c579]/70 bg-white p-6 shadow-[0_24px_80px_rgba(93,25,0,.12)] sm:p-8">
-            <h2 className="wrap-break-word font-serif text-4xl font-black text-[#9f1111]">{t('loginRequired')}</h2>
-            <p className="mt-2 text-stone-700">{t('loginRequiredCopy')}</p>
-          </div>
-        )}
-      </div>
+          {message ? <p className="mt-4 rounded-xl bg-green-50 p-3 text-sm font-bold text-green-800">{message}</p> : null}
+          {dashboard.isLoading ? <p className="mt-8 text-center font-bold text-stone-600">Loading...</p> : null}
+          {dashboard.isError ? <p className="mt-8 rounded-xl bg-red-50 p-4 font-bold text-red-800">{dashboard.error?.message || copy.loginFailed}</p> : null}
+
+          {!dashboard.isLoading && !dashboard.isError ? (
+            <OrderTable
+              copy={copy}
+              type={activeTab}
+              orders={visibleOrders}
+              disabled={statusMutation.isPending}
+              onCollected={(order, collected) => statusMutation.mutate({ id: order.id, collected })}
+            />
+          ) : null}
+        </section>
+      )}
     </main>
   )
 }
 
-function ProductForm({ disabled, product, setProduct, onSubmit }) {
-  const { t } = useLanguage()
-  const preview = product.imageFile ? URL.createObjectURL(product.imageFile) : product.image
-
+function TabButton({ active, children, count, onClick }) {
   return (
-    <form
-      className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5"
-      onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit()
-      }}
-    >
-      <h2 className="wrap-break-word text-xl font-black">{t('addProduct')}</h2>
-      <input className="mt-4 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('productName')} value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} />
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('price')} type="number" value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })} />
-        <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('stock')} type="number" value={product.stock} onChange={(e) => setProduct({ ...product, stock: e.target.value })} />
-      </div>
-      {preview ? <img src={preview} alt="" className="mt-3 h-36 w-full rounded-md object-cover" /> : null}
-      <input
-        className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3"
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        onChange={(e) => setProduct({ ...product, imageFile: e.target.files?.[0] || null })}
-      />
-      <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('imageUrl')} value={product.image} onChange={(e) => setProduct({ ...product, image: e.target.value })} />
-      <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('sizesCsv')} value={product.sizes} onChange={(e) => setProduct({ ...product, sizes: e.target.value })} />
-      <textarea className="mt-3 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('description')} value={product.description} onChange={(e) => setProduct({ ...product, description: e.target.value })} />
-      <label className="mt-3 flex items-center gap-2 text-sm font-bold text-stone-700">
-        <input type="checkbox" checked={product.isActive} onChange={(e) => setProduct({ ...product, isActive: e.target.checked })} />
-        {t('activeInShop')}
-      </label>
-      <button className="mt-3 rounded-full bg-[#b91111] px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
-        {disabled ? t('adding') : t('addProduct')}
-      </button>
-    </form>
+    <button type="button" onClick={onClick} className={`rounded-xl px-4 py-3 text-sm font-black transition sm:text-base ${active ? 'bg-[#8d0909] text-white shadow-lg' : 'text-[#7a1515] hover:bg-white/60'}`}>
+      {children} <span className={`ml-1 rounded-full px-2 py-0.5 text-xs ${active ? 'bg-white/15' : 'bg-white/70'}`}>{count}</span>
+    </button>
   )
 }
 
-function GalleryForm({ disabled, gallery, setGallery, onSubmit }) {
-  const { t } = useLanguage()
-  const preview = gallery.imageFile ? URL.createObjectURL(gallery.imageFile) : gallery.imageUrl
-
+function Stat({ label, value }) {
   return (
-    <form
-      className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5"
-      onSubmit={(event) => {
-        event.preventDefault()
-        onSubmit()
-      }}
-    >
-      <h2 className="wrap-break-word text-xl font-black">{t('addGalleryItem')}</h2>
-      <input className="mt-4 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('title')} value={gallery.title} onChange={(e) => setGallery({ ...gallery, title: e.target.value })} />
-      {preview ? <img src={preview} alt="" className="mt-3 h-36 w-full rounded-md object-cover" /> : null}
-      <input
-        className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3"
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        onChange={(e) => setGallery({ ...gallery, imageFile: e.target.files?.[0] || null })}
-      />
-      <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('imageUrl')} value={gallery.imageUrl} onChange={(e) => setGallery({ ...gallery, imageUrl: e.target.value })} />
-      <textarea className="mt-3 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-3" placeholder={t('story')} value={gallery.story} onChange={(e) => setGallery({ ...gallery, story: e.target.value })} />
-      <button className="mt-3 rounded-full bg-[#b91111] px-5 py-3 font-black text-white disabled:opacity-50" disabled={disabled}>
-        {disabled ? t('adding') : t('addGalleryItem')}
-      </button>
-    </form>
-  )
-}
-
-function ProductList({ disabled, editingProduct, items, onCancelEdit, onDelete, onEdit, onSave, setEditingProduct }) {
-  const { t } = useLanguage()
-  return (
-    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-      <h2 className="wrap-break-word text-xl font-black">{t('products')}</h2>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">
-        {items.map((item) => (
-          <ProductCard
-            editingProduct={editingProduct}
-            disabled={disabled}
-            item={item}
-            key={item._id}
-            onCancelEdit={onCancelEdit}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onSave={onSave}
-            setEditingProduct={setEditingProduct}
-          />
-        ))}
-        {items.length === 0 ? <p className="text-stone-600">{t('noProducts')}</p> : null}
-      </div>
+    <div className="rounded-2xl border border-[#e7c579]/60 bg-white p-5 shadow-md">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-[#a31616]">{label}</p>
+      <p className="mt-2 font-serif text-4xl font-black text-[#8d0909]">{value}</p>
     </div>
   )
 }
 
-function ProductCard({ disabled, editingProduct, item, onCancelEdit, onDelete, onEdit, onSave, setEditingProduct }) {
-  const { t } = useLanguage()
-  const isEditing = editingProduct?._id === item._id
-
-  if (isEditing) {
-    const preview = editingProduct.imageFile ? URL.createObjectURL(editingProduct.imageFile) : editingProduct.image
-
-    return (
-      <form
-        className="min-w-0 rounded-2xl bg-[#fff7e8] p-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSave(item._id, editingProduct)
-        }}
-      >
-        {preview ? <img src={preview} alt="" className="h-36 w-full rounded-md object-cover" /> : null}
-        <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('productName')} value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
-          <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('price')} type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })} />
-          <input className="min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('stock')} type="number" value={editingProduct.stock} onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })} />
-        </div>
-        <input
-          className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={(e) => setEditingProduct({ ...editingProduct, imageFile: e.target.files?.[0] || null })}
-        />
-        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('imageUrl')} value={editingProduct.image} onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })} />
-        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('sizesComma')} value={editingProduct.sizes} onChange={(e) => setEditingProduct({ ...editingProduct, sizes: e.target.value })} />
-        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('description')} value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} />
-        <label className="mt-2 flex items-center gap-2 text-sm font-bold text-stone-700">
-          <input type="checkbox" checked={editingProduct.isActive} onChange={(e) => setEditingProduct({ ...editingProduct, isActive: e.target.checked })} />
-          {t('activeInShop')}
-        </label>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="submit" className="rounded-full bg-[#b91111] px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
-            {disabled ? t('saving') : t('save')}
-          </button>
-          <button type="button" onClick={onCancelEdit} className="rounded-full bg-white px-4 py-2 text-sm font-black text-stone-700 disabled:opacity-50" disabled={disabled}>
-            {t('cancel')}
-          </button>
-        </div>
-      </form>
-    )
-  }
-
+function OrderTable({ copy, disabled, onCollected, orders, type }) {
+  const isId = type === 'idcard'
   return (
-    <div className="grid min-w-0 gap-3 rounded-2xl bg-[#fff7e8] p-3 sm:grid-cols-[80px_minmax(0,1fr)_auto]">
-      <img src={item.image} alt="" className="size-20 rounded-md object-cover" />
-      <div className="min-w-0 flex-1">
-        <p className="wrap-break-word font-black">{item.name}</p>
-        <p className="wrap-break-word text-sm text-stone-600">{money(item.price)} / {t('stock')} {item.stock ?? 0}</p>
-        <p className="text-xs font-bold uppercase tracking-widest text-[#b91111]">{item.isActive ? t('active') : t('inactive')}</p>
+    <div className="mt-6 overflow-hidden rounded-2xl border border-[#e7c579]/70 bg-white shadow-xl">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-275 border-collapse text-left text-sm">
+          <thead className="bg-[#8d0909] text-white">
+            <tr>
+              <TableHead>{copy.booking}</TableHead>
+              <TableHead>{copy.date}</TableHead>
+              {isId ? <TableHead>{copy.photo}</TableHead> : null}
+              <TableHead>{isId ? copy.idHolder : copy.customer}</TableHead>
+              {isId ? <TableHead>{copy.customer}</TableHead> : null}
+              <TableHead>{copy.contact}</TableHead>
+              <TableHead>{copy.orderDetails}</TableHead>
+              <TableHead>{copy.payment}</TableHead>
+              <TableHead>{copy.handover}</TableHead>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order, index) => (
+              <tr key={order.id || `${order.bookingId}-${index}`} className="border-b border-[#ead9b3] align-top odd:bg-white even:bg-[#fffaf0]">
+                <TableCell><strong className="text-[#8d0909]">{order.bookingId}</strong><div className="mt-1 text-xs text-stone-500">{order.paymentId}</div></TableCell>
+                <TableCell>{displayDate(order.date)}</TableCell>
+                {isId ? <TableCell><PhotoPreview copy={copy} order={order} /></TableCell> : null}
+                <TableCell><strong>{isId ? order.idHolderName : order.name}</strong></TableCell>
+                {isId ? <TableCell><strong>{order.name}</strong></TableCell> : null}
+                <TableCell><div className="font-bold">{order.phone}</div><div className="mt-1 max-w-55 break-all text-xs text-stone-600">{order.email}</div></TableCell>
+                <TableCell><div className="font-bold">{isId ? `${copy.quantity}: ${order.quantity}` : lineSummary(order)}</div>{!isId ? <div className="mt-1 text-xs text-stone-600">{copy.quantity}: {order.quantity}</div> : null}</TableCell>
+                <TableCell><div className="font-black text-[#8d0909]">{money(order.amount)}</div><StatusBadge status={order.status} />{order.receiptUrl ? <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="mt-2 block font-black text-[#a31616] underline">{copy.receipt}</a> : null}</TableCell>
+                <TableCell>
+                  <label className={`flex min-w-42 cursor-pointer items-center gap-3 rounded-xl border p-3 font-black ${order.collected ? 'border-green-300 bg-green-50 text-green-800' : 'border-amber-300 bg-amber-50 text-amber-900'}`}>
+                    <input type="checkbox" checked={order.collected} disabled={disabled || !order.id} onChange={(event) => onCollected(order, event.target.checked)} className="h-5 w-5 accent-green-700" />
+                    <span>{order.collected ? copy.collectedOn : (isId ? copy.markIdCollected : copy.markCollected)}</span>
+                  </label>
+                  {order.collected && order.collectedAt ? <p className="mt-2 text-xs text-stone-600">{displayDate(order.collectedAt)}</p> : null}
+                </TableCell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <div className="flex flex-wrap gap-2 sm:flex-col">
-        <button type="button" onClick={() => onEdit(item)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-stone-800 disabled:opacity-50" disabled={disabled}>
-          {t('edit')}
-        </button>
-        <button type="button" onClick={() => onDelete(item._id)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-[#b91111] disabled:opacity-50" disabled={disabled}>
-          {t('delete')}
-        </button>
-      </div>
+      {orders.length === 0 ? <p className="p-10 text-center font-bold text-stone-600">{copy.noOrders}</p> : null}
     </div>
   )
 }
 
-function GalleryList({ disabled, editingGallery, items, onCancelEdit, onDelete, onEdit, onSave, setEditingGallery }) {
-  const { t } = useLanguage()
-  return (
-    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-      <h2 className="wrap-break-word text-xl font-black">{t('navGallery')}</h2>
-      <div className="mt-4 grid gap-3 xl:grid-cols-2">
-        {items.map((item) => (
-          <GalleryCard
-            editingGallery={editingGallery}
-            disabled={disabled}
-            item={item}
-            key={item._id}
-            onCancelEdit={onCancelEdit}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onSave={onSave}
-            setEditingGallery={setEditingGallery}
-          />
-        ))}
-        {items.length === 0 ? <p className="text-stone-600">{t('noGallery')}</p> : null}
-      </div>
-    </div>
-  )
+function TableHead({ children }) {
+  return <th className="whitespace-nowrap px-4 py-4 text-xs font-black uppercase tracking-wider">{children}</th>
 }
 
-function GalleryCard({ disabled, editingGallery, item, onCancelEdit, onDelete, onEdit, onSave, setEditingGallery }) {
-  const { t } = useLanguage()
-  const isEditing = editingGallery?._id === item._id
-
-  if (isEditing) {
-    const preview = editingGallery.imageFile ? URL.createObjectURL(editingGallery.imageFile) : editingGallery.imageUrl
-
-    return (
-      <form
-        className="min-w-0 rounded-2xl bg-[#fff7e8] p-3"
-        onSubmit={(event) => {
-          event.preventDefault()
-          onSave(item._id, editingGallery)
-        }}
-      >
-        {preview ? <img src={preview} alt="" className="h-36 w-full rounded-md object-cover" /> : null}
-        <input className="mt-3 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('title')} value={editingGallery.title} onChange={(e) => setEditingGallery({ ...editingGallery, title: e.target.value })} />
-        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('year')} type="number" value={editingGallery.year} onChange={(e) => setEditingGallery({ ...editingGallery, year: e.target.value })} />
-        <input
-          className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={(e) => setEditingGallery({ ...editingGallery, imageFile: e.target.files?.[0] || null })}
-        />
-        <input className="mt-2 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('imageUrl')} value={editingGallery.imageUrl} onChange={(e) => setEditingGallery({ ...editingGallery, imageUrl: e.target.value })} />
-        <textarea className="mt-2 min-h-24 w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2" placeholder={t('story')} value={editingGallery.story} onChange={(e) => setEditingGallery({ ...editingGallery, story: e.target.value })} />
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="submit" className="rounded-full bg-[#b91111] px-4 py-2 text-sm font-black text-white disabled:opacity-50" disabled={disabled}>
-            {disabled ? t('saving') : t('save')}
-          </button>
-          <button type="button" onClick={onCancelEdit} className="rounded-full bg-white px-4 py-2 text-sm font-black text-stone-700 disabled:opacity-50" disabled={disabled}>
-            {t('cancel')}
-          </button>
-        </div>
-      </form>
-    )
-  }
-
-  return (
-    <div className="grid min-w-0 gap-3 rounded-2xl bg-[#fff7e8] p-3 sm:grid-cols-[80px_minmax(0,1fr)_auto]">
-      <img src={item.imageUrl} alt="" className="size-20 rounded-md object-cover" />
-      <div className="min-w-0 flex-1">
-        <p className="wrap-break-word font-black">{item.title}</p>
-        <p className="text-sm text-stone-600">{item.year}</p>
-        <p className="line-clamp-2 text-sm text-stone-600">{item.story || t('noStoryAdded')}</p>
-      </div>
-      <div className="flex flex-wrap gap-2 sm:flex-col">
-        <button type="button" onClick={() => onEdit(item)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-stone-800 disabled:opacity-50" disabled={disabled}>
-          {t('edit')}
-        </button>
-        <button type="button" onClick={() => onDelete(item._id)} className="h-fit rounded-full bg-white px-3 py-2 text-sm font-black text-[#b91111] disabled:opacity-50" disabled={disabled}>
-          {t('delete')}
-        </button>
-      </div>
-    </div>
-  )
+function TableCell({ children }) {
+  return <td className="px-4 py-4 leading-6">{children}</td>
 }
 
-function UserList({ items }) {
-  const { t } = useLanguage()
-  return (
-    <div className="min-w-0">
-      <h3 className="wrap-break-word font-black text-[#8d0909]">{t('users')}</h3>
-      <div className="mt-3 space-y-2">
-        {items.length === 0 ? <p className="text-sm text-stone-600">{t('noUsers')}</p> : null}
-        {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-xl bg-[#fff7e8] p-3 text-sm">
-            <p className="wrap-break-word font-black">{item.name}</p>
-            <p className="wrap-break-word">{item.phone} / {item.email || t('noEmail')}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+function StatusBadge({ status }) {
+  const paid = ['paid', 'processing', 'ready', 'delivered', 'collected', 'completed', 'distributed'].includes(status)
+  return <span className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black uppercase ${paid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{status}</span>
 }
 
-function OrderManagement({ items, onStatusChange }) {
-  const { t } = useLanguage()
+function PhotoPreview({ copy, order }) {
+  if (!order.photo) return <span className="text-xs font-bold text-stone-500">{copy.notAvailable}</span>
   return (
-    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-      <h2 className="wrap-break-word text-xl font-black">{t('orders')}</h2>
-      <div className="mt-4 space-y-3">
-        {items.length === 0 ? <p className="text-sm text-stone-600">{t('noOrders')}</p> : null}
-        {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-2xl bg-[#fff7e8] p-4 text-sm">
-            <div className="grid gap-3 xl:grid-cols-[1.2fr_1fr_auto] xl:items-start">
-              <div className="min-w-0">
-                <p className="wrap-break-word font-black text-stone-950">{item.customer?.name}</p>
-                <p className="text-sm font-black text-[#b91111]">{item.receiptNumber || t('receiptPending')}</p>
-                <p className="wrap-break-word text-stone-600">{item.customer?.phone} / {item.customer?.email || t('noEmail')}</p>
-                <p className="wrap-break-word text-stone-600">{item.customer?.address || t('noAddress')}</p>
-                <p className="mt-2 text-xs font-bold uppercase tracking-widest text-[#b91111]">{new Date(item.createdAt).toLocaleString()}</p>
-              </div>
-              <div className="min-w-0">
-                <p className="font-black">{money(item.amount)}</p>
-                <ul className="mt-2 space-y-1 wrap-break-word text-stone-700">
-                  {(item.items || []).map((line, index) => (
-                    <li key={`${item._id}-${index}`}>
-                      {line.name} x {line.quantity} {line.size ? `/ ${line.size}` : ''}
-                    </li>
-                  ))}
-                </ul>
-                {item.receiptUrl ? (
-                  <a className="mt-2 inline-block font-black text-[#b91111]" href={item.receiptUrl} target="_blank" rel="noreferrer">
-                    {t('receipt')}
-                  </a>
-                ) : (
-                  <p className="mt-2 text-stone-500">{t('noReceiptYet')}</p>
-                )}
-              </div>
-              <select
-                className="w-full min-w-0 rounded-xl border border-[#e7c579] bg-[#fffdf7] px-3 py-2 font-bold text-stone-800 xl:w-auto"
-                value={item.status}
-                onChange={(event) => onStatusChange(item._id, event.target.value)}
-              >
-                {orderStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function AuditLogList({ items }) {
-  const { t } = useLanguage()
-  return (
-    <div className="min-w-0 rounded-[1.1rem] border border-[#e7c579]/50 bg-white p-4 shadow-[0_16px_45px_rgba(93,25,0,.08)] sm:p-5">
-      <h2 className="wrap-break-word text-xl font-black">{t('auditLogs')}</h2>
-      <div className="mt-4 space-y-2">
-        {items.length === 0 ? <p className="text-sm text-stone-600">{t('noAuditLogs')}</p> : null}
-        {items.map((item) => (
-          <div key={item._id} className="min-w-0 rounded-2xl bg-[#fff7e8] p-3 text-sm">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-[#b91111]">{item.action}</span>
-              <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-stone-600">{item.entity}</span>
-            </div>
-            <p className="mt-2 wrap-break-word font-bold text-stone-950">{item.message || t('actionRecorded')}</p>
-            <p className="wrap-break-word text-stone-600">{item.actor || t('system')} / {new Date(item.createdAt).toLocaleString()}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <a href={order.photo} target="_blank" rel="noreferrer" className="block w-fit">
+      <img src={order.photo} alt={`${order.idHolderName} ID`} className="h-20 w-16 rounded-md border border-[#d9bd79] object-cover shadow-sm" />
+      <span className="mt-1 block text-center text-xs font-black text-[#a31616]">{copy.view}</span>
+    </a>
   )
 }
 
 export default AdminDashboard
-
-
