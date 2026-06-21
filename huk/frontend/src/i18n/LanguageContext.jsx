@@ -35,6 +35,9 @@ const translations = {
     historyTitle: 'Preserving Tradition with Majestic Grandeur.',
     historyCopy:
       "Hukmil Lane Cha Raja, located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The Hukmill Lane Sarvajanik Ganeshutsav Mandal was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.",
+    documentaryTitle: 'Hukmill Lane Cha Raja',
+    documentaryCopy: 'Watch the journey of devotion, tradition, and our shared celebration.',
+    playDocumentary: 'Play Hukmill Lane Cha Raja documentary',
     readMore: 'Read More',
     donation: 'Donation',
     homeDonationCopy:
@@ -352,6 +355,9 @@ const translations = {
 
     mandalHistory: 'मंडळाचा इतिहास',
     historyTitle: 'जपुणी संस्कृतीचे भान राखुनी भव्यतेची शान.',
+    documentaryTitle: 'हुकमिल लेनचा राजा',
+    documentaryCopy: 'भक्ती, परंपरा आणि आपल्या सामूहिक उत्सवाचा प्रवास पाहा.',
+    playDocumentary: 'हुकमिल लेनचा राजा माहितीपट सुरू करा',
     historyCopy:
       'मुंबईच्या भव्य मंडळ परंपरेतून प्रेरित हा डिजिटल अनुभव भक्त आणि स्वयंसेवकांसाठी दर्शन अपडेट्स, देणगी, गॅलरी आठवणी, दुकान ऑर्डर आणि सेवा व्यवस्थापन एकाच ठिकाणी आणतो.',
     readMore: 'अधिक वाचा',

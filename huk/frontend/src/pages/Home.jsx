@@ -35,6 +35,7 @@ function Home() {
   const { t, tObject } = useLanguage()
   const [activeSponsor, setActiveSponsor] = useState(null)
   const [gallery, setGallery] = useState(fallbackGallery)
+  const [isDocumentaryPlaying, setIsDocumentaryPlaying] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -127,6 +128,57 @@ function Home() {
           onClose={() => setActiveSponsor(null)}
         />
       )}
+
+      {/* MANDAL DOCUMENTARY */}
+      <section className="bg-[#fffaf5] px-4 py-10 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="font-serif text-3xl font-black text-brand-dark-red sm:text-5xl">
+            {t('documentaryTitle')}
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-stone-700 sm:text-lg">
+            {t('documentaryCopy')}
+          </p>
+
+          <div className="mx-auto mt-8 aspect-video w-full max-w-4xl overflow-hidden rounded-xl bg-[#2b0606] shadow-2xl ring-1 ring-red-950/10 sm:rounded-2xl">
+            {isDocumentaryPlaying ? (
+              <iframe
+                className="h-full w-full"
+                src="https://www.youtube-nocookie.com/embed/RTsXvOc7drs?autoplay=1&rel=0"
+                title={t('documentaryTitle')}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsDocumentaryPlaying(true)}
+                className="group relative h-full w-full overflow-hidden focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-red-500"
+                aria-label={t('playDocumentary')}
+              >
+                <img
+                  src="https://i.ytimg.com/vi/RTsXvOc7drs/maxresdefault.jpg"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  onError={(event) => {
+                    event.currentTarget.src = 'https://i.ytimg.com/vi/RTsXvOc7drs/hqdefault.jpg'
+                  }}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                />
+                <span className="absolute inset-0 bg-black/10 transition group-hover:bg-black/20" aria-hidden="true" />
+                <span
+                  className="absolute left-1/2 top-1/2 grid h-14 w-20 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl bg-[#ff0000] shadow-2xl transition group-hover:scale-105 sm:h-16 sm:w-24"
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7 fill-white sm:h-8 sm:w-8">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
       {/* MANDAL HISTORY SECTION */}
       <section className="bg-white px-4 py-10 sm:px-6 sm:py-20">
