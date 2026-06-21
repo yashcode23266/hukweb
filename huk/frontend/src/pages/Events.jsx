@@ -156,7 +156,7 @@ function VisualPanel({ label, src = ganpatiImage, tall = false, warm = false }) 
   return (
     <div
       className={`group relative overflow-hidden rounded-lg shadow-[0_28px_80px_rgba(121,28,0,.15)] ${
-        tall ? 'min-h-[520px]' : 'min-h-[360px]'
+        tall ? 'min-h-130' : 'min-h-90'
       } ${warm ? 'bg-[#ffe0a1]' : 'bg-[#fff0d4]'}`}
     >
       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,198,65,.3),rgba(255,250,240,.36)),repeating-linear-gradient(90deg,rgba(154,17,17,.055)_0_1px,transparent_1px_42px)]" />
@@ -181,7 +181,7 @@ function Events() {
     <main className="overflow-hidden bg-[#fff7e8] text-stone-950">
       <section className="relative min-h-[calc(100vh-64px)] bg-linear-to-br from-[#fffdf5] via-[#fff1d5] to-[#ffd98a] px-4 py-16 sm:px-6 lg:py-20">
         <div className="absolute inset-0 bg-[repeating-radial-gradient(circle_at_center,transparent_0_20px,rgba(193,16,16,.07)_21px_22px)] opacity-60" />
-        <div className="absolute left-1/2 top-4 h-[480px] w-[480px] -translate-x-1/2 rounded-full bg-[#ffc44d]/30 blur-3xl" />
+        <div className="absolute left-1/2 top-4 h-120 w-120 -translate-x-1/2 rounded-full bg-[#ffc44d]/30 blur-3xl" />
         {[...Array(18)].map((_, index) => (
           <span
             key={index}
@@ -303,7 +303,7 @@ function Events() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
-            className="relative mx-auto mt-14 h-[680px] max-w-6xl overflow-hidden rounded-[2rem] border border-[#e7c579]/50 bg-[#fffaf0]/45 p-3 shadow-[0_32px_100px_rgba(121,28,0,.14)]"
+            className="relative mx-auto mt-14 h-170 max-w-6xl overflow-hidden rounded-4xl border border-[#e7c579]/50 bg-[#fffaf0]/45 p-3 shadow-[0_32px_100px_rgba(121,28,0,.14)]"
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-24 bg-linear-to-b from-[#fff7e8] to-transparent" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-24 bg-linear-to-t from-[#fff7e8] to-transparent" />

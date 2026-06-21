@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import logo from '../assets/logo-optimized.webp'
 import { useLanguage } from '../i18n/useLanguage'
 import PageMeta from './PageMeta'
@@ -68,7 +68,8 @@ const seoByPath = {
   },
   '/admin': {
     title: 'Admin',
-    description: 'Secure mandal dashboard for managing orders, gallery, products, and records.',
+    description: 'Secure Mandal dashboard for managing T-shirt and ID-card distribution records.',
+    noIndex: true,
   },
   '/privacy-policy': {
     title: 'Privacy Policy',
@@ -162,12 +163,20 @@ function Layout() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
   const mandalInfoActive = pathname === '/about'
   const initiativesActive = pathname === '/social-work' || pathname === '/events'
-  const seo = seoByPath[pathname] || seoByPath['/']
+  const seo = seoByPath[pathname] || {
+    title: 'Page Not Found',
+    description: 'The requested page could not be found.',
+    noIndex: true,
+  }
   const legal = legalLabels[language] || legalLabels.en
+
+  useEffect(() => {
+    document.documentElement.lang = language === 'mr' ? 'mr' : 'en'
+  }, [language])
 
   return (
     <div className="min-h-screen overflow-x-hidden festival-bg">
-      <PageMeta title={seo.title} description={seo.description} />
+      <PageMeta title={seo.title} description={seo.description} noIndex={seo.noIndex} />
       <header className="sticky top-0 z-50 shadow-xl shadow-red-950/20">
         <nav className="devotional-gradient px-3 py-2.5 text-white sm:px-6">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">

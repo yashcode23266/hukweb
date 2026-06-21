@@ -54,7 +54,7 @@ const copy = {
       'Devotion carried through generations.',
       'A new era of celebration.',
       'Faith, artistry, and community.',
-      'abhisshek',
+      'Tradition preserved in grandeur.',
       'Ganesh Made from Traditional Worship Utensils',
       'Padmasana Ganesha',
       'Dancing Ganesha',

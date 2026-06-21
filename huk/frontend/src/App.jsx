@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 
@@ -9,6 +9,7 @@ const Contact = lazy(() => import('./pages/Contact'))
 const Events = lazy(() => import('./pages/Events'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const LegalPage = lazy(() => import('./pages/LegalPage'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 const Shop = lazy(() => import('./pages/Shop'))
 const SocialWork = lazy(() => import('./pages/SocialWork'))
 
@@ -40,7 +41,7 @@ function App() {
             <Route path="/privacy-policy" element={<LegalPage page="privacy" />} />
             <Route path="/terms-and-conditions" element={<LegalPage page="terms" />} />
             <Route path="/refund-policy" element={<LegalPage page="refund" />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </Suspense>

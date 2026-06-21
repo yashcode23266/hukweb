@@ -20,7 +20,7 @@ function upsertLink(rel, href) {
   element.setAttribute('href', href)
 }
 
-function PageMeta({ title, description }) {
+function PageMeta({ title, description, noIndex = false }) {
   useEffect(() => {
     const siteName = 'Hukmill Lane Cha Raja'
     const pageTitle = title === 'Home' ? `${siteName} | Established 1934` : `${title} | ${siteName}`
@@ -38,7 +38,8 @@ function PageMeta({ title, description }) {
     }
     upsertLink('canonical', canonicalUrl)
     upsertMeta('og:url', canonicalUrl, 'property')
-  }, [description, title])
+    upsertMeta('robots', noIndex ? 'noindex, nofollow, noarchive' : 'index, follow, max-image-preview:large')
+  }, [description, noIndex, title])
 
   return null
 }

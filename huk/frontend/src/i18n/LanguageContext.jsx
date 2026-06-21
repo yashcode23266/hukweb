@@ -18,7 +18,7 @@ const translations = {
     navMore: 'More',
     shree: 'Shree',
     mandalName: 'Ganpati Mandal',
-    brandName: 'Hukmil Lane cha Raja',
+    brandName: 'Hukmil Lane Cha Raja',
     ticker: 'Hukmilane Sarvajanik GaneshUtsav Mandal | Established 1934',
     footerLine: 'Darshan, seva, celebrations, and community support.',
     footerCopy: 'A devotional Ganpati mandal website for darshan, seva, gallery, shop and community updates.',
@@ -34,7 +34,7 @@ const translations = {
     mandalHistory: 'Mandal History',
     historyTitle: 'Preserving Tradition with Majestic Grandeur.',
     historyCopy:
-      "Hukmill Lane Cha Raja, located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The Hukmill Lane Sarvajanik Ganeshutsav Mandal was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.",
+      "Hukmil Lane Cha Raja, located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The Hukmill Lane Sarvajanik Ganeshutsav Mandal was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.",
     readMore: 'Read More',
     donation: 'Donation',
     homeDonationCopy:
@@ -55,7 +55,7 @@ const translations = {
     
 
     aboutEyebrow: 'Mandal Info',
-    aboutTitle: 'About Hukmilane Lane cha Raja',
+    aboutTitle: 'About Hukmil Lane Cha Raja',
     aboutParagraphs: [
       'Hukmill Lane Cha Raja, located in the Delisle Road area of Mumbai, is recognized as the oldest public Ganesh idol in the locality. The Hukmill Lane Sarvajanik Ganeshotsav Mandal was established in 1934 by mill workers and local residents of Girangaon with the aim of promoting unity, brotherhood, and devotion towards Lord Ganesha.',
       'With a rich legacy spanning over nine decades, this Ganpati is considered a living symbol of Girangaon cultural heritage. The unique identity of Hukmill Lane Cha Raja is its tradition of presenting something new every year.',

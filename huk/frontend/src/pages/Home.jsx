@@ -17,6 +17,10 @@ import { homeGalleryImages, sponsorGalleries } from '../data/homeMedia'
 import { mandalMapEmbedUrl } from '../data/location'
 import { useLanguage } from '../i18n/useLanguage'
 
+// T-SHIRT POPUP (DISABLED FOR NOW)
+// To enable later, uncomment this import:
+// import TshirtAnnouncement from '../components/TshirtAnnouncement'
+
 const sponsors = [
   { name: 'ZEE Marathi', logo: zeeLogo },
   { name: 'VERTIV', logo: vrtLogo },
@@ -52,7 +56,10 @@ function Home() {
 
   return (
     <>
-      {/* HERO SECTION */}
+      {/* T-SHIRT POPUP (DISABLED): uncomment the next line when needed. */}
+      {/* <TshirtAnnouncement /> */}
+
+      {/* HERO SECTION   */}
       <section className="relative h-[calc(100vh-64px)] min-h-130 overflow-hidden bg-[#fffdf9]">
         <div className="relative h-full w-full">
           <img
