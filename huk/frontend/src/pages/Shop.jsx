@@ -197,9 +197,10 @@ function buildSizeNote(rows) {
     .join(", ");
 }
 
-const PASSPORT_PHOTO_WIDTH = 413;
-const PASSPORT_PHOTO_HEIGHT = 531;
-const TARGET_PHOTO_BYTES = 100 * 1024;
+const PASSPORT_PHOTO_WIDTH = 600;
+const PASSPORT_PHOTO_HEIGHT = 771;
+const TARGET_PHOTO_BYTES = 180 * 1024;
+const MIN_PHOTO_QUALITY = 0.72;
 
 function getDataUrlByteSize(dataUrl) {
   const base64 = dataUrl.split(",")[1] || "";
@@ -231,6 +232,14 @@ function createPassportPhoto(file) {
       canvas.width = PASSPORT_PHOTO_WIDTH;
       canvas.height = PASSPORT_PHOTO_HEIGHT;
       const context = canvas.getContext("2d");
+      if (!context) {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error("INVALID_PHOTO"));
+        return;
+      }
+
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
       const targetRatio = PASSPORT_PHOTO_WIDTH / PASSPORT_PHOTO_HEIGHT;
       const sourceRatio = image.naturalWidth / image.naturalHeight;
       let sourceX = 0;
@@ -261,12 +270,12 @@ function createPassportPhoto(file) {
       );
 
       URL.revokeObjectURL(objectUrl);
-      let quality = 0.86;
+      let quality = 0.9;
       let photoBase64 = canvas.toDataURL("image/jpeg", quality);
       let photoByteSize = getDataUrlByteSize(photoBase64);
 
-      while (photoByteSize > TARGET_PHOTO_BYTES && quality > 0.5) {
-        quality = Math.max(0.5, quality - 0.07);
+      while (photoByteSize > TARGET_PHOTO_BYTES && quality > MIN_PHOTO_QUALITY) {
+        quality = Math.max(MIN_PHOTO_QUALITY, quality - 0.04);
         photoBase64 = canvas.toDataURL("image/jpeg", quality);
         photoByteSize = getDataUrlByteSize(photoBase64);
       }
@@ -924,7 +933,7 @@ function OrderPopup({ product, idCopy, onClose, onSuccess, onFailure }) {
 
                     {idCard.photo && (
                       <p style={s.optimizedPhotoNote}>
-                        {idCopy.optimized}: {Math.max(1, Math.round(idCard.photo.photoByteSize / 1024))} KB · 413 × 531
+                        {idCopy.optimized}: {Math.max(1, Math.round(idCard.photo.photoByteSize / 1024))} KB · {idCard.photo.photoWidth} × {idCard.photo.photoHeight}
                       </p>
                     )}
                     {photoError && <p style={s.fieldError}>{photoError}</p>}

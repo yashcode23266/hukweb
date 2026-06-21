@@ -21,10 +21,10 @@ The frontend now includes `idCardDetails` only when the selected product has
     "photoBase64": "data:image/jpeg;base64,...",
     "photoFileName": "id-photo.jpg",
     "photoMimeType": "image/jpeg",
-    "photoWidth": 413,
-    "photoHeight": 531,
-    "photoByteSize": 82450,
-    "compressionQuality": 0.79
+    "photoWidth": 600,
+    "photoHeight": 771,
+    "photoByteSize": 172450,
+    "compressionQuality": 0.82
   }
 }
 ```
@@ -35,7 +35,7 @@ The frontend now includes `idCardDetails` only when the selected product has
 2. Reject missing cardholder names or photos before creating the Razorpay order.
 3. Remove the `data:image/jpeg;base64,` prefix and Base64-decode the photo.
 4. Verify the decoded bytes are a real JPEG, meet the required dimensions, and
-   are no larger than the backend limit (recommended: 150 KB).
+   are no larger than the backend limit (recommended: 250 KB).
 5. Store the decoded binary bytes directly in MySQL using `MEDIUMBLOB`. Do not
    store the Base64 string because it uses roughly 33% more database space.
 6. Store the MIME type, dimensions, original filename, and byte size in separate
@@ -93,7 +93,8 @@ It should return the stored bytes with `Content-Type: image/jpeg`. The normal
 orders endpoint should return only a `photoAvailable` flag or the protected
 endpoint path, never the full image data.
 
-The browser crops the selected image to a 413 x 531 JPEG and adaptively lowers
-JPEG quality until the result is approximately 100 KB or smaller. The backend
+The browser crops the selected image to a 600 x 771 JPEG using high-quality
+resampling and adaptively lowers JPEG quality until the result is approximately
+180 KB or smaller. It never lowers quality below 72%. The backend
 must still independently validate the image and must not trust the MIME type,
 size, quality, or dimensions supplied by the browser.
