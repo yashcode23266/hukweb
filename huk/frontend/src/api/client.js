@@ -361,6 +361,17 @@ export const api = {
       return ok(item)
     }
 
+    if (path.startsWith('/orders/') && path.endsWith('/collection')) {
+      const idValue = path.split('/')[2]
+      const order = db.orders.find((entry) => entry._id === idValue)
+      if (!order) return fail('Order not found.', 404)
+      order.collected = Boolean(payload.collected)
+      order.collectedAt = order.collected ? new Date().toISOString() : null
+      addAudit(db, 'collection_update', 'order', `Order collection changed to ${order.collected ? 'collected' : 'pending'}`)
+      writeDb(db)
+      return ok(order)
+    }
+
     if (path.startsWith('/orders/') && path.endsWith('/status')) {
       const idValue = path.split('/')[2]
       const order = db.orders.find((entry) => entry._id === idValue)

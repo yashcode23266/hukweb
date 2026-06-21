@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
-import { api } from '../api/client'
+import { getAdminOrdersDashboard, loginAdmin, updateOrderCollection } from '../api/adminOrders'
 import { useLanguage } from '../i18n/useLanguage'
 import { money } from '../utils/format'
 
@@ -162,7 +162,7 @@ function normalizeOrder(order) {
     quantity: Number(firstValue(order.totalQuantity, lines.reduce((sum, line) => sum + line.quantity, 0), 1)),
     amount: Number(firstValue(order.amount, order.totalAmount, order.total, 0)),
     status,
-    collected: Boolean(order.collectedAt) || ['delivered', 'collected', 'completed', 'distributed'].includes(status),
+    collected: Boolean(order.collectedAt) || order.collected === true || ['delivered', 'collected', 'completed', 'distributed'].includes(status),
     collectedAt: firstValue(order.collectedAt, order.deliveredAt, order.updatedAt),
     receiptUrl: firstValue(order.receiptUrl, order.receiptLink),
     idHolderName: String(firstValue(idDetails.cardholderName, idDetails.name, order.idCardName, order.cardholderName, '—')),
@@ -224,7 +224,7 @@ function AdminDashboard() {
   const { language } = useLanguage()
   const copy = COPY[language] || COPY.en
   const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '')
-  const [login, setLogin] = useState({ email: 'admin@mandal.com', password: '' })
+  const [login, setLogin] = useState({ email: 'admin@mandal.com', password: 'HariOm99' })
   const [activeTab, setActiveTab] = useState('tshirt')
   const [search, setSearch] = useState('')
   const [message, setMessage] = useState('')
@@ -232,7 +232,7 @@ function AdminDashboard() {
   const dashboard = useQuery({
     queryKey: ['admin-dashboard', adminToken],
     enabled: Boolean(adminToken),
-    queryFn: async () => (await api.get('/admin/dashboard')).data,
+    queryFn: getAdminOrdersDashboard,
   })
 
   useEffect(() => {
@@ -247,7 +247,7 @@ function AdminDashboard() {
   }, [copy.sessionExpired, queryClient])
 
   const loginMutation = useMutation({
-    mutationFn: async () => (await api.post('/auth/admin/login', login)).data,
+    mutationFn: async () => loginAdmin(login),
     onSuccess: (data) => {
       localStorage.setItem('adminToken', data.token)
       setAdminToken(data.token)
@@ -258,7 +258,7 @@ function AdminDashboard() {
   })
 
   const statusMutation = useMutation({
-    mutationFn: async ({ id, collected }) => (await api.put(`/orders/${id}/status`, { status: collected ? 'delivered' : 'ready' })).data,
+    mutationFn: async ({ id, collected }) => updateOrderCollection(id, collected),
     onSuccess: () => {
       setMessage(copy.statusUpdated)
       queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] })
