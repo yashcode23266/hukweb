@@ -67,7 +67,7 @@ const aboutContent = {
       ['Bahubali Ganpati', 'A dramatic large-scale theme that brought cinematic scale to the mandal’s darshan experience.'],
     ],
     seva: [
-      ['Blood Donation Camps', 'Devotees and volunteers come together to serve the city beyond the festival days.'],
+      ['Blood Donation Camps', ' Devotees and volunteers come together to serve the city beyond the festival days.'],
       ['Health Check-Up Camps', 'Community wellness initiatives built around care, access, and local support.'],
       ['COVID Ration Support', 'Essential ration support for families during a difficult time for Mumbai.'],
     ],
