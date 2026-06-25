@@ -35,6 +35,7 @@ const shopText = {
     heroTitle: "Get Your Festival T-Shirt",
     heroSub: "Official Hukmill Lane Cha Raja T-shirt and volunteer ID card for devotees and volunteers.",
     buyNow: "Buy Now",
+    availableSoon: "Available Soon",
     sizeHint: "Sizes 20 - 50 (step 2) · Same price all sizes",
     faqEyebrow: "Shop Help",
     faqTitle: "Frequently Asked Questions",
@@ -459,6 +460,8 @@ function ValidatedInput({ type = "text", placeholder, value, onChange, error, va
 export default function Shop() {
   const { language } = useLanguage();
   const copy = shopText[language] || shopText.en;
+  // # SHOP SALE PAUSED: remove this label and pass onAdd to ProductCard to enable Buy Now again.
+  const productActionLabel = language === "mr" ? "लवकरच उपलब्ध" : copy.availableSoon;
   const products = PRODUCT_CONFIG.map((product) => ({
     ...product,
     ...copy.products[product.id],
@@ -482,7 +485,8 @@ export default function Shop() {
       <main style={s.main}>
         <div style={s.grid}>
           {products.map((p) => (
-            <ProductCard key={p.id} product={p} copy={copy} onAdd={() => setActiveProduct(p)} />
+            // # SHOP SALE PAUSED: change this back to onAdd={() => setActiveProduct(p)} to open the checkout popup.
+            <ProductCard key={p.id} product={p} copy={copy} actionLabel={productActionLabel} />
           ))}
         </div>
         <ShopFaq copy={copy} />
@@ -528,7 +532,7 @@ function ShopFaq({ copy }) {
 }
 
 // ── Product Card ──────────────────────────────────────────────────────────────
-function ProductCard({ product, copy, onAdd }) {
+function ProductCard({ product, copy, actionLabel }) {
   return (
     <article style={s.card}>
       <div style={{ position: "relative", overflow: "hidden" }}>
@@ -542,7 +546,10 @@ function ProductCard({ product, copy, onAdd }) {
         {product.type === "tshirt" && (
           <p style={s.sizeHint}>{copy.sizeHint}</p>
         )}
-        <button onClick={onAdd} style={s.addBtn}>{copy.buyNow}</button>
+        {/* # SHOP SALE PAUSED: replace this disabled button with <button onClick={onAdd} style={s.addBtn}>{copy.buyNow}</button> */}
+        <button type="button" disabled style={{ ...s.addBtn, ...s.disabledAddBtn }}>
+          {actionLabel}
+        </button>
       </div>
     </article>
   );
@@ -1250,6 +1257,7 @@ const s = {
   cardDesc: { fontSize: 14, color: "#616161", lineHeight: 1.7, margin: "0 0 10px" },
   sizeHint: { fontSize: 12, fontWeight: 700, color: "#795548", background: "#fff8e1", borderRadius: 8, padding: "6px 10px", display: "inline-block", marginBottom: 16 },
   addBtn: { width: "100%", background: "#b71c1c", color: "#fff", border: "none", borderRadius: 50, padding: "13px 20px", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 20px rgba(183,28,28,0.25)" },
+  disabledAddBtn: { background: "#7f1d1d", cursor: "not-allowed", opacity: 0.78, boxShadow: "none" },
   overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(5px)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 },
   popup: { background: "#fff", borderRadius: 22, width: "100%", maxWidth: 480, boxShadow: "0 30px 80px rgba(0,0,0,0.22)", maxHeight: "92vh", overflowY: "auto", display: "flex", flexDirection: "column" },
   popupHeader: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #f0e6d3", background: "#fff9f0", flexShrink: 0 },
