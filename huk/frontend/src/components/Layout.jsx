@@ -1,5 +1,5 @@
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import logo from '../assets/logo-optimized.webp'
 import { useLanguage } from '../i18n/useLanguage'
 import PageMeta from './PageMeta'
@@ -7,13 +7,11 @@ import PageMeta from './PageMeta'
 const mobileLinks = [
   ['/gallery', 'navGallery'],
   ['/shop', 'navShop'],
-  ['/admin', 'navAdmin'],
 ]
 
 const desktopLinks = [
   ['/gallery', 'navGallery'],
   ['/shop', 'navShop'],
-  ['/admin', 'navAdmin'],
 ]
 
 const navItemClass =
@@ -169,6 +167,9 @@ function MobileMenuSection({ title, children }) {
 function Layout() {
   const { t, toggleLanguage, language } = useLanguage()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const logoClickCount = useRef(0)
+  const logoClickTimer = useRef(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const closeMobileMenu = () => setIsMobileMenuOpen(false)
   const mandalInfoActive = pathname === '/about'
@@ -184,28 +185,53 @@ function Layout() {
     document.documentElement.lang = language === 'mr' ? 'mr' : 'en'
   }, [language])
 
+  useEffect(() => () => clearTimeout(logoClickTimer.current), [])
+
+  function handleLogoClick() {
+    logoClickCount.current += 1
+    clearTimeout(logoClickTimer.current)
+
+    if (logoClickCount.current >= 5) {
+      logoClickCount.current = 0
+      closeMobileMenu()
+      navigate('/admin')
+      return
+    }
+
+    logoClickTimer.current = setTimeout(() => {
+      logoClickCount.current = 0
+    }, 3000)
+
+    if (pathname !== '/') navigate('/')
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden festival-bg">
       <PageMeta title={seo.title} description={seo.description} noIndex={seo.noIndex} />
       <header className="sticky top-0 z-50 shadow-xl shadow-red-950/20">
         <nav className="devotional-gradient px-3 py-2.5 text-white sm:px-6">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-            <Link to="/" onClick={closeMobileMenu} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-              <img
-                src={logo}
-                alt="Hukmill Lane Cha Raja logo"
-                width="500"
-                height="500"
-                decoding="async"
-                className="h-10 w-10 shrink-0 rounded-full object-contain min-[390px]:h-12 min-[390px]:w-12 sm:h-14 sm:w-14"
-              />
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+              {/* Hidden admin shortcut: click the header logo five times within three seconds. */}
+              <button type="button" onClick={handleLogoClick} aria-label="Hukmill Lane Cha Raja home" className="shrink-0 rounded-full">
+                <img
+                  src={logo}
+                  alt="Hukmill Lane Cha Raja logo"
+                  width="500"
+                  height="500"
+                  decoding="async"
+                  className="h-10 w-10 rounded-full object-contain min-[390px]:h-12 min-[390px]:w-12 sm:h-14 sm:w-14"
+                />
+              </button>
 
+              <Link to="/" onClick={closeMobileMenu} className="min-w-0">
               <span className="min-w-0">
                 <span className="block truncate font-serif text-xl font-black leading-none text-brand-gold min-[390px]:text-[1.45rem] sm:text-2xl xl:text-4xl">
                   || {t('brandName')} ||
                 </span>
               </span>
-            </Link>
+              </Link>
+            </div>
 
             <div className="hidden items-center gap-2 lg:flex">
               <div className="group relative">
