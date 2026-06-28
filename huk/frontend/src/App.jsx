@@ -37,7 +37,7 @@ function App() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/admin" element={<AdminRoute />} />
+            <Route path="/admin/*" element={<AdminRoute />} />
             <Route path="/privacy-policy" element={<LegalPage page="privacy" />} />
             <Route path="/terms-and-conditions" element={<LegalPage page="terms" />} />
             <Route path="/refund-policy" element={<LegalPage page="refund" />} />

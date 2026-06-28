@@ -9,9 +9,9 @@ const TSHIRT_SIZES = Array.from(
   (_, i) => String(20 + i * 2)
 );
 
-const BACKEND_URL = "https://api.hukmillanecharaja.in";
+// const BACKEND_URL = "https://api.hukmillanecharaja.in";
 
-// const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "http://localhost:8080";
 
 
 const PRODUCT_CONFIG = [
@@ -486,7 +486,7 @@ export default function Shop() {
         <div style={s.grid}>
           {products.map((p) => (
             // # SHOP SALE PAUSED: change this back to onAdd={() => setActiveProduct(p)} to open the checkout popup.
-            <ProductCard key={p.id} product={p} copy={copy} actionLabel={productActionLabel} />
+            <ProductCard key={p.id} product={p} copy={copy} actionLabel={productActionLabel}   onAdd={() => setActiveProduct(p)}/>
           ))}
         </div>
         <ShopFaq copy={copy} />
@@ -532,7 +532,7 @@ function ShopFaq({ copy }) {
 }
 
 // ── Product Card ──────────────────────────────────────────────────────────────
-function ProductCard({ product, copy, actionLabel }) {
+function ProductCard({ product, copy, actionLabel,onAdd  }) {
   return (
     <article style={s.card}>
       <div style={{ position: "relative", overflow: "hidden" }}>
@@ -547,9 +547,16 @@ function ProductCard({ product, copy, actionLabel }) {
           <p style={s.sizeHint}>{copy.sizeHint}</p>
         )}
         {/* # SHOP SALE PAUSED: replace this disabled button with <button onClick={onAdd} style={s.addBtn}>{copy.buyNow}</button> */}
-        <button type="button" disabled style={{ ...s.addBtn, ...s.disabledAddBtn }}>
+        {/* <button type="button" disabled style={{ ...s.addBtn, ...s.disabledAddBtn }}>
           {actionLabel}
-        </button>
+        </button> */}
+        <button
+  type="button"
+  onClick={onAdd}
+  style={s.addBtn}
+>
+  {copy.buyNow}
+</button>
       </div>
     </article>
   );

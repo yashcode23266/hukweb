@@ -71,6 +71,16 @@ const seoByPath = {
     description: 'Secure Mandal dashboard for managing T-shirt and ID-card distribution records.',
     noIndex: true,
   },
+  '/admin/tshirt': {
+    title: 'T-Shirt Orders',
+    description: 'Manage T-shirt bookings and distribution.',
+    noIndex: true,
+  },
+  '/admin/idcard': {
+    title: 'ID Card Orders',
+    description: 'Manage ID card bookings and distribution.',
+    noIndex: true,
+  },
   '/privacy-policy': {
     title: 'Privacy Policy',
     description: 'How Hukmill Lane Cha Raja handles devotee, order, and admin information.',
