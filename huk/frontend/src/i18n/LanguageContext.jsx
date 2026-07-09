@@ -19,7 +19,7 @@ const translations = {
     shree: 'Shree',
     mandalName: 'Ganpati Mandal',
     brandName: 'Hukmil Lane Cha Raja',
-    ticker: 'Hukmilane Sarvajanik GaneshUtsav Mandal | Established 1934',
+    ticker: 'Hukmillane Sarvajanik GaneshUtsav Mandal | Established 1934',
     footerLine: 'Darshan, seva, celebrations, and community support.',
     footerCopy: 'A devotional Ganpati mandal website for darshan, seva, gallery, shop and community updates.',
     importantLinks: 'Important Links',
