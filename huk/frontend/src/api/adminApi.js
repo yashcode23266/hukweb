@@ -1,11 +1,12 @@
 // ─── Base URL ────────────────────────────────────────────────────────────────
 const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
-function authHeaders() {
+function authHeaders(extra = {}) {
   const token = localStorage.getItem('adminToken')
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
   }
 }
 
@@ -29,36 +30,52 @@ async function request(path, options = {}) {
   return res
 }
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-// export async function loginAdmin({ email, password }) {
-//   const res = await fetch(`${BASE}/admin/login`, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ email, password }),
-//   })
-//   if (!res.ok) {
-//     const body = await res.json().catch(() => ({}))
-//     throw new Error(body.message || 'Login failed')
-//   }
-//   return res.json()
-// }
+// ─── Auth (OTP-based, matches AuthController) ─────────────────────────────────
+// Step 1 — POST /auth/login { email, password }
+// Backend validates credentials via AuthenticationManager, generates an OTP,
+// emails it, and returns plain text "OTP Sent Successfully" (not JSON, no token yet).
+export async function requestOtp({ email, password }) {
+  const res = await fetch(`${BASE}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
 
-
-// ─── Temporary hardcoded login (replace with real API call when backend is ready) ───
-const TEMP_ADMIN = {
-  email: 'admin@gmail.com',
-  password: 'admin@123',
+  if (!res.ok) {
+    // AuthenticationManager throws (bad credentials) -> Spring's default error body,
+    // so fall back to text/status rather than assuming JSON.
+    const text = await res.text().catch(() => '')
+    throw new Error(text || 'Invalid email or password.')
+  }
+  return true
 }
 
-export async function loginAdmin({ email, password }) {
-  // Simulate a small network delay so the UI feels real
-  await new Promise((resolve) => setTimeout(resolve, 600))
+// Step 2 — POST /auth/verify { email, otp } -> { token }
+export async function verifyOtp({ email, otp }) {
+  const res = await fetch(`${BASE}/auth/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, otp }),
+  })
 
-  if (email === TEMP_ADMIN.email && password === TEMP_ADMIN.password) {
-    return { token: 'temp-admin-token-123' }
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(body.message || 'Invalid or expired OTP.')
   }
+  return res.json() // { token }
+}
 
-  throw new Error('Invalid email or password.')
+// Resend — POST /auth/resend-otp?email=...  (backend takes it as @RequestParam, not body)
+export async function resendOtp(email) {
+  const res = await fetch(`${BASE}/auth/resend-otp?email=${encodeURIComponent(email)}`, {
+    method: 'POST',
+  })
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(text || 'Could not resend OTP. Please wait a moment and try again.')
+  }
+  return true
 }
 
 // ─── T-Shirt ──────────────────────────────────────────────────────────────────
