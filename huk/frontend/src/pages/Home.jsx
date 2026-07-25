@@ -180,7 +180,7 @@ function Home() {
         </div>
       </section>
 
-      {/* MANDAL HISTORY SECTION */}
+      {/* MANDAL HISTORY SECTION  */}
       <section className="bg-white px-4 py-10 sm:px-6 sm:py-20">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="overflow-hidden rounded-3xl bg-[#f6f1e7] shadow-2xl">
@@ -296,7 +296,7 @@ function SponsorGalleryModal({ sponsor, gallery, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-250 overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6"
+      className="fixed inset-0 z-250 overflow-y-auto bg-black/75 px-4 py-6 backdrop-blur-md sm:px-6 "
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
