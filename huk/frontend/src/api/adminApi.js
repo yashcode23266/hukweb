@@ -1,5 +1,5 @@
 // ─── Base URL ────────────────────────────────────────────────────────────────
-const BASE = import.meta.env.VITE_API_BASE_URL || '"https://api.hukmillanecharaja.in";'
+const BASE = import.meta.env.VITE_API_BASE_URL || 'https://api.hukmillanecharaja.in'
 
 function authHeaders(extra = {}) {
   const token = localStorage.getItem('adminToken')
