@@ -9,9 +9,9 @@ const TSHIRT_SIZES = Array.from(
   (_, i) => String(20 + i * 2)
 );
 
-// const BACKEND_URL = "https://api.hukmillanecharaja.in";
+const BACKEND_URL = "https://api.hukmillanecharaja.in";
 
-const BACKEND_URL = "http://localhost:8080";
+// const BACKEND_URL = "http://localhost:8080";
 
 
 const PRODUCT_CONFIG = [
