@@ -5,8 +5,8 @@ import imageidcard from "../assets/id.jpeg";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TSHIRT_SIZES = Array.from(
-  { length: (50 - 20) / 2 + 1 },
-  (_, i) => String(20 + i * 2)
+  { length: (48 - 18) / 2 + 1 },
+  (_, i) => String(18 + i * 2)
 );
 
 const BACKEND_URL = "https://api.hukmillanecharaja.in";
@@ -18,13 +18,13 @@ const PRODUCT_CONFIG = [
   {
     id: "tshirt",
     type: "tshirt",
-    price: 1,
+    price: 350,
     image: imagetshirt,
   },
   {
     id: "idcard",
     type: "idcard",
-    price: 1,
+    price: 100,
     image: imageidcard,
   },
 ];
@@ -36,7 +36,7 @@ const shopText = {
     heroSub: "Official Hukmill Lane Cha Raja T-shirt and volunteer ID card for devotees and volunteers.",
     buyNow: "Buy Now",
     availableSoon: "Available Soon",
-    sizeHint: "Sizes 20 - 50 (step 2) · Same price all sizes",
+    sizeHint: "Sizes 18 - 48 (step 2) · Same price all sizes",
     faqEyebrow: "Shop Help",
     faqTitle: "Frequently Asked Questions",
     faqCopy: "Everything you need to know before ordering the official mandal T-shirt or ID card.",
@@ -84,7 +84,7 @@ const shopText = {
     heroTitle: "उत्सवासाठी अधिकृत टी-शर्ट",
     heroSub: "भक्त आणि स्वयंसेवकांसाठी हुकमिल लेन चा राजा अधिकृत टी-शर्ट आणि स्वयंसेवक आयडी कार्ड.",
     buyNow: "आता खरेदी करा",
-    sizeHint: "साइज 20 - 50 (2 च्या फरकाने) · सर्व साइजसाठी समान किंमत",
+    sizeHint: "साइज 18 - 48 (2 च्या फरकाने) · सर्व साइजसाठी समान किंमत",
     faqEyebrow: "दुकान मदत",
     faqTitle: "वारंवार विचारले जाणारे प्रश्न",
     faqCopy: "अधिकृत मंडळ टी-शर्ट किंवा आयडी कार्ड ऑर्डर करण्यापूर्वी आवश्यक माहिती.",
