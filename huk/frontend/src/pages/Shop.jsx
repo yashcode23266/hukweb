@@ -18,7 +18,7 @@ const PRODUCT_CONFIG = [
   {
     id: "tshirt",
     type: "tshirt",
-    price: 1,
+    price: 350,
     image: imagetshirt,
   },
   {
