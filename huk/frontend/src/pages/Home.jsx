@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import Countdown from '../components/Countdown'
@@ -40,6 +40,15 @@ function Home() {
   const [activeSponsor, setActiveSponsor] = useState(null)
   const [gallery, setGallery] = useState(fallbackGallery)
   const [isDocumentaryPlaying, setIsDocumentaryPlaying] = useState(false)
+  const sponsorRailRef = useRef(null)
+  const sponsorSwipeRef = useRef({
+    active: false,
+    moved: false,
+    paused: false,
+    startX: 0,
+    scrollLeft: 0,
+    ignoreClickUntil: 0,
+  })
 
   useEffect(() => {
     let active = true
@@ -50,6 +59,48 @@ function Home() {
       .catch(() => {})
     return () => { active = false }
   }, [])
+
+  useEffect(() => {
+    const rail = sponsorRailRef.current
+    if (!rail) return undefined
+
+    let frameId
+    let segmentWidth = 0
+
+    const measure = () => {
+      segmentWidth = rail.scrollWidth / 3
+      if (segmentWidth && rail.scrollLeft < 1) {
+        rail.scrollLeft = segmentWidth
+      }
+    }
+
+    const normalize = () => {
+      if (!segmentWidth) return
+      if (rail.scrollLeft >= segmentWidth * 2) {
+        rail.scrollLeft -= segmentWidth
+      } else if (rail.scrollLeft <= 0) {
+        rail.scrollLeft += segmentWidth
+      }
+    }
+
+    const animate = () => {
+      if (!sponsorSwipeRef.current.paused && !sponsorSwipeRef.current.active) {
+        rail.scrollLeft += 0.45
+        normalize()
+      }
+      frameId = window.requestAnimationFrame(animate)
+    }
+
+    measure()
+    animate()
+    window.addEventListener('resize', measure)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      window.removeEventListener('resize', measure)
+    }
+  }, [])
+
   const translatedGallery = tObject('galleryItems')
   const galleryItems = Array.isArray(gallery) ? gallery : fallbackGallery
   const galleryPreview = galleryItems.slice(0, 6).map((item, index) => ({
@@ -58,6 +109,37 @@ function Home() {
     title: translatedGallery[item._id]?.title || item.title,
     story: translatedGallery[item._id]?.story || item.story,
   }))
+
+  const startSponsorSwipe = (event) => {
+    if (!sponsorRailRef.current) return
+    sponsorSwipeRef.current = {
+      ...sponsorSwipeRef.current,
+      active: true,
+      moved: false,
+      startX: event.clientX,
+      scrollLeft: sponsorRailRef.current.scrollLeft,
+    }
+  }
+
+  const moveSponsorSwipe = (event) => {
+    const swipe = sponsorSwipeRef.current
+    if (!swipe.active || !sponsorRailRef.current) return
+    const distance = event.clientX - swipe.startX
+    if (Math.abs(distance) > 6) swipe.moved = true
+    sponsorRailRef.current.scrollLeft = swipe.scrollLeft - distance
+  }
+
+  const endSponsorSwipe = () => {
+    if (sponsorSwipeRef.current.moved) {
+      sponsorSwipeRef.current.ignoreClickUntil = Date.now() + 250
+    }
+    sponsorSwipeRef.current.active = false
+  }
+
+  const openSponsorFromPointer = (item) => {
+    if (sponsorSwipeRef.current.moved) return
+    setActiveSponsor(item)
+  }
 
   return (
     <>
@@ -92,14 +174,24 @@ function Home() {
             {t('mandalInfoCopy')}
           </SectionTitle>
 
-          <div className="sponsor-marquee mt-8 overflow-hidden">
+          <div
+            className="sponsor-marquee mt-8 overflow-hidden"
+            ref={sponsorRailRef}
+            onPointerDown={startSponsorSwipe}
+            onPointerMove={moveSponsorSwipe}
+            onPointerUp={endSponsorSwipe}
+            onPointerCancel={endSponsorSwipe}
+            onMouseEnter={() => { sponsorSwipeRef.current.paused = true }}
+            onMouseLeave={() => { sponsorSwipeRef.current.paused = false }}
+          >
             <div className="sponsor-marquee-track">
-              {[...sponsors, ...sponsors].map((item, index) => (
+              {[...sponsors, ...sponsors, ...sponsors].map((item, index) => (
                 <div
                   key={`${item.name}-${index}`}
                   role="button"
                   tabIndex={0}
-                  onClick={() => setActiveSponsor(item)}
+                  onPointerUp={() => openSponsorFromPointer(item)}
+                  onClick={(event) => event.preventDefault()}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault()
