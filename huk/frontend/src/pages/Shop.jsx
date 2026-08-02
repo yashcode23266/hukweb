@@ -24,7 +24,7 @@ const PRODUCT_CONFIG = [
   {
     id: "idcard",
     type: "idcard",
-    price: 1,
+    price: 100,
     image: imageidcard,
   },
 ];
