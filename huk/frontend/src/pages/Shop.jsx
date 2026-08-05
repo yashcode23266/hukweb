@@ -26,6 +26,8 @@ const PRODUCT_CONFIG = [
     type: "idcard",
     price: 100,
     image: imageidcard,
+    comingSoon: true,   // ← add this uncomment this to buy id
+
   },
 ];
 
@@ -553,10 +555,20 @@ function ProductCard({ product, copy, actionLabel, onAdd }) {
         </button>
         */}
 
-        {/* # BUY NOW ACTIVE: original checkout-opening button. */}
-        <button type="button" onClick={onAdd} style={s.addBtn}>
+        {/* # BUY NOW ACTIVE: original checkout-opening button.     uncomment this to buy id*/  }
+        {/* <button type="button" onClick={onAdd} style={s.addBtn}>
           {copy.buyNow}
-        </button>
+        </button> */}           
+
+        {product.comingSoon ? (
+  <button type="button" disabled style={{ ...s.addBtn, ...s.disabledAddBtn }}>
+    {actionLabel}
+  </button>
+) : (
+  <button type="button" onClick={onAdd} style={s.addBtn}>
+    {copy.buyNow}
+  </button>
+)}
       </div>
     </article>
   );
