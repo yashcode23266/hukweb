@@ -23,7 +23,7 @@ import { useLanguage } from '../i18n/useLanguage'
 
 // T-SHIRT POPUP (DISABLED FOR NOW)
 // To enable later, uncomment this import:
-import TshirtAnnouncement from '../components/TshirtAnnouncement'
+// import TshirtAnnouncement from '../components/TshirtAnnouncement'
 
 const sponsors = [
   { name: 'ZEE Marathi', logo: zeeLogo },
@@ -143,8 +143,8 @@ function Home() {
 
   return (
     <>
-      {/* T-SHIRT POPUP (DISABLED): uncomment the next line when needed. */}
-      <TshirtAnnouncement />
+      {/* T-SHIRT POPUP (DISABLED): uncomment the next line when needed.
+      <TshirtAnnouncement /> */}
 
       {/* HERO SECTION   */}
       <section className="relative h-[calc(100vh-64px)] min-h-130 overflow-hidden bg-[#fffdf9]">
