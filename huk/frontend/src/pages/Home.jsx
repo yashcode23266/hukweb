@@ -21,7 +21,7 @@ import { useLanguage } from '../i18n/useLanguage'
 
 
 
-// T-SHIRT POPUP (DISABLED FOR NOW)
+// T-SHIRT POPUP (DISABLED FOR   NOW)
 // To enable later, uncomment this import:
 // import TshirtAnnouncement from '../components/TshirtAnnouncement'
 
