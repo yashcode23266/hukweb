@@ -143,7 +143,7 @@ function Home() {
 
   return (
     <>
-      {/* T-SHIRT POPUP (DISABLED): uncomment the next line when needed.
+      {/* T-SHIRT POPUP    (DISABLED): uncomment the next line when needed.
       <TshirtAnnouncement /> */}
 
       {/* HERO SECTION   */}
